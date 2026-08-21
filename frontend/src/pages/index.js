@@ -191,18 +191,36 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0C1519] text-[#E5E7EB] px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] selection:text-[#0C1519]">
+    <div className="relative min-h-screen bg-[#090F12] text-[#E5E7EB] px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] selection:text-[#0C1519] overflow-hidden">
       
+      {/* CAPA DE FONDO: RETÍCULA TÉCNICA */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #243038 1px, transparent 1px),
+            linear-gradient(to bottom, #243038 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, #000 70%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, #000 70%, transparent 100%)'
+        }}
+      />
+
+      {/* CAPA DE FONDO: ORBES DE LUZ AMBIENTAL */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#CF9D7B]/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-1000" />
+      <div className="absolute top-2/3 right-10 w-[400px] h-[300px] bg-[#1E3A4C]/25 rounded-full blur-[100px] pointer-events-none" />
+
       {/* HEADER / NAVBAR */}
-      <header className="flex justify-between items-center max-w-6xl mx-auto w-full pb-8 border-b border-[#243038]">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('lobby')}>
-          <div className="w-3.5 h-3.5 rounded-full bg-[#CF9D7B] shadow-[0_0_12px_#CF9D7B]"></div>
+      <header className="relative z-10 flex justify-between items-center max-w-6xl mx-auto w-full pb-8 border-b border-[#243038]/70">
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setActiveTab('lobby')}>
+          <div className="w-3.5 h-3.5 rounded-full bg-[#CF9D7B] shadow-[0_0_15px_#CF9D7B] group-hover:scale-110 transition-transform"></div>
           <span className="font-serif text-xl tracking-tight text-white font-medium">
             Simulador <span className="text-[#CF9D7B] italic">SaaS</span>
           </span>
         </div>
 
-        <nav className="flex items-center gap-2 md:gap-4 bg-[#141E24] p-1.5 rounded-full border border-[#243038]">
+        <nav className="flex items-center gap-2 md:gap-4 bg-[#131D24]/80 backdrop-blur-md p-1.5 rounded-full border border-[#243038]/80 shadow-lg">
           <button 
             onClick={() => setActiveTab('lobby')}
             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -231,7 +249,7 @@ export default function Home() {
       </header>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main className="max-w-6xl mx-auto w-full my-auto py-12">
+      <main className="relative z-10 max-w-6xl mx-auto w-full my-auto py-12">
         {activeTab === 'lobby' && (
           <div className="space-y-16">
             <div className="text-center space-y-4 max-w-2xl mx-auto">
@@ -250,11 +268,11 @@ export default function Home() {
               
               <div 
                 onClick={() => setActiveTab('simulador')}
-                className="group relative bg-[#131D24] border border-[#243038] hover:border-[#CF9D7B]/50 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+                className="group relative bg-[#131D24]/85 backdrop-blur-sm border border-[#243038] hover:border-[#CF9D7B]/60 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-xl hover:shadow-[0_10px_30px_rgba(207,157,123,0.1)]"
               >
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs px-3 py-1 bg-[#1C2830] text-[#CF9D7B] rounded-full font-mono">
+                    <span className="text-xs px-3 py-1 bg-[#1C2830] text-[#CF9D7B] rounded-full font-mono border border-[#CF9D7B]/20">
                       MOD-01
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -273,11 +291,11 @@ export default function Home() {
 
               <div 
                 onClick={() => setActiveTab('auditoria')}
-                className="group relative bg-[#131D24] border border-[#243038] hover:border-[#CF9D7B]/50 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+                className="group relative bg-[#131D24]/85 backdrop-blur-sm border border-[#243038] hover:border-[#CF9D7B]/60 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-xl hover:shadow-[0_10px_30px_rgba(207,157,123,0.1)]"
               >
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs px-3 py-1 bg-[#1C2830] text-[#CF9D7B] rounded-full font-mono">
+                    <span className="text-xs px-3 py-1 bg-[#1C2830] text-[#CF9D7B] rounded-full font-mono border border-[#CF9D7B]/20">
                       MOD-02
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -296,11 +314,11 @@ export default function Home() {
 
               <div 
                 onClick={() => setActiveTab('simulador')}
-                className="group relative bg-[#131D24] border border-[#243038] hover:border-[#CF9D7B]/50 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+                className="group relative bg-[#131D24]/85 backdrop-blur-sm border border-[#243038] hover:border-[#CF9D7B]/60 p-8 rounded-3xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-xl hover:shadow-[0_10px_30px_rgba(207,157,123,0.1)]"
               >
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs px-3 py-1 bg-[#1C2830] text-[#CF9D7B] rounded-full font-mono">
+                    <span className="text-xs px-3 py-1 bg-[#1C2830] text-[#CF9D7B] rounded-full font-mono border border-[#CF9D7B]/20">
                       MOD-03
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -325,7 +343,7 @@ export default function Home() {
         {activeTab === 'simulador' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div className="lg:col-span-5 bg-[#131D24] border border-[#243038] p-8 rounded-3xl space-y-6">
+            <div className="lg:col-span-5 bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-8 rounded-3xl space-y-6 shadow-2xl">
               <div>
                 <span className="text-xs text-[#CF9D7B] font-semibold tracking-wider uppercase">Parámetros Base</span>
                 <h2 className="text-2xl font-serif text-white mt-1">Configuración</h2>
@@ -386,7 +404,7 @@ export default function Home() {
 
             <div className="lg:col-span-7 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-[#131D24] border border-[#243038] p-6 rounded-3xl space-y-2">
+                <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-6 rounded-3xl space-y-2 shadow-xl">
                   <span className="text-xs text-gray-400">Ganancia Histórica</span>
                   <div className="text-2xl font-serif text-white">
                     ${gananciaBase.toLocaleString('es-CO')}
@@ -394,7 +412,7 @@ export default function Home() {
                   <span className="text-[10px] text-gray-500">Sin ajustes de precio ni pauta</span>
                 </div>
 
-                <div className="bg-[#131D24] border border-[#CF9D7B]/30 p-6 rounded-3xl space-y-2">
+                <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#CF9D7B]/40 p-6 rounded-3xl space-y-2 shadow-xl shadow-[#CF9D7B]/5">
                   <span className="text-xs text-[#CF9D7B] font-medium">Ganancia Proyectada</span>
                   <div className="text-2xl font-serif text-white">
                     ${gananciaProyectada.toLocaleString('es-CO')}
@@ -405,18 +423,18 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-[#131D24] border border-[#243038] p-6 rounded-3xl space-y-4">
+              <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-6 rounded-3xl space-y-4 shadow-xl">
                 <h3 className="font-serif text-lg text-white">Impacto en Adquisición de Clientes</h3>
                 <div className="grid grid-cols-3 gap-4 text-center">
-                  <div className="p-3 bg-[#1A252D] rounded-2xl">
+                  <div className="p-3 bg-[#1A252D] rounded-2xl border border-[#2B3942]/50">
                     <span className="text-[10px] text-gray-400 uppercase">CAC Estimado</span>
                     <p className="text-sm font-semibold text-white mt-1">${costoAdquisicion.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="p-3 bg-[#1A252D] rounded-2xl">
+                  <div className="p-3 bg-[#1A252D] rounded-2xl border border-[#2B3942]/50">
                     <span className="text-[10px] text-gray-400 uppercase">Nuevos Clientes</span>
                     <p className="text-sm font-semibold text-[#CF9D7B] mt-1">+{nuevosClientes}</p>
                   </div>
-                  <div className="p-3 bg-[#1A252D] rounded-2xl">
+                  <div className="p-3 bg-[#1A252D] rounded-2xl border border-[#2B3942]/50">
                     <span className="text-[10px] text-gray-400 uppercase">Volumen Total</span>
                     <p className="text-sm font-semibold text-white mt-1">{Math.round(unidadesTotales)} uds</p>
                   </div>
@@ -432,7 +450,7 @@ export default function Home() {
           <div className="space-y-8">
             
             {/* Panel de Carga */}
-            <div className="bg-[#131D24] border border-[#243038] p-10 rounded-3xl max-w-2xl mx-auto text-center space-y-6">
+            <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-10 rounded-3xl max-w-2xl mx-auto text-center space-y-6 shadow-2xl">
               <div className="w-14 h-14 rounded-2xl bg-[#1A252D] border border-[#2B3942] flex items-center justify-center mx-auto text-[#CF9D7B]">
                 {cargandoCSV ? <Loader2 className="w-7 h-7 animate-spin" /> : <Upload className="w-7 h-7" />}
               </div>
@@ -462,7 +480,7 @@ export default function Home() {
               <div className="space-y-8 animate-fadeIn">
                 
                 {/* Barra de Acciones: Transferir Datos y Descargar Reporte PDF */}
-                <div className="bg-[#131D24] border border-[#CF9D7B]/40 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#CF9D7B]/40 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
                   <div>
                     <h4 className="text-lg font-serif text-white">¿Listo para proyectar nuevos escenarios?</h4>
                     <p className="text-xs text-gray-400">Pasa el precio promedio (${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}) y volumen histórico directamente al Modo Asistido.</p>
@@ -487,19 +505,19 @@ export default function Home() {
 
                 {/* Métricas Generales */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div className="bg-[#131D24] border border-[#243038] p-5 rounded-2xl">
+                  <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400">Total Registros</span>
                     <p className="text-xl font-serif text-white mt-1">{datosAuditoria.total_registros.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="bg-[#131D24] border border-[#243038] p-5 rounded-2xl">
+                  <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400">Ventas Totales</span>
                     <p className="text-xl font-serif text-[#CF9D7B] mt-1">${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="bg-[#131D24] border border-[#243038] p-5 rounded-2xl">
+                  <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400">Unidades Vendidas</span>
                     <p className="text-xl font-serif text-white mt-1">{datosAuditoria.unidades_historicas.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="bg-[#131D24] border border-[#243038] p-5 rounded-2xl">
+                  <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400">Precio Promedio</span>
                     <p className="text-xl font-serif text-white mt-1">${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}</p>
                   </div>
@@ -507,7 +525,7 @@ export default function Home() {
 
                 {/* Gráfico Top 5 de Productos */}
                 {datosAuditoria.ranking_productos?.length > 0 && (
-                  <div className="bg-[#131D24] border border-[#243038] p-6 md:p-8 rounded-3xl space-y-4">
+                  <div className="bg-[#131D24]/90 backdrop-blur-md border border-[#243038] p-6 md:p-8 rounded-3xl space-y-4 shadow-xl">
                     <div className="flex justify-between items-center">
                       <div>
                         <span className="text-xs text-[#CF9D7B] font-semibold uppercase tracking-wider">Distribución de Ingresos</span>
@@ -539,7 +557,7 @@ export default function Home() {
                 {/* Diagnóstico Rey vs Hueso */}
                 {datosAuditoria.diagnostico?.rey && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-[#131D24] border border-emerald-900/40 p-6 rounded-3xl space-y-3">
+                    <div className="bg-[#131D24]/90 backdrop-blur-md border border-emerald-900/40 p-6 rounded-3xl space-y-3 shadow-xl">
                       <div className="flex items-center gap-2 text-emerald-400">
                         <Award className="w-5 h-5" />
                         <span className="text-xs font-semibold uppercase tracking-wider">Producto Estrella (Rey)</span>
@@ -550,7 +568,7 @@ export default function Home() {
                       </p>
                     </div>
 
-                    <div className="bg-[#131D24] border border-rose-900/40 p-6 rounded-3xl space-y-3">
+                    <div className="bg-[#131D24]/90 backdrop-blur-md border border-rose-900/40 p-6 rounded-3xl space-y-3 shadow-xl">
                       <div className="flex items-center gap-2 text-rose-400">
                         <AlertTriangle className="w-5 h-5" />
                         <span className="text-xs font-semibold uppercase tracking-wider">Producto de Bajo Desempeño (Hueso)</span>
@@ -571,7 +589,7 @@ export default function Home() {
       </main>
 
       {/* FOOTER */}
-      <footer className="max-w-6xl mx-auto w-full pt-8 border-t border-[#243038] flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
+      <footer className="relative z-10 max-w-6xl mx-auto w-full pt-8 border-t border-[#243038]/70 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
         <div>Plataforma Analítica SaaS • Emmanuel Tapasco</div>
         <div className="flex gap-4">
           <span className="hover:text-gray-400 cursor-pointer">Documentación</span>
