@@ -15,7 +15,10 @@ import {
   PlayCircle,
   Download,
   Zap,
-  Sparkles
+  Sparkles,
+  MessageSquare,
+  X,
+  Bot
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -30,6 +33,7 @@ import {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('lobby');
+  const [abrirChatIA, setAbrirChatIA] = useState(false);
   const canvasRef = useRef(null);
 
   // Estados del Detective CSV
@@ -62,7 +66,7 @@ export default function Home() {
   const gananciaProyectada = ventasProyectadas - costosProyectados;
   const deltaGanancia = gananciaProyectada - gananciaBase;
 
-  // EFECTO VISUAL: MOTOR DE MAR DE DATOS CUÁNTICO
+  // MOTOR DE MAR DE DATOS CUÁNTICO
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -78,7 +82,6 @@ export default function Home() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Configuración del mar topológico de datos
     const cols = 45;
     const rows = 30;
     let step = 0;
@@ -95,7 +98,6 @@ export default function Home() {
           const xPos = (x - cols / 2) * 55;
           const zPos = (y - rows / 2) * 55 + 200;
 
-          // Onda cuántica gravitacional
           const distFromCenter = Math.sqrt(xPos * xPos + zPos * zPos);
           const yPos =
             Math.sin(x * 0.25 + step) * 28 +
@@ -110,7 +112,6 @@ export default function Home() {
         }
       }
 
-      // Dibujar líneas de conexión del mar de datos
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
           const idx = y * cols + x;
@@ -118,7 +119,6 @@ export default function Home() {
 
           if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) continue;
 
-          // Conexión Horizontal
           if (x < cols - 1) {
             const right = points[idx + 1];
             ctx.beginPath();
@@ -130,7 +130,6 @@ export default function Home() {
             ctx.stroke();
           }
 
-          // Conexión Vertical
           if (y < rows - 1) {
             const bottom = points[idx + cols];
             ctx.beginPath();
@@ -142,7 +141,6 @@ export default function Home() {
             ctx.stroke();
           }
 
-          // Nodos Cuánticos
           if (x % 3 === 0 && y % 3 === 0) {
             ctx.beginPath();
             ctx.arc(p.x, p.y, Math.max(1, p.scale * 2.2), 0, Math.PI * 2);
@@ -212,7 +210,6 @@ export default function Home() {
 
       const doc = new jsPDF();
 
-      // Fondo y Encabezado
       doc.setFillColor(8, 12, 16);
       doc.rect(0, 0, 210, 35, 'F');
 
@@ -226,7 +223,6 @@ export default function Home() {
       doc.setFont('helvetica', 'normal');
       doc.text(`Fecha: ${new Date().toLocaleDateString('es-CO')} | Auditor Responsable: Emmanuel Tapasco`, 14, 26);
 
-      // Resumen Ejecutivo de Métricas
       doc.setTextColor(20, 30, 40);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
@@ -248,7 +244,6 @@ export default function Home() {
         styles: { fontSize: 9, cellPadding: 4 },
       });
 
-      // Diagnóstico Rey vs Hueso
       const diagStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 110;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
@@ -268,7 +263,6 @@ export default function Home() {
         styles: { fontSize: 9, cellPadding: 4 },
       });
 
-      // Top 5 Productos
       const rankingStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 170;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
@@ -298,13 +292,13 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#05080A] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] selection:text-[#05080A] overflow-hidden">
       
-      {/* CANVAS DINÁMICO: MAR DE DATOS ESPACIOTEMPORAL */}
+      {/* CANVAS DINÁMICO */}
       <canvas 
         ref={canvasRef} 
         className="absolute inset-0 pointer-events-none z-0 opacity-80" 
       />
 
-      {/* VÓRTICE GRAVITACIONAL CENTRAL (GLOW CUÁNTICO) */}
+      {/* VÓRTICE GRAVITACIONAL */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#CF9D7B]/20 via-[#133040]/30 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute -bottom-32 right-10 w-[600px] h-[600px] bg-cyan-950/20 rounded-full blur-[160px] pointer-events-none z-0" />
 
@@ -630,7 +624,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Gráfico Recharts */}
+                {/* Gráfico Recharts con Tooltip 100% Blanco */}
                 {datosAuditoria.ranking_productos?.length > 0 && (
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl space-y-4 shadow-2xl relative overflow-hidden">
                     <div className="flex justify-between items-center relative z-10">
@@ -658,14 +652,28 @@ export default function Home() {
                           <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
                           <XAxis dataKey="nombre" stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
                           <YAxis stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} />
+                          
+                          {/* Tooltip optimizado para legibilidad */}
                           <Tooltip 
-                            cursor={{ fill: 'rgba(207, 157, 123, 0.05)' }}
+                            cursor={{ fill: 'rgba(207, 157, 123, 0.08)' }}
                             contentStyle={{ 
-                              backgroundColor: '#081015', 
-                              borderColor: '#CF9D7B', 
+                              backgroundColor: '#0D161C', 
+                              border: '1px solid rgba(207, 157, 123, 0.6)', 
                               borderRadius: '12px', 
-                              color: '#FFF',
-                              boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
+                              padding: '10px 14px',
+                              boxShadow: '0 12px 30px rgba(0,0,0,0.85)'
+                            }}
+                            labelStyle={{
+                              color: '#FFFFFF',
+                              fontWeight: '700',
+                              fontSize: '13px',
+                              marginBottom: '4px',
+                              fontFamily: 'monospace'
+                            }}
+                            itemStyle={{
+                              color: '#CF9D7B',
+                              fontWeight: '600',
+                              fontSize: '12px',
                               fontFamily: 'monospace'
                             }}
                             formatter={(value) => [`$${value.toLocaleString('es-CO')}`, 'Ventas Totales']}
@@ -714,6 +722,78 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* ============================================================ */}
+      {/* 🤖 WIDGET FLOTANTE INTERACTIVO MINI-TARS */}
+      {/* ============================================================ */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        
+        {/* Panel de Diálogo de Mini-TARS */}
+        {abrirChatIA && (
+          <div className="w-80 sm:w-96 bg-[#081015]/95 backdrop-blur-2xl border border-[#CF9D7B]/50 rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] animate-fadeIn flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1A2630]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Mini-TARS // Copiloto AI</h4>
+                  <span className="text-[10px] text-gray-400 font-mono">Analista Cuantitativo Activo</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setAbrirChatIA(false)}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-gray-300 font-mono leading-relaxed max-h-60 overflow-y-auto pr-1">
+              <div className="bg-[#0E171E] p-3 rounded-xl border border-[#1D2B36]">
+                <p className="text-white font-semibold text-[11px] mb-1 text-[#CF9D7B]">⚡ Diagnóstico Preliminar:</p>
+                {datosAuditoria ? (
+                  <p>
+                    He auditado <strong>{datosAuditoria.total_registros}</strong> transacciones. El producto líder (<strong>{datosAuditoria.diagnostico?.rey?.nombre}</strong>) genera la mayor tracción de caja. Te sugiero un reajuste de precio del <strong>+10%</strong> en el Modo Asistido para maximizar margen sin destruir demanda.
+                  </p>
+                ) : (
+                  <p>
+                    Carga un archivo CSV en el <em>Detective CSV</em> o ajusta parámetros en el <em>Modo Asistido</em> para proyectar escenarios de pricing y calcular el retorno sobre CAC.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-[#1A2630] flex gap-2">
+              <input 
+                type="text" 
+                placeholder="Preguntar a Mini-TARS..." 
+                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono"
+              />
+              <button className="px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity">
+                Enviar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Botón flotante con animación orbital */}
+        <button
+          onClick={() => setAbrirChatIA(!abrirChatIA)}
+          className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
+        >
+          {/* Anillo de pulso exterior */}
+          <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
+
+          {/* Imagen de barras con flotación suave e inversión de color a blanco */}
+          <img 
+            src="/barras.png" 
+            alt="Mini-TARS AI" 
+            className="w-7 h-7 object-contain filter invert drop-shadow-[0_0_8px_#CF9D7B] group-hover:rotate-12 transition-transform duration-300"
+          />
+
+          {/* Indicador de estado online */}
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#05080A] rounded-full"></span>
+        </button>
+      </div>
 
       {/* FOOTER */}
       <footer className="relative z-20 max-w-6xl mx-auto w-full pt-8 border-t border-[#141E26]/80 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4 font-mono">
