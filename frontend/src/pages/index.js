@@ -64,11 +64,11 @@ export default function Home() {
     setErrorCSV(null);
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('archivo', file);
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
-      const response = await fetch(`${apiUrl}/audit-csv`, {
+      const response = await fetch(`${apiUrl}/api/auditar-csv`, {
         method: 'POST',
         body: formData,
       });
