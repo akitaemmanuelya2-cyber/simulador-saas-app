@@ -67,22 +67,21 @@ export default function Home() {
     formData.append('archivo', file);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-      const res = await fetch(`${apiUrl}/api/auditar-csv`, {
-        method: 'POST',
-        body: formData,
-      });
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
+  const response = await fetch(`${apiUrl}/audit-csv`, {
+    method: 'POST',
+    body: formData,
+  });
 
-      if (!res.ok) throw new Error('Error al procesar el archivo');
+  if (!response.ok) throw new Error('Error al procesar el archivo');
 
-      const data = await res.json();
-      setDatosAuditoria(data);
-    } catch (err) {
-      setErrorCSV('No se pudo conectar con el motor analítico. Verifica que FastAPI esté encendido.');
-    } finally {
-      setCargandoCSV(false);
-    }
-  };
+  const data = await response.json();
+  setDatosAuditoria(data);
+} catch (err) {
+  setErrorCSV('No se pudo conectar con el motor analítico. Verifica que FastAPI esté encendido.');
+} finally {
+  setCargandoCSV(false);
+}
 
   // Función para transferir datos del CSV al Simulador
   const transferirAlSimulador = () => {
