@@ -14,11 +14,8 @@ import {
   AlertTriangle,
   PlayCircle,
   Download,
-  Activity,
   Zap,
-  Sparkles,
-  Compass,
-  Database
+  Sparkles
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -114,79 +111,79 @@ export default function Home() {
       const doc = new jsPDF();
 
       // Fondo y Encabezado
-      doc.setFillColor(12, 21, 25);
+      doc.setFillColor(10, 16, 20);
       doc.rect(0, 0, 210, 35, 'F');
 
       doc.setTextColor(207, 157, 123);
-      doc.setFontSize(18);
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('Simulador SaaS - Auditoria Forense', 14, 18);
+      doc.text('PLATAFORMA ANALÍTICA SaaS - AUDITORÍA FORENSE', 14, 18);
 
-      doc.setTextColor(229, 231, 235);
+      doc.setTextColor(200, 205, 210);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')} | Auditor: Emmanuel Tapasco`, 14, 26);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CO')} | Auditor Responsable: Emmanuel Tapasco`, 14, 26);
 
       // Resumen Ejecutivo de Métricas
-      doc.setTextColor(30, 41, 59);
-      doc.setFontSize(13);
+      doc.setTextColor(20, 30, 40);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('1. Metricas Clave de Rendimiento', 14, 48);
+      doc.text('1. MÉTRICAS CLAVE DE RENDIMIENTO', 14, 48);
 
       const metricasData = [
-        ['Total Registros', datosAuditoria.total_registros.toLocaleString('es-CO')],
-        ['Ventas Totales', `$${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}`],
+        ['Total Registros Procesados', datosAuditoria.total_registros.toLocaleString('es-CO')],
+        ['Facturación Total Acumulada', `$${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}`],
         ['Unidades Vendidas', datosAuditoria.unidades_historicas.toLocaleString('es-CO')],
-        ['Precio Promedio', `$${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}`],
+        ['Precio Promedio Ponderado', `$${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}`],
       ];
 
       autoTable(doc, {
         startY: 53,
-        head: [['Metrica', 'Valor']],
+        head: [['Indicador', 'Valor']],
         body: metricasData,
         theme: 'grid',
-        headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
-        styles: { fontSize: 10, cellPadding: 4 },
+        headStyles: { fillColor: [15, 23, 30], textColor: [207, 157, 123] },
+        styles: { fontSize: 9, cellPadding: 4 },
       });
 
       // Diagnóstico Rey vs Hueso
       const diagStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 110;
-      doc.setFontSize(13);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('2. Diagnostico de Catalogo', 14, diagStartY);
+      doc.text('2. DIAGNÓSTICO ESTRATÉGICO DE CATÁLOGO', 14, diagStartY);
 
       const diagData = [
-        ['Producto Estrella (Rey)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO') || '0'}`],
-        ['Producto Critico (Hueso)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO') || '0'}`],
+        ['Producto Estrella (Líder)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO') || '0'}`],
+        ['Producto Crítico (Bajo Desempeño)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO') || '0'}`],
       ];
 
       autoTable(doc, {
         startY: diagStartY + 5,
-        head: [['Categoria', 'Producto', 'Ventas']],
+        head: [['Clasificación', 'Producto', 'Ventas']],
         body: diagData,
         theme: 'grid',
-        headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
-        styles: { fontSize: 10, cellPadding: 4 },
+        headStyles: { fillColor: [15, 23, 30], textColor: [207, 157, 123] },
+        styles: { fontSize: 9, cellPadding: 4 },
       });
 
       // Top 5 Productos
       const rankingStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 170;
-      doc.setFontSize(13);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('3. Top 5 Productos por Facturacion', 14, rankingStartY);
+      doc.text('3. TOP 5 PRODUCTOS POR PARTICIPACIÓN', 14, rankingStartY);
 
       const rankingData = (datosAuditoria.ranking_productos || []).map((item, idx) => [
-        `#${idx + 1}`,
+        `#0${idx + 1}`,
         item.nombre,
         `$${item.ventas.toLocaleString('es-CO')}`,
       ]);
 
       autoTable(doc, {
         startY: rankingStartY + 5,
-        head: [['Rank', 'Producto', 'Ventas Totales']],
+        head: [['Posición', 'Producto', 'Ventas']],
         body: rankingData,
         theme: 'striped',
-        headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+        headStyles: { fillColor: [15, 23, 30], textColor: [207, 157, 123] },
         styles: { fontSize: 9, cellPadding: 3 },
       });
 
@@ -197,117 +194,115 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#060A0D] text-[#E5E7EB] px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] selection:text-[#060A0D] overflow-hidden">
+    <div className="relative min-h-screen bg-[#06090C] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] selection:text-[#06090C] overflow-hidden">
       
+      {/* INYECCIÓN DE ANIMACIONES CSS DIRECTAS */}
+      <style>{`
+        @keyframes floatFlowA {
+          0% { transform: translate(0px, 0px) scale(1); }
+          50% { transform: translate(60px, -40px) scale(1.12); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes floatFlowB {
+          0% { transform: translate(0px, 0px) scale(1); }
+          50% { transform: translate(-70px, 50px) scale(1.18); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes waveScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes scanBeam {
+          0% { top: -10%; opacity: 0; }
+          40% { opacity: 0.8; }
+          100% { top: 110%; opacity: 0; }
+        }
+        .anim-orb-a { animation: floatFlowA 16s ease-in-out infinite; }
+        .anim-orb-b { animation: floatFlowB 20s ease-in-out infinite; }
+        .anim-wave { animation: waveScroll 28s linear infinite; }
+        .anim-scan { animation: scanBeam 7s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+      `}</style>
+
       {/* ============================================================ */}
-      {/* 🌌 FONDO DINÁMICO NIVEL MOTION SITE (CANVAS CINEMATOGRÁFICO) */}
+      {/* 🌌 FONDO DINÁMICO CON MOVIMIENTO CONTINUO */}
       {/* ============================================================ */}
 
-      {/* Capa 1: Luces Radiales Giratorias en Vórtice */}
-      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gradient-to-tr from-[#CF9D7B]/20 to-amber-600/10 rounded-full blur-[140px] pointer-events-none animate-spin [animation-duration:25s]" />
-      <div className="absolute top-1/2 -right-40 w-[650px] h-[650px] bg-gradient-to-bl from-teal-500/15 via-[#163544]/20 to-transparent rounded-full blur-[160px] pointer-events-none animate-spin [animation-duration:35s]" />
-      <div className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] bg-[#CF9D7B]/10 rounded-full blur-[150px] pointer-events-none animate-pulse [animation-duration:8s]" />
+      {/* Orbes de luz líquida en órbita */}
+      <div className="anim-orb-a absolute -top-24 -left-24 w-[650px] h-[650px] bg-gradient-to-br from-[#CF9D7B]/25 via-amber-900/10 to-transparent rounded-full blur-[140px] pointer-events-none" />
+      <div className="anim-orb-b absolute top-1/3 -right-32 w-[700px] h-[700px] bg-gradient-to-tl from-[#1B3545]/30 via-cyan-950/20 to-transparent rounded-full blur-[160px] pointer-events-none" />
+      <div className="anim-orb-a absolute -bottom-32 left-1/4 w-[600px] h-[600px] bg-[#CF9D7B]/15 rounded-full blur-[150px] pointer-events-none" />
 
-      {/* Capa 2: Malla Geométrica Holográfica con Respiración */}
+      {/* Retícula técnica de alta resolución con escáner vertical */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-20"
+        className="absolute inset-0 pointer-events-none opacity-25"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 50% 50%, #CF9D7B 1px, transparent 1px),
-            linear-gradient(to right, #1A2832 1px, transparent 1px),
-            linear-gradient(to bottom, #1A2832 1px, transparent 1px)
+            linear-gradient(to right, #17232B 1px, transparent 1px),
+            linear-gradient(to bottom, #17232B 1px, transparent 1px)
           `,
-          backgroundSize: '48px 48px, 48px 48px, 48px 48px',
-          maskImage: 'radial-gradient(ellipse 80% 70% at 50% 50%, #000 60%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 50%, #000 60%, transparent 100%)'
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(ellipse 85% 75% at 50% 45%, #000 65%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 85% 75% at 50% 45%, #000 65%, transparent 100%)'
         }}
-      />
+      >
+        <div className="anim-scan absolute left-0 right-0 h-32 bg-gradient-to-b from-transparent via-[#CF9D7B]/10 to-transparent pointer-events-none" />
+      </div>
 
-      {/* Capa 3: Ondas Vectoriales Líquidas Flotantes */}
-      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-        <svg className="absolute w-[180%] h-[120%] -left-[40%] -top-[10%] opacity-15 animate-pulse [animation-duration:12s]" viewBox="0 0 1440 900" fill="none">
-          <path 
-            d="M -100 450 C 300 200, 600 650, 1000 350 C 1300 150, 1500 500, 1800 300" 
-            stroke="url(#neonAntique)" 
-            strokeWidth="3" 
-            strokeDasharray="12 8" 
-          />
-          <path 
-            d="M -100 550 C 400 350, 700 750, 1100 450 C 1400 250, 1600 600, 1900 400" 
-            stroke="url(#neonTeal)" 
-            strokeWidth="2" 
-          />
-          <defs>
-            <linearGradient id="neonAntique" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#CF9D7B" stopOpacity="0.1" />
-              <stop offset="50%" stopColor="#E5B898" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#CF9D7B" stopOpacity="0.1" />
-            </linearGradient>
-            <linearGradient id="neonTeal" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.1" />
-              <stop offset="50%" stopColor="#2DD4BF" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#0F766E" stopOpacity="0.1" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* HUD Widgets Flotantes con Animación Suave */}
-        <div className="hidden 2xl:flex absolute top-32 left-10 bg-[#0C151B]/70 backdrop-blur-xl border border-[#CF9D7B]/30 px-4 py-3 rounded-2xl items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-bounce [animation-duration:8s]">
-          <div className="w-8 h-8 rounded-xl bg-[#CF9D7B]/15 flex items-center justify-center text-[#CF9D7B]">
-            <Activity className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-mono tracking-widest text-gray-400 block">Eficiencia Modelo</span>
-            <span className="text-sm font-semibold text-white font-mono">99.4% ROC-AUC</span>
-          </div>
-        </div>
-
-        <div className="hidden 2xl:flex absolute bottom-28 right-10 bg-[#0C151B]/70 backdrop-blur-xl border border-teal-500/30 px-4 py-3 rounded-2xl items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-bounce [animation-duration:10s]">
-          <div className="w-8 h-8 rounded-xl bg-teal-500/15 flex items-center justify-center text-teal-400">
-            <Zap className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-mono tracking-widest text-gray-400 block">Latencia Motor</span>
-            <span className="text-sm font-semibold text-white font-mono">14ms Inferencia</span>
-          </div>
+      {/* Ondas vectoriales de datos con traslación continua */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 select-none">
+        <div className="anim-wave flex w-[200%] h-full">
+          <svg className="w-1/2 h-full flex-shrink-0" viewBox="0 0 1200 800" fill="none" preserveAspectRatio="none">
+            <path d="M 0 500 C 300 350, 600 650, 900 420 C 1050 300, 1150 480, 1200 400 L 1200 800 L 0 800 Z" fill="url(#gradWaveA)" />
+            <path d="M 0 550 C 250 420, 550 720, 850 490 C 1000 380, 1120 540, 1200 480" stroke="#CF9D7B" strokeWidth="1.5" strokeDasharray="6 6" />
+            <defs>
+              <linearGradient id="gradWaveA" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#CF9D7B" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#06090C" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <svg className="w-1/2 h-full flex-shrink-0" viewBox="0 0 1200 800" fill="none" preserveAspectRatio="none">
+            <path d="M 0 500 C 300 350, 600 650, 900 420 C 1050 300, 1150 480, 1200 400 L 1200 800 L 0 800 Z" fill="url(#gradWaveA)" />
+            <path d="M 0 550 C 250 420, 550 720, 850 490 C 1000 380, 1120 540, 1200 480" stroke="#CF9D7B" strokeWidth="1.5" strokeDasharray="6 6" />
+          </svg>
         </div>
       </div>
 
       {/* ============================================================ */}
-      {/* 🧭 HEADER / NAVBAR CON GLASSMORPHISM ULTRA ELEGANTE */}
+      {/* 🧭 NAVBAR EJECUTIVO */}
       {/* ============================================================ */}
-      <header className="relative z-20 flex justify-between items-center max-w-6xl mx-auto w-full pb-8 border-b border-[#1A2832]/80">
+      <header className="relative z-20 flex justify-between items-center max-w-6xl mx-auto w-full pb-8 border-b border-[#162128]">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setActiveTab('lobby')}>
-          <div className="relative">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#CF9D7B] shadow-[0_0_20px_#CF9D7B] group-hover:scale-125 transition-transform duration-300"></div>
-            <div className="absolute inset-0 w-3.5 h-3.5 rounded-full bg-[#CF9D7B] animate-ping opacity-75"></div>
+          <div className="relative flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-[#CF9D7B] shadow-[0_0_15px_#CF9D7B]"></div>
+            <div className="absolute w-5 h-5 rounded-full border border-[#CF9D7B]/40 animate-ping"></div>
           </div>
-          <span className="font-serif text-xl tracking-tight text-white font-medium">
-            Simulador <span className="text-[#CF9D7B] italic">SaaS</span>
+          <span className="font-semibold text-lg tracking-tight text-white uppercase">
+            Simulador <span className="text-[#CF9D7B] font-mono font-normal">SaaS</span>
           </span>
         </div>
 
-        <nav className="flex items-center gap-2 md:gap-3 bg-[#0C151B]/80 backdrop-blur-xl p-1.5 rounded-full border border-[#1E2E39] shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+        <nav className="flex items-center gap-1.5 md:gap-2 bg-[#0B1216]/90 backdrop-blur-xl p-1.5 rounded-full border border-[#1C2830] shadow-2xl">
           <button 
             onClick={() => setActiveTab('lobby')}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
-              activeTab === 'lobby' ? 'bg-[#CF9D7B] text-[#060A0D] shadow-[0_0_15px_rgba(207,157,123,0.4)] font-bold' : 'text-gray-400 hover:text-white'
+            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
+              activeTab === 'lobby' ? 'bg-[#CF9D7B] text-[#06090C] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
             }`}
           >
             Lobby
           </button>
           <button 
             onClick={() => setActiveTab('simulador')}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
-              activeTab === 'simulador' ? 'bg-[#CF9D7B] text-[#060A0D] shadow-[0_0_15px_rgba(207,157,123,0.4)] font-bold' : 'text-gray-400 hover:text-white'
+            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
+              activeTab === 'simulador' ? 'bg-[#CF9D7B] text-[#06090C] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
             }`}
           >
             Modo Asistido
           </button>
           <button 
             onClick={() => setActiveTab('auditoria')}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
-              activeTab === 'auditoria' ? 'bg-[#CF9D7B] text-[#060A0D] shadow-[0_0_15px_rgba(207,157,123,0.4)] font-bold' : 'text-gray-400 hover:text-white'
+            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
+              activeTab === 'auditoria' ? 'bg-[#CF9D7B] text-[#06090C] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
             }`}
           >
             Detective CSV
@@ -322,95 +317,92 @@ export default function Home() {
         {activeTab === 'lobby' && (
           <div className="space-y-16">
             
-            {/* HERO SECTION DE IMPACTO */}
-            <div className="text-center space-y-5 max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0C151B]/80 backdrop-blur-md border border-[#CF9D7B]/30 text-[#CF9D7B] text-xs font-mono tracking-widest shadow-[0_0_20px_rgba(207,157,123,0.15)]">
-                <Sparkles className="w-3.5 h-3.5 animate-spin [animation-duration:6s]" />
-                CENTRO DE ESTRATEGIA EJECUTIVA
+            {/* HERO SECTION */}
+            <div className="text-center space-y-4 max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E171C] border border-[#1F2C35] text-[#CF9D7B] text-[11px] font-mono tracking-wider uppercase shadow-inner">
+                <Zap className="w-3.5 h-3.5" />
+                Motor de Inteligencia de Negocios
               </div>
-              <h1 className="text-4xl md:text-6xl font-serif text-white leading-tight tracking-tight">
-                Decisiones basadas en <br/>
-                <span className="italic bg-gradient-to-r from-[#CF9D7B] via-[#E8C5AF] to-[#CF9D7B] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(207,157,123,0.3)]">
-                  datos reales y algoritmos.
+              <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight leading-tight">
+                Decisiones basadas en <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#CF9D7B] via-[#E8C5AF] to-[#CF9D7B]">
+                  datos cuantitativos reales.
                 </span>
               </h1>
               <p className="text-gray-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
-                Auditoría forense de transacciones históricas, simulación de elasticidad de precios en tiempo real y optimización de CAC publicitario.
+                Auditoría algorítmica de transacciones, análisis de concentración de cartera y modelado paramétrico de elasticidad de precios.
               </p>
             </div>
 
-            {/* MÓDULOS ACTIVOS (TARJETAS GLASSMORPHISM CON BORDE NEÓN) */}
+            {/* MÓDULOS DE ACCESO */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               <div 
                 onClick={() => setActiveTab('simulador')}
-                className="group relative bg-[#0C151B]/70 backdrop-blur-xl border border-[#1E2E39] hover:border-[#CF9D7B] p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2.5 cursor-pointer flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_40px_rgba(207,157,123,0.15)] overflow-hidden"
+                className="group relative bg-[#0A1014]/85 backdrop-blur-xl border border-[#18232B] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.1)]"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CF9D7B]/15 to-transparent rounded-bl-full pointer-events-none transition-all group-hover:scale-150" />
-                <div className="space-y-4 relative z-10">
+                <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs px-3 py-1 bg-[#14222B] text-[#CF9D7B] rounded-full font-mono border border-[#CF9D7B]/30 shadow-inner">
+                    <span className="text-[11px] px-2.5 py-1 bg-[#121B21] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
                       MOD-01
                     </span>
-                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
-                  <h3 className="text-2xl font-serif text-white pt-2 group-hover:text-[#CF9D7B] transition-colors">Modo Asistido</h3>
+                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Modo Asistido</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
                     Simulación paramétrica de elasticidad de precios, estructura de costos y distribución óptima de presupuesto publicitario.
                   </p>
                 </div>
-                <div className="flex gap-2 pt-6 relative z-10">
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">Costos</span>
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">Margen</span>
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">Proyección</span>
+                <div className="flex gap-2 pt-6">
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Costos</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Margen</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Proyección</span>
                 </div>
               </div>
 
               <div 
                 onClick={() => setActiveTab('auditoria')}
-                className="group relative bg-[#0C151B]/70 backdrop-blur-xl border border-[#1E2E39] hover:border-[#CF9D7B] p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2.5 cursor-pointer flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_40px_rgba(207,157,123,0.15)] overflow-hidden"
+                className="group relative bg-[#0A1014]/85 backdrop-blur-xl border border-[#18232B] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.1)]"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CF9D7B]/15 to-transparent rounded-bl-full pointer-events-none transition-all group-hover:scale-150" />
-                <div className="space-y-4 relative z-10">
+                <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs px-3 py-1 bg-[#14222B] text-[#CF9D7B] rounded-full font-mono border border-[#CF9D7B]/30 shadow-inner">
+                    <span className="text-[11px] px-2.5 py-1 bg-[#121B21] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
                       MOD-02
                     </span>
-                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
-                  <h3 className="text-2xl font-serif text-white pt-2 group-hover:text-[#CF9D7B] transition-colors">Detective CSV</h3>
+                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Detective CSV</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Auditoría automatizada de transacciones históricas. Identifica productos estrella, huesos y concentración de catálogo con Pandas.
+                    Auditoría automatizada de transacciones históricas. Identifica productos estrella, concentración de ingresos y anomalías de catálogo.
                   </p>
                 </div>
-                <div className="flex gap-2 pt-6 relative z-10">
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">Pandas</span>
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">Top 5</span>
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">FastAPI</span>
+                <div className="flex gap-2 pt-6">
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Pandas</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Top 5</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">FastAPI</span>
                 </div>
               </div>
 
               <div 
                 onClick={() => setActiveTab('simulador')}
-                className="group relative bg-[#0C151B]/70 backdrop-blur-xl border border-[#1E2E39] hover:border-[#CF9D7B] p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2.5 cursor-pointer flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_40px_rgba(207,157,123,0.15)] overflow-hidden"
+                className="group relative bg-[#0A1014]/85 backdrop-blur-xl border border-[#18232B] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.1)]"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CF9D7B]/15 to-transparent rounded-bl-full pointer-events-none transition-all group-hover:scale-150" />
-                <div className="space-y-4 relative z-10">
+                <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs px-3 py-1 bg-[#14222B] text-[#CF9D7B] rounded-full font-mono border border-[#CF9D7B]/30 shadow-inner">
+                    <span className="text-[11px] px-2.5 py-1 bg-[#121B21] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
                       MOD-03
                     </span>
-                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
-                  <h3 className="text-2xl font-serif text-white pt-2 group-hover:text-[#CF9D7B] transition-colors">Mix de Marketing</h3>
+                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Mix de Marketing</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Cálculo predictivo del Costo de Adquisición de Clientes (CAC) y retorno esperado sobre pauta digital en canales pagos.
+                    Cálculo predictivo del Costo de Adquisición de Clientes (CAC) y retorno esperado sobre inversión en pauta digital.
                   </p>
                 </div>
-                <div className="flex gap-2 pt-6 relative z-10">
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">Meta Ads</span>
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">TikTok</span>
-                  <span className="text-[10px] px-2.5 py-1 bg-[#121E26] text-gray-300 rounded-lg border border-[#1A2832]">CAC</span>
+                <div className="flex gap-2 pt-6">
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Meta Ads</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">Google Ads</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#11191F] text-gray-400 rounded border border-[#1A252C]">CAC</span>
                 </div>
               </div>
 
@@ -422,10 +414,10 @@ export default function Home() {
         {activeTab === 'simulador' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div className="lg:col-span-5 bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-8 rounded-3xl space-y-6 shadow-2xl">
+            <div className="lg:col-span-5 bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-8 rounded-2xl space-y-6 shadow-2xl">
               <div>
-                <span className="text-xs text-[#CF9D7B] font-semibold tracking-wider uppercase font-mono">Parámetros Base</span>
-                <h2 className="text-2xl font-serif text-white mt-1">Configuración</h2>
+                <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Parámetros Operativos</span>
+                <h2 className="text-2xl font-bold text-white tracking-tight mt-1">Configuración</h2>
               </div>
 
               <div className="space-y-4">
@@ -435,7 +427,7 @@ export default function Home() {
                     type="number" 
                     value={precioOriginal}
                     onChange={(e) => setPrecioOriginal(Number(e.target.value))}
-                    className="w-full bg-[#121E26] border border-[#1E2E39] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors"
+                    className="w-full bg-[#11191F] border border-[#1F2C35] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
                 </div>
 
@@ -445,7 +437,7 @@ export default function Home() {
                     type="number" 
                     value={nuevoPrecio}
                     onChange={(e) => setNuevoPrecio(Number(e.target.value))}
-                    className="w-full bg-[#121E26] border border-[#1E2E39] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors"
+                    className="w-full bg-[#11191F] border border-[#1F2C35] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
                 </div>
 
@@ -455,7 +447,7 @@ export default function Home() {
                     type="number" 
                     value={costoUnitario}
                     onChange={(e) => setCostoUnitario(Number(e.target.value))}
-                    className="w-full bg-[#121E26] border border-[#1E2E39] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors"
+                    className="w-full bg-[#11191F] border border-[#1F2C35] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
                 </div>
 
@@ -465,7 +457,7 @@ export default function Home() {
                     type="number" 
                     value={unidadesHistoricas}
                     onChange={(e) => setUnidadesHistoricas(Number(e.target.value))}
-                    className="w-full bg-[#121E26] border border-[#1E2E39] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors"
+                    className="w-full bg-[#11191F] border border-[#1F2C35] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
                 </div>
 
@@ -475,7 +467,7 @@ export default function Home() {
                     type="number" 
                     value={presupuestoMkt}
                     onChange={(e) => setPresupuestoMkt(Number(e.target.value))}
-                    className="w-full bg-[#121E26] border border-[#1E2E39] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors"
+                    className="w-full bg-[#11191F] border border-[#1F2C35] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
                 </div>
               </div>
@@ -483,39 +475,39 @@ export default function Home() {
 
             <div className="lg:col-span-7 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-6 rounded-3xl space-y-2 shadow-xl">
+                <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-6 rounded-2xl space-y-2 shadow-xl">
                   <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia Histórica</span>
-                  <div className="text-3xl font-serif text-white">
+                  <div className="text-3xl font-bold text-white tracking-tight font-mono">
                     ${gananciaBase.toLocaleString('es-CO')}
                   </div>
-                  <span className="text-[10px] text-gray-500">Sin ajustes de precio ni pauta</span>
+                  <span className="text-[10px] text-gray-500">Línea base sin modificaciones</span>
                 </div>
 
-                <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-3xl space-y-2 shadow-xl shadow-[#CF9D7B]/10">
-                  <span className="text-xs text-[#CF9D7B] font-medium font-mono uppercase tracking-wider">Ganancia Proyectada</span>
-                  <div className="text-3xl font-serif text-white">
+                <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl space-y-2 shadow-xl shadow-[#CF9D7B]/5">
+                  <span className="text-xs text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Ganancia Proyectada</span>
+                  <div className="text-3xl font-bold text-white tracking-tight font-mono">
                     ${gananciaProyectada.toLocaleString('es-CO')}
                   </div>
-                  <span className={`text-[11px] font-medium font-mono ${deltaGanancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`text-[11px] font-mono font-medium ${deltaGanancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {deltaGanancia >= 0 ? '▲ +' : '▼ -'}${Math.abs(deltaGanancia).toLocaleString('es-CO')} vs Base
                   </span>
                 </div>
               </div>
 
-              <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-6 rounded-3xl space-y-4 shadow-xl">
-                <h3 className="font-serif text-lg text-white">Impacto en Adquisición de Clientes</h3>
+              <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 className="text-lg font-bold text-white tracking-tight">Impacto en Adquisición de Clientes</h3>
                 <div className="grid grid-cols-3 gap-4 text-center">
-                  <div className="p-4 bg-[#121E26] rounded-2xl border border-[#1E2E39]">
+                  <div className="p-4 bg-[#11191F] rounded-xl border border-[#1F2C35]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">CAC Estimado</span>
-                    <p className="text-base font-semibold text-white mt-1">${costoAdquisicion.toLocaleString('es-CO')}</p>
+                    <p className="text-base font-bold text-white mt-1 font-mono">${costoAdquisicion.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="p-4 bg-[#121E26] rounded-2xl border border-[#1E2E39]">
+                  <div className="p-4 bg-[#11191F] rounded-xl border border-[#1F2C35]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">Nuevos Clientes</span>
-                    <p className="text-base font-semibold text-[#CF9D7B] mt-1">+{nuevosClientes}</p>
+                    <p className="text-base font-bold text-[#CF9D7B] mt-1 font-mono">+{nuevosClientes}</p>
                   </div>
-                  <div className="p-4 bg-[#121E26] rounded-2xl border border-[#1E2E39]">
+                  <div className="p-4 bg-[#11191F] rounded-xl border border-[#1F2C35]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">Volumen Total</span>
-                    <p className="text-base font-semibold text-white mt-1">{Math.round(unidadesTotales)} uds</p>
+                    <p className="text-base font-bold text-white mt-1 font-mono">{Math.round(unidadesTotales)} uds</p>
                   </div>
                 </div>
               </div>
@@ -529,19 +521,19 @@ export default function Home() {
           <div className="space-y-8">
             
             {/* Panel de Carga */}
-            <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-10 rounded-3xl max-w-2xl mx-auto text-center space-y-6 shadow-2xl">
-              <div className="w-16 h-16 rounded-2xl bg-[#121E26] border border-[#CF9D7B]/30 flex items-center justify-center mx-auto text-[#CF9D7B] shadow-[0_0_20px_rgba(207,157,123,0.2)]">
-                {cargandoCSV ? <Loader2 className="w-8 h-8 animate-spin" /> : <Upload className="w-8 h-8" />}
+            <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-10 rounded-2xl max-w-2xl mx-auto text-center space-y-6 shadow-2xl">
+              <div className="w-14 h-14 rounded-2xl bg-[#11191F] border border-[#CF9D7B]/30 flex items-center justify-center mx-auto text-[#CF9D7B] shadow-[0_0_20px_rgba(207,157,123,0.15)]">
+                {cargandoCSV ? <Loader2 className="w-7 h-7 animate-spin" /> : <Upload className="w-7 h-7" />}
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-serif text-white">Auditoría Forense CSV</h2>
-                <p className="text-xs text-gray-400 max-w-md mx-auto">
+                <h2 className="text-2xl font-bold text-white tracking-tight">Auditoría Forense CSV</h2>
+                <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
                   Carga tu conjunto de transacciones históricas. El motor Python auditará ingresos, márgenes y concentración de catálogo.
                 </p>
               </div>
 
-              <label className={`inline-flex items-center gap-2 px-8 py-3.5 bg-[#CF9D7B] text-[#060A0D] text-xs font-bold uppercase tracking-wider rounded-full hover:shadow-[0_0_25px_rgba(207,157,123,0.5)] transition-all duration-300 cursor-pointer ${cargandoCSV ? 'opacity-50 pointer-events-none' : ''}`}>
+              <label className={`inline-flex items-center gap-2 px-7 py-3 bg-[#CF9D7B] text-[#06090C] text-xs font-bold uppercase tracking-wider rounded-full hover:shadow-[0_0_20px_rgba(207,157,123,0.4)] transition-all cursor-pointer ${cargandoCSV ? 'opacity-50 pointer-events-none' : ''}`}>
                 {cargandoCSV ? 'Analizando registros...' : 'Seleccionar Archivo CSV'}
                 <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
               </label>
@@ -559,22 +551,22 @@ export default function Home() {
               <div className="space-y-8 animate-fadeIn">
                 
                 {/* Barra de Acciones */}
-                <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
+                <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
                   <div>
-                    <h4 className="text-lg font-serif text-white">¿Listo para proyectar nuevos escenarios?</h4>
-                    <p className="text-xs text-gray-400">Pasa el precio promedio (${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}) y volumen histórico directamente al Modo Asistido.</p>
+                    <h4 className="text-lg font-bold text-white tracking-tight">¿Listo para proyectar nuevos escenarios?</h4>
+                    <p className="text-xs text-gray-400">Pasa el precio promedio (${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}) y volumen histórico al Simulador.</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <button 
                       onClick={exportarPDF}
-                      className="inline-flex items-center gap-2 px-5 py-3 bg-[#121E26] text-[#CF9D7B] border border-[#CF9D7B]/40 text-xs font-semibold rounded-full hover:bg-[#1A2832] transition-all cursor-pointer whitespace-nowrap shadow-lg"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#11191F] text-[#CF9D7B] border border-[#CF9D7B]/40 text-xs font-semibold rounded-full hover:bg-[#18232B] transition-all cursor-pointer whitespace-nowrap"
                     >
                       <Download className="w-4 h-4" />
                       Descargar Reporte PDF
                     </button>
                     <button 
                       onClick={transferirAlSimulador}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#CF9D7B] text-[#060A0D] text-xs font-bold rounded-full hover:shadow-[0_0_20px_rgba(207,157,123,0.5)] transition-all cursor-pointer whitespace-nowrap"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#CF9D7B] text-[#06090C] text-xs font-bold rounded-full hover:shadow-[0_0_15px_rgba(207,157,123,0.4)] transition-all cursor-pointer whitespace-nowrap"
                     >
                       <PlayCircle className="w-4 h-4" />
                       Simular con estos datos
@@ -584,33 +576,31 @@ export default function Home() {
 
                 {/* Métricas Generales */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-5 rounded-2xl">
+                  <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Total Registros</span>
-                    <p className="text-2xl font-serif text-white mt-1">{datosAuditoria.total_registros.toLocaleString('es-CO')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 font-mono">{datosAuditoria.total_registros.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-5 rounded-2xl">
+                  <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Ventas Totales</span>
-                    <p className="text-2xl font-serif text-[#CF9D7B] mt-1">${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}</p>
+                    <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-5 rounded-2xl">
+                  <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Unidades Vendidas</span>
-                    <p className="text-2xl font-serif text-white mt-1">{datosAuditoria.unidades_historicas.toLocaleString('es-CO')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 font-mono">{datosAuditoria.unidades_historicas.toLocaleString('es-CO')}</p>
                   </div>
-                  <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-5 rounded-2xl">
+                  <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Precio Promedio</span>
-                    <p className="text-2xl font-serif text-white mt-1">${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 font-mono">${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}</p>
                   </div>
                 </div>
 
-                {/* ============================================================ */}
-                {/* 📊 GRÁFICO RECHARTS ELEVADO: GRADIENTES NEÓN + GRID LUMINOSO */}
-                {/* ============================================================ */}
+                {/* Gráfico Recharts con Gradientes Volumétricos */}
                 {datosAuditoria.ranking_productos?.length > 0 && (
-                  <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-[#1E2E39] p-6 md:p-8 rounded-3xl space-y-4 shadow-2xl relative overflow-hidden">
+                  <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-[#18232B] p-6 md:p-8 rounded-2xl space-y-4 shadow-2xl relative overflow-hidden">
                     <div className="flex justify-between items-center relative z-10">
                       <div>
                         <span className="text-xs text-[#CF9D7B] font-semibold uppercase tracking-wider font-mono">Distribución de Ingresos</span>
-                        <h3 className="text-xl font-serif text-white mt-1">Top 5 Productos más Vendidos</h3>
+                        <h3 className="text-xl font-bold text-white tracking-tight mt-1">Top 5 Productos más Vendidos</h3>
                       </div>
                       <BarChart3 className="w-5 h-5 text-[#CF9D7B]" />
                     </div>
@@ -618,8 +608,6 @@ export default function Home() {
                     <div className="h-72 w-full pt-4 relative z-10">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={datosAuditoria.ranking_productos} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                          
-                          {/* Definición de Gradientes Volumétricos */}
                           <defs>
                             <linearGradient id="barRey" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#E5B898" stopOpacity={1} />
@@ -631,21 +619,22 @@ export default function Home() {
                             </linearGradient>
                           </defs>
 
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1A2832" vertical={false} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
                           <XAxis dataKey="nombre" stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
                           <YAxis stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} />
                           <Tooltip 
                             cursor={{ fill: 'rgba(207, 157, 123, 0.05)' }}
                             contentStyle={{ 
-                              backgroundColor: '#0C151B', 
+                              backgroundColor: '#0A1014', 
                               borderColor: '#CF9D7B', 
-                              borderRadius: '16px', 
+                              borderRadius: '12px', 
                               color: '#FFF',
-                              boxShadow: '0 8px 32px rgba(0,0,0,0.8)'
+                              boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
+                              fontFamily: 'monospace'
                             }}
                             formatter={(value) => [`$${value.toLocaleString('es-CO')}`, 'Ventas Totales']}
                           />
-                          <Bar dataKey="ventas" radius={[10, 10, 0, 0]} animationDuration={1200}>
+                          <Bar dataKey="ventas" radius={[8, 8, 0, 0]} animationDuration={1000}>
                             {datosAuditoria.ranking_productos.map((_, index) => (
                               <Cell key={`cell-${index}`} fill={index === 0 ? 'url(#barRey)' : 'url(#barNormal)'} />
                             ))}
@@ -659,25 +648,25 @@ export default function Home() {
                 {/* Diagnóstico Rey vs Hueso */}
                 {datosAuditoria.diagnostico?.rey && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-emerald-900/40 p-6 rounded-3xl space-y-3 shadow-xl">
+                    <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-emerald-900/40 p-6 rounded-2xl space-y-3 shadow-xl">
                       <div className="flex items-center gap-2 text-emerald-400">
                         <Award className="w-5 h-5" />
-                        <span className="text-xs font-semibold uppercase tracking-wider font-mono">Producto Estrella (Rey)</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider font-mono">Producto Estrella (Líder)</span>
                       </div>
-                      <h4 className="text-xl font-serif text-white">{datosAuditoria.diagnostico.rey.nombre}</h4>
-                      <p className="text-xs text-gray-400">
-                        Generó el mayor volumen de facturación con <span className="text-white font-medium">${datosAuditoria.diagnostico.rey.ventas.toLocaleString('es-CO')}</span> en ventas.
+                      <h4 className="text-xl font-bold text-white tracking-tight">{datosAuditoria.diagnostico.rey.nombre}</h4>
+                      <p className="text-xs text-gray-400 leading-relaxed">
+                        Generó el mayor volumen de facturación con <span className="text-white font-mono font-medium">${datosAuditoria.diagnostico.rey.ventas.toLocaleString('es-CO')}</span> en ventas.
                       </p>
                     </div>
 
-                    <div className="bg-[#0C151B]/80 backdrop-blur-xl border border-rose-900/40 p-6 rounded-3xl space-y-3 shadow-xl">
+                    <div className="bg-[#0A1014]/90 backdrop-blur-xl border border-rose-900/40 p-6 rounded-2xl space-y-3 shadow-xl">
                       <div className="flex items-center gap-2 text-rose-400">
                         <AlertTriangle className="w-5 h-5" />
-                        <span className="text-xs font-semibold uppercase tracking-wider font-mono">Producto de Bajo Desempeño (Hueso)</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider font-mono">Producto de Bajo Desempeño</span>
                       </div>
-                      <h4 className="text-xl font-serif text-white">{datosAuditoria.diagnostico.hueso.nombre}</h4>
-                      <p className="text-xs text-gray-400">
-                        Menor facturación del período con apenas <span className="text-white font-medium">${datosAuditoria.diagnostico.hueso.ventas.toLocaleString('es-CO')}</span>.
+                      <h4 className="text-xl font-bold text-white tracking-tight">{datosAuditoria.diagnostico.hueso.nombre}</h4>
+                      <p className="text-xs text-gray-400 leading-relaxed">
+                        Menor facturación del período con apenas <span className="text-white font-mono font-medium">${datosAuditoria.diagnostico.hueso.ventas.toLocaleString('es-CO')}</span>.
                       </p>
                     </div>
                   </div>
@@ -693,11 +682,11 @@ export default function Home() {
       {/* ============================================================ */}
       {/* ⚓ FOOTER */}
       {/* ============================================================ */}
-      <footer className="relative z-20 max-w-6xl mx-auto w-full pt-8 border-t border-[#1A2832]/80 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
+      <footer className="relative z-20 max-w-6xl mx-auto w-full pt-8 border-t border-[#162128] flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4 font-mono">
         <div>Plataforma Analítica SaaS • Emmanuel Tapasco</div>
         <div className="flex gap-4">
           <span className="hover:text-gray-400 cursor-pointer">Documentación</span>
-          <span className="hover:text-gray-400 cursor-pointer">API Status: Online</span>
+          <span className="hover:text-gray-400 cursor-pointer text-emerald-400">● API Status: Online</span>
         </div>
       </footer>
 
