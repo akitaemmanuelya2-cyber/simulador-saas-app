@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { 
   BarChart3, 
   ArrowUpRight, 
@@ -10,7 +12,8 @@ import {
   TrendingUp, 
   Award, 
   AlertTriangle,
-  PlayCircle
+  PlayCircle,
+  Download
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -91,10 +94,96 @@ export default function Home() {
     const unidades = Math.round(datosAuditoria.unidades_historicas) || 100;
     
     setPrecioOriginal(precio);
-    setNuevoPrecio(Math.round(precio * 1.10)); // Sugerencia inicial: +10%
-    setCostoUnitario(Math.round(precio * 0.50)); // Sugerencia inicial: 50% de margen
+    setNuevoPrecio(Math.round(precio * 1.10));
+    setCostoUnitario(Math.round(precio * 0.50));
     setUnidadesHistoricas(unidades);
     setActiveTab('simulador');
+  };
+
+  // Generador de Reporte PDF
+  const exportarPDF = () => {
+    if (!datosAuditoria) return;
+
+    const doc = new jsPDF();
+
+    // Fondo y Encabezado
+    doc.setFillColor(12, 21, 25);
+    doc.rect(0, 0, 210, 35, 'F');
+
+    doc.setTextColor(207, 157, 123);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Simulador SaaS - Auditoría Forense', 14, 18);
+
+    doc.setTextColor(229, 231, 235);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')} | Auditor: Emmanuel Tapasco`, 14, 26);
+
+    // Resumen Ejecutivo de Métricas
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('1. Métricas Clave de Rendimiento', 14, 48);
+
+    const metricasData = [
+      ['Total Registros', datosAuditoria.total_registros.toLocaleString('es-CO')],
+      ['Ventas Totales', `$${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}`],
+      ['Unidades Vendidas', datosAuditoria.unidades_historicas.toLocaleString('es-CO')],
+      ['Precio Promedio', `$${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}`],
+    ];
+
+    doc.autoTable({
+      startY: 53,
+      head: [['Métrica', 'Valor']],
+      body: metricasData,
+      theme: 'grid',
+      headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+      styles: { fontSize: 10, cellPadding: 4 },
+    });
+
+    // Diagnóstico Rey vs Hueso
+    let finalY = doc.lastAutoTable.finalY + 12;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('2. Diagnóstico de Catálogo', 14, finalY);
+
+    const diagData = [
+      ['Producto Estrella (Rey)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO') || '0'}`],
+      ['Producto Crítico (Hueso)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO') || '0'}`],
+    ];
+
+    doc.autoTable({
+      startY: finalY + 5,
+      head: [['Categoría', 'Producto', 'Ventas']],
+      body: diagData,
+      theme: 'grid',
+      headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+      styles: { fontSize: 10, cellPadding: 4 },
+    });
+
+    // Top 5 Productos
+    finalY = doc.lastAutoTable.finalY + 12;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('3. Top 5 Productos por Facturación', 14, finalY);
+
+    const rankingData = (datosAuditoria.ranking_productos || []).map((item, idx) => [
+      `#${idx + 1}`,
+      item.nombre,
+      `$${item.ventas.toLocaleString('es-CO')}`,
+    ]);
+
+    doc.autoTable({
+      startY: finalY + 5,
+      head: [['Rank', 'Producto', 'Ventas Totales']],
+      body: rankingData,
+      theme: 'striped',
+      headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+      styles: { fontSize: 9, cellPadding: 3 },
+    });
+
+    doc.save('Reporte_Auditoria_Forense.pdf');
   };
 
   return (
@@ -368,19 +457,28 @@ export default function Home() {
             {datosAuditoria && (
               <div className="space-y-8 animate-fadeIn">
                 
-                {/* Barra de Acción: Transferir Datos al Simulador */}
+                {/* Barra de Acciones: Transferir Datos y Descargar Reporte PDF */}
                 <div className="bg-[#131D24] border border-[#CF9D7B]/40 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div>
                     <h4 className="text-lg font-serif text-white">¿Listo para proyectar nuevos escenarios?</h4>
                     <p className="text-xs text-gray-400">Pasa el precio promedio (${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}) y volumen histórico directamente al Modo Asistido.</p>
                   </div>
-                  <button 
-                    onClick={transferirAlSimulador}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#CF9D7B] text-[#0C1519] text-xs font-bold rounded-full hover:opacity-90 transition-all cursor-pointer whitespace-nowrap shadow-[0_0_15px_rgba(207,157,123,0.3)]"
-                  >
-                    <PlayCircle className="w-4 h-4" />
-                    Simular con estos datos
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button 
+                      onClick={exportarPDF}
+                      className="inline-flex items-center gap-2 px-5 py-3 bg-[#1A252D] text-[#CF9D7B] border border-[#CF9D7B]/40 text-xs font-semibold rounded-full hover:bg-[#243038] transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      <Download className="w-4 h-4" />
+                      Descargar Reporte PDF
+                    </button>
+                    <button 
+                      onClick={transferirAlSimulador}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#CF9D7B] text-[#0C1519] text-xs font-bold rounded-full hover:opacity-90 transition-all cursor-pointer whitespace-nowrap shadow-[0_0_15px_rgba(207,157,123,0.3)]"
+                    >
+                      <PlayCircle className="w-4 h-4" />
+                      Simular con estos datos
+                    </button>
+                  </div>
                 </div>
 
                 {/* Métricas Generales */}
