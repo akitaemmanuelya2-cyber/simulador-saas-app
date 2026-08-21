@@ -775,7 +775,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Botón flotante con animación orbital */}
+        {/* Botón flotante Mini-TARS */}
         <button
           onClick={() => setAbrirChatIA(!abrirChatIA)}
           className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
@@ -783,12 +783,8 @@ export default function Home() {
           {/* Anillo de pulso exterior */}
           <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
 
-          {/* Imagen de barras con flotación suave e inversión de color a blanco */}
-          <img 
-            src="/barras.png" 
-            alt="Mini-TARS AI" 
-            className="w-7 h-7 object-contain filter invert drop-shadow-[0_0_8px_#CF9D7B] group-hover:rotate-12 transition-transform duration-300"
-          />
+          {/* Icono de IA vectorial con animación */}
+          <Bot className="w-7 h-7 text-[#CF9D7B] group-hover:rotate-12 transition-transform duration-300" />
 
           {/* Indicador de estado online */}
           <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#05080A] rounded-full"></span>
