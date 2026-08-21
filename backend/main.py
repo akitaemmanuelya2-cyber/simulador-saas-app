@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 
-from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -71,7 +71,7 @@ async def auditar_csv(archivo: UploadFile = File(...)):
                 top5.columns = ['producto', 'valor']
                 for _, row in top5.iterrows():
                     ranking_productos.append({
-                        "nombre": str(row['producto'])[:16], # Truncar a 16 caracteres para diseño limpio
+                        "nombre": str(row['producto'])[:16],  # Truncar a 16 caracteres para diseño limpio
                         "ventas": round(float(row['valor']), 2)
                     })
 
