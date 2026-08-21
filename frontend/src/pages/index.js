@@ -469,13 +469,15 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="max-w-6xl mx-auto w-full pt-8 border-t border-[#243038] flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
-        <div>Plataforma Analítica SaaS · Emmanuel Tapasco</div>
+        <div>Plataforma Analítica SaaS • Emmanuel Tapasco</div>
         <div className="flex gap-4">
           <span className="hover:text-gray-400 cursor-pointer">Documentación</span>
-          <span className="hover:text-gray-400 cursor-pointer">API Status: 8000</span>
+          <span className="hover:text-gray-400 cursor-pointer">API Status: Online</span>
         </div>
       </footer>
 
     </div>
   );
 }
+
+export default Home;
