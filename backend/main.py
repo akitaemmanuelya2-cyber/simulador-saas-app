@@ -3,11 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 
-app = FastAPI(title="Simulador SaaS API")
+from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Permite peticiones desde cualquier dominio (Vercel, localhost, etc.)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
