@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { 
   BarChart3, 
   ArrowUpRight, 
@@ -102,88 +102,92 @@ export default function Home() {
 
   // Generador de Reporte PDF
   const exportarPDF = () => {
-    if (!datosAuditoria) return;
+    try {
+      if (!datosAuditoria) return;
 
-    const doc = new jsPDF();
+      const doc = new jsPDF();
 
-    // Fondo y Encabezado
-    doc.setFillColor(12, 21, 25);
-    doc.rect(0, 0, 210, 35, 'F');
+      // Fondo y Encabezado
+      doc.setFillColor(12, 21, 25);
+      doc.rect(0, 0, 210, 35, 'F');
 
-    doc.setTextColor(207, 157, 123);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Simulador SaaS - Auditoría Forense', 14, 18);
+      doc.setTextColor(207, 157, 123);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Simulador SaaS - Auditoria Forense', 14, 18);
 
-    doc.setTextColor(229, 231, 235);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')} | Auditor: Emmanuel Tapasco`, 14, 26);
+      doc.setTextColor(229, 231, 235);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')} | Auditor: Emmanuel Tapasco`, 14, 26);
 
-    // Resumen Ejecutivo de Métricas
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('1. Métricas Clave de Rendimiento', 14, 48);
+      // Resumen Ejecutivo de Métricas
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('1. Metricas Clave de Rendimiento', 14, 48);
 
-    const metricasData = [
-      ['Total Registros', datosAuditoria.total_registros.toLocaleString('es-CO')],
-      ['Ventas Totales', `$${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}`],
-      ['Unidades Vendidas', datosAuditoria.unidades_historicas.toLocaleString('es-CO')],
-      ['Precio Promedio', `$${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}`],
-    ];
+      const metricasData = [
+        ['Total Registros', datosAuditoria.total_registros.toLocaleString('es-CO')],
+        ['Ventas Totales', `$${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}`],
+        ['Unidades Vendidas', datosAuditoria.unidades_historicas.toLocaleString('es-CO')],
+        ['Precio Promedio', `$${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}`],
+      ];
 
-    doc.autoTable({
-      startY: 53,
-      head: [['Métrica', 'Valor']],
-      body: metricasData,
-      theme: 'grid',
-      headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
-      styles: { fontSize: 10, cellPadding: 4 },
-    });
+      autoTable(doc, {
+        startY: 53,
+        head: [['Metrica', 'Valor']],
+        body: metricasData,
+        theme: 'grid',
+        headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+        styles: { fontSize: 10, cellPadding: 4 },
+      });
 
-    // Diagnóstico Rey vs Hueso
-    let finalY = doc.lastAutoTable.finalY + 12;
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('2. Diagnóstico de Catálogo', 14, finalY);
+      // Diagnóstico Rey vs Hueso
+      const diagStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 110;
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('2. Diagnostico de Catalogo', 14, diagStartY);
 
-    const diagData = [
-      ['Producto Estrella (Rey)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO') || '0'}`],
-      ['Producto Crítico (Hueso)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO') || '0'}`],
-    ];
+      const diagData = [
+        ['Producto Estrella (Rey)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO') || '0'}`],
+        ['Producto Critico (Hueso)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO') || '0'}`],
+      ];
 
-    doc.autoTable({
-      startY: finalY + 5,
-      head: [['Categoría', 'Producto', 'Ventas']],
-      body: diagData,
-      theme: 'grid',
-      headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
-      styles: { fontSize: 10, cellPadding: 4 },
-    });
+      autoTable(doc, {
+        startY: diagStartY + 5,
+        head: [['Categoria', 'Producto', 'Ventas']],
+        body: diagData,
+        theme: 'grid',
+        headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+        styles: { fontSize: 10, cellPadding: 4 },
+      });
 
-    // Top 5 Productos
-    finalY = doc.lastAutoTable.finalY + 12;
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('3. Top 5 Productos por Facturación', 14, finalY);
+      // Top 5 Productos
+      const rankingStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 170;
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('3. Top 5 Productos por Facturacion', 14, rankingStartY);
 
-    const rankingData = (datosAuditoria.ranking_productos || []).map((item, idx) => [
-      `#${idx + 1}`,
-      item.nombre,
-      `$${item.ventas.toLocaleString('es-CO')}`,
-    ]);
+      const rankingData = (datosAuditoria.ranking_productos || []).map((item, idx) => [
+        `#${idx + 1}`,
+        item.nombre,
+        `$${item.ventas.toLocaleString('es-CO')}`,
+      ]);
 
-    doc.autoTable({
-      startY: finalY + 5,
-      head: [['Rank', 'Producto', 'Ventas Totales']],
-      body: rankingData,
-      theme: 'striped',
-      headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
-      styles: { fontSize: 9, cellPadding: 3 },
-    });
+      autoTable(doc, {
+        startY: rankingStartY + 5,
+        head: [['Rank', 'Producto', 'Ventas Totales']],
+        body: rankingData,
+        theme: 'striped',
+        headStyles: { fillColor: [20, 30, 36], textColor: [207, 157, 123] },
+        styles: { fontSize: 9, cellPadding: 3 },
+      });
 
-    doc.save('Reporte_Auditoria_Forense.pdf');
+      doc.save('Reporte_Auditoria_Forense.pdf');
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+    }
   };
 
   return (
