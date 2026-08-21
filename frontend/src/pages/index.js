@@ -64,7 +64,7 @@ export default function Home() {
     setErrorCSV(null);
 
     const formData = new FormData();
-    formData.append('archivo', file);
+    formData.append('file', file);
 
     try {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
