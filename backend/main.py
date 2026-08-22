@@ -117,7 +117,7 @@ async def tars_chat(request: ChatRequest):
         }
     
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash-latest")
         
         prompt_sistema = f"""
         Eres Mini-TARS, un socio analítico, asesor cuantitativo y copiloto de negocios directo, franco y estratégico.
