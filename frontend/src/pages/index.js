@@ -34,7 +34,9 @@ import {
 export default function Home() {
   const [activeTab, setActiveTab] = useState('lobby');
   const [abrirChatIA, setAbrirChatIA] = useState(false);
+  const [cargandoChat, setCargandoChat] = useState(false);
   const canvasRef = useRef(null);
+  const chatRef = useRef(null);
 
   // Estados del Detective CSV
   const [cargandoCSV, setCargandoCSV] = useState(false);
@@ -190,7 +192,7 @@ export default function Home() {
     }
   };
 
-  // Función para transferir datos del CSV al Simulador
+  // Transferir datos al Simulador
   const transferirAlSimulador = () => {
     if (!datosAuditoria) return;
     const precio = Math.round(datosAuditoria.precio_promedio) || 50000;
@@ -624,7 +626,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Gráfico Recharts con Tooltip 100% Blanco */}
+                {/* Gráfico Recharts */}
                 {datosAuditoria.ranking_productos?.length > 0 && (
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl space-y-4 shadow-2xl relative overflow-hidden">
                     <div className="flex justify-between items-center relative z-10">
@@ -653,7 +655,6 @@ export default function Home() {
                           <XAxis dataKey="nombre" stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
                           <YAxis stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} />
                           
-                          {/* Tooltip optimizado para legibilidad */}
                           <Tooltip 
                             cursor={{ fill: 'rgba(207, 157, 123, 0.08)' }}
                             contentStyle={{ 
@@ -724,59 +725,7 @@ export default function Home() {
       </main>
 
       {/* ============================================================ */}
-      {/* 🤖 WIDGET FLOTANTE INTERACTIVO MINI-TARS */}
-      {/* ============================================================ */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        
-        {/* Panel de Diálogo de Mini-TARS */}
-        {abrirChatIA && (
-          <div className="w-80 sm:w-96 bg-[#081015]/95 backdrop-blur-2xl border border-[#CF9D7B]/50 rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] animate-fadeIn flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#1A2630]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Mini-TARS // Copiloto AI</h4>
-                  <span className="text-[10px] text-gray-400 font-mono">Analista Cuantitativo Activo</span>
-                </div>
-              </div>
-              <button 
-                onClick={() => setAbrirChatIA(false)}
-                className="text-gray-400 hover:text-white transition-colors p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs text-gray-300 font-mono leading-relaxed max-h-60 overflow-y-auto pr-1">
-              <div className="bg-[#0E171E] p-3 rounded-xl border border-[#1D2B36]">
-                <p className="text-white font-semibold text-[11px] mb-1 text-[#CF9D7B]">⚡ Diagnóstico Preliminar:</p>
-                {datosAuditoria ? (
-                  <p>
-                    He auditado <strong>{datosAuditoria.total_registros}</strong> transacciones. El producto líder (<strong>{datosAuditoria.diagnostico?.rey?.nombre}</strong>) genera la mayor tracción de caja. Te sugiero un reajuste de precio del <strong>+10%</strong> en el Modo Asistido para maximizar margen sin destruir demanda.
-                  </p>
-                ) : (
-                  <p>
-                    Carga un archivo CSV en el <em>Detective CSV</em> o ajusta parámetros en el <em>Modo Asistido</em> para proyectar escenarios de pricing y calcular el retorno sobre CAC.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-[#1A2630] flex gap-2">
-              <input 
-                type="text" 
-                placeholder="Preguntar a Mini-TARS..." 
-                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono"
-              />
-              <button className="px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity">
-                Enviar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ============================================================ */}
-      {/* 🤖 WIDGET FLOTANTE INTERACTIVO MINI-TARS CON IA REAL */}
+      {/* 🤖 WIDGET FLOTANTE MINI-TARS CON IA Y TONO CERCANO */}
       {/* ============================================================ */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         
@@ -801,9 +750,8 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Historial de Chat (Simulado para portafolio) */}
+            {/* Historial de Chat */}
             <div ref={chatRef} className="space-y-4 text-xs font-mono leading-relaxed max-h-60 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#1D2B36] scrollbar-track-transparent">
-              {/* Mensaje de bienvenida inicial (se puede dejar estático) */}
               <div className="flex items-start gap-2.5">
                 <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
                   <Bot className="w-3.5 h-3.5 text-[#CF9D7B]" />
@@ -812,17 +760,15 @@ export default function Home() {
                   <p className="text-[#CF9D7B] font-semibold text-[11px] mb-1">⚡ Diagnóstico Inicial Táctico:</p>
                   {datosAuditoria ? (
                     <p>
-                      Cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' y está facturando un total COP ${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO')}. Eso está muy bien, pero cuídalo, es el motor de tu caja. En cuanto al 'Hueso', se llama '{datosAuditoria.diagnostico?.hueso?.nombre}' y apenas mueve COP ${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO')}. ¿Qué hacemos? ¿Un combo para liquidarlo o revisamos la pauta?
+                      Cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' y está facturando un total de ${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO')} COP. Es el motor de tu negocio. Por otro lado, tu 'Hueso' es '{datosAuditoria.diagnostico?.hueso?.nombre}' con apenas ${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO')} COP. ¿Armamos un combo promocional o revisamos la pauta?
                     </p>
                   ) : (
                     <p>
-                      Aún no tenemos data cargada en el simulador. Pero tranquilo, Emmanuel, apenas tengas los números listos me avisas. Mi algoritmo está calibrado para auditar márgenes, diagnosticar tu catálogo, encontrar a 'El Rey', liquidar 'El Hueso' y calcular el ROAS de tu pauta multicanal con total franqueza. ¿Por dónde arrancamos hoy?
+                      ¡Hola, Emmanuel! Aún no tenemos datos cargados. Sube tu CSV en el <em>Detective CSV</em> o ajusta los controles en el <em>Modo Asistido</em>. Estoy listo para auditar márgenes, encontrar a tu producto Rey, liquidar el Hueso y planear tu marketing sin rodeos corporativos.
                     </p>
                   )}
                 </div>
               </div>
-
-              {/* Aquí se pueden mapear mensajes dinámicos si se desea */}
             </div>
 
             <div className="pt-2 border-t border-[#1A2630] flex gap-2">
@@ -845,16 +791,12 @@ export default function Home() {
           onClick={() => setAbrirChatIA(!abrirChatIA)}
           className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
         >
-          {/* Anillo de pulso exterior */}
           <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
-
-          {/* Icono de IA vectorial con animación */}
           <Bot className="w-7 h-7 text-[#CF9D7B] group-hover:rotate-12 transition-transform duration-300" />
-
-          {/* Indicador de estado online */}
           <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
         </button>
       </div>
+
     </div>
   );
 }
