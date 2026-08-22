@@ -121,7 +121,6 @@ async def tars_chat(request: ChatRequest):
     {request.mensaje}
     """
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "contents": [{
             "parts": [{"text": prompt_sistema}]
@@ -129,6 +128,7 @@ async def tars_chat(request: ChatRequest):
     }
 
     try:
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
         res = requests.post(url, json=payload, timeout=25)
         data = res.json()
         
@@ -137,7 +137,7 @@ async def tars_chat(request: ChatRequest):
             return {"respuesta": texto}
         else:
             # Fallback a gemini-1.5-pro
-            url_fallback = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
+            url_fallback = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
             res_fb = requests.post(url_fallback, json=payload, timeout=25)
             data_fb = res_fb.json()
             if res_fb.status_code == 200:
@@ -146,5 +146,6 @@ async def tars_chat(request: ChatRequest):
             
             error_msg = data.get("error", {}).get("message", "Error en API de Google")
             return {"respuesta": f"Estimado(a) empresario(a), Google Gemini reporta: {error_msg}"}
+            
     except Exception as e:
         return {"respuesta": f"Estimado(a) empresario(a), inconveniente de red con la IA: {str(e)}"}
