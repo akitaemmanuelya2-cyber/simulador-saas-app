@@ -775,7 +775,72 @@ export default function Home() {
           </div>
         )}
 
-        {/* Botón flotante Mini-TARS */}
+        {/* ============================================================ */}
+      {/* 🤖 WIDGET FLOTANTE INTERACTIVO MINI-TARS CON IA REAL */}
+      {/* ============================================================ */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        
+        {/* Panel de Diálogo de Mini-TARS */}
+        {abrirChatIA && (
+          <div className="w-80 sm:w-96 bg-[#081015]/95 backdrop-blur-2xl border border-[#CF9D7B]/50 rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] animate-fadeIn flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1A2630]">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-2.5 h-2.5 rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></div>
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Mini-TARS // Copiloto AI</h4>
+                  <span className="text-[10px] text-gray-400 font-mono">
+                    {cargandoChat ? 'Analizando escenarios...' : 'Socio Analítico Activo'}
+                  </span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setAbrirChatIA(false)}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Historial de Chat (Simulado para portafolio) */}
+            <div ref={chatRef} className="space-y-4 text-xs font-mono leading-relaxed max-h-60 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#1D2B36] scrollbar-track-transparent">
+              {/* Mensaje de bienvenida inicial (se puede dejar estático) */}
+              <div className="flex items-start gap-2.5">
+                <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-3.5 h-3.5 text-[#CF9D7B]" />
+                </div>
+                <div className="bg-[#0E171E] p-3 rounded-r-xl rounded-bl-xl border border-[#1D2B36] text-gray-300">
+                  <p className="text-[#CF9D7B] font-semibold text-[11px] mb-1">⚡ Diagnóstico Inicial Táctico:</p>
+                  {datosAuditoria ? (
+                    <p>
+                      Cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' y está facturando un total COP ${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO')}. Eso está muy bien, pero cuídalo, es el motor de tu caja. En cuanto al 'Hueso', se llama '{datosAuditoria.diagnostico?.hueso?.nombre}' y apenas mueve COP ${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO')}. ¿Qué hacemos? ¿Un combo para liquidarlo o revisamos la pauta?
+                    </p>
+                  ) : (
+                    <p>
+                      Aún no tenemos data cargada en el simulador. Pero tranquilo, Emmanuel, apenas tengas los números listos me avisas. Mi algoritmo está calibrado para auditar márgenes, diagnosticar tu catálogo, encontrar a 'El Rey', liquidar 'El Hueso' y calcular el ROAS de tu pauta multicanal con total franqueza. ¿Por dónde arrancamos hoy?
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Aquí se pueden mapear mensajes dinámicos si se desea */}
+            </div>
+
+            <div className="pt-2 border-t border-[#1A2630] flex gap-2">
+              <input 
+                type="text" 
+                placeholder="Preguntar a Mini-TARS..." 
+                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono"
+              />
+              <button 
+                className={`px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity flex items-center gap-1.5 ${cargandoChat ? 'opacity-70 pointer-events-none' : ''}`}
+              >
+                {cargandoChat ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : 'Enviar'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Botón flotante con animación orbital */}
         <button
           onClick={() => setAbrirChatIA(!abrirChatIA)}
           className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
@@ -787,19 +852,6 @@ export default function Home() {
           <Bot className="w-7 h-7 text-[#CF9D7B] group-hover:rotate-12 transition-transform duration-300" />
 
           {/* Indicador de estado online */}
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#05080A] rounded-full"></span>
+          <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
         </button>
       </div>
-
-      {/* FOOTER */}
-      <footer className="relative z-20 max-w-6xl mx-auto w-full pt-8 border-t border-[#141E26]/80 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4 font-mono">
-        <div>Plataforma Analítica SaaS • Emmanuel Tapasco</div>
-        <div className="flex gap-4">
-          <span className="hover:text-gray-400 cursor-pointer">Documentación</span>
-          <span className="hover:text-gray-400 cursor-pointer text-emerald-400">● API Status: Online</span>
-        </div>
-      </footer>
-
-    </div>
-  );
-}
