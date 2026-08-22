@@ -18,7 +18,8 @@ import {
   Sparkles,
   MessageSquare,
   X,
-  Bot
+  Bot,
+  Send
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -35,6 +36,9 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('lobby');
   const [abrirChatIA, setAbrirChatIA] = useState(false);
   const [cargandoChat, setCargandoChat] = useState(false);
+  const [mensajeInput, setMensajeInput] = useState('');
+  const [historialMensajes, setHistorialMensajes] = useState([]);
+  
   const canvasRef = useRef(null);
   const chatRef = useRef(null);
 
@@ -67,6 +71,13 @@ export default function Home() {
   const costosProyectados = (unidadesTotales * costoUnitario) + presupuestoMkt;
   const gananciaProyectada = ventasProyectadas - costosProyectados;
   const deltaGanancia = gananciaProyectada - gananciaBase;
+
+  // Auto-scroll del chat al agregar mensajes
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [historialMensajes, cargandoChat, abrirChatIA]);
 
   // MOTOR DE MAR DE DATOS CUÁNTICO
   useEffect(() => {
@@ -203,6 +214,65 @@ export default function Home() {
     setCostoUnitario(Math.round(precio * 0.50));
     setUnidadesHistoricas(unidades);
     setActiveTab('simulador');
+  };
+
+  // Enviar consulta interactiva a Mini-TARS
+  const handleEnviarMensajeChat = async (e) => {
+    if (e) e.preventDefault();
+    if (!mensajeInput.trim() || cargandoChat) return;
+
+    const textoUsuario = mensajeInput.trim();
+    setMensajeInput('');
+    
+    // Agregar el mensaje del usuario al historial
+    const nuevoHistorial = [...historialMensajes, { remitente: 'usuario', texto: textoUsuario }];
+    setHistorialMensajes(nuevoHistorial);
+    setCargandoChat(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
+      
+      // Construir contexto actual del negocio para alimentar la IA
+      const contextoNegocio = {
+        datosAuditoria: datosAuditoria || null,
+        simulador: {
+          precioOriginal,
+          nuevoPrecio,
+          costoUnitario,
+          unidadesHistoricas,
+          presupuestoMkt,
+          gananciaBase,
+          gananciaProyectada,
+          deltaGanancia,
+          costoAdquisicion,
+          nuevosClientes
+        }
+      };
+
+      const response = await fetch(`${apiUrl}/api/tars-chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mensaje: textoUsuario,
+          contexto: contextoNegocio
+        })
+      });
+
+      if (!response.ok) throw new Error('Error en la respuesta de Mini-TARS');
+
+      const data = await response.json();
+      setHistorialMensajes([...nuevoHistorial, { remitente: 'tars', texto: data.respuesta || data.mensaje || 'Listo, analizado.' }]);
+    } catch (err) {
+      setHistorialMensajes([
+        ...nuevoHistorial, 
+        { 
+          remitente: 'tars', 
+          texto: 'Disculpa, tuve un microcorte con el enlace cuántico en el servidor. Verifica que la API de Render esté activa e inténtalo de nuevo.' 
+        }
+      ]);
+    } finally {
+      setCargandoChat(false);
+    }
   };
 
   // Generador de Reporte PDF
@@ -725,7 +795,7 @@ export default function Home() {
       </main>
 
       {/* ============================================================ */}
-      {/* 🤖 WIDGET FLOTANTE MINI-TARS CON IA Y TONO CERCANO */}
+      {/* 🤖 WIDGET FLOTANTE INTERACTIVO MINI-TARS */}
       {/* ============================================================ */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         
@@ -750,39 +820,90 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Historial de Chat */}
-            <div ref={chatRef} className="space-y-4 text-xs font-mono leading-relaxed max-h-60 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#1D2B36] scrollbar-track-transparent">
+            {/* Historial de Chat Dinámico */}
+            <div ref={chatRef} className="space-y-3.5 text-xs font-mono leading-relaxed max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#1D2B36] scrollbar-track-transparent">
+              
+              {/* Mensaje de Bienvenida Inicial */}
               <div className="flex items-start gap-2.5">
                 <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
                   <Bot className="w-3.5 h-3.5 text-[#CF9D7B]" />
                 </div>
                 <div className="bg-[#0E171E] p-3 rounded-r-xl rounded-bl-xl border border-[#1D2B36] text-gray-300">
-                  <p className="text-[#CF9D7B] font-semibold text-[11px] mb-1">⚡ Diagnóstico Inicial Táctico:</p>
+                  <p className="text-[#CF9D7B] font-semibold text-[11px] mb-1">⚡ Diagnóstico Inicial:</p>
                   {datosAuditoria ? (
                     <p>
-                      Cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' y está facturando un total de ${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO')} COP. Es el motor de tu negocio. Por otro lado, tu 'Hueso' es '{datosAuditoria.diagnostico?.hueso?.nombre}' con apenas ${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO')} COP. ¿Armamos un combo promocional o revisamos la pauta?
+                      Estimado(a) empresario(a), cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' con facturación total de ${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO')} COP. Por otro lado, tu producto más lento es '{datosAuditoria.diagnostico?.hueso?.nombre}' con ${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO')} COP. ¿Qué estrategia o duda analítica quieres consultar hoy?
                     </p>
                   ) : (
                     <p>
-                      ¡Hola, Emmanuel! Aún no tenemos datos cargados. Sube tu CSV en el <em>Detective CSV</em> o ajusta los controles en el <em>Modo Asistido</em>. Estoy listo para auditar márgenes, encontrar a tu producto Rey, liquidar el Hueso y planear tu marketing sin rodeos corporativos.
+                      ¡Hola! Estimado(a) empresario(a), aún no tenemos datos cargados en el sistema. Puedes subir tu archivo CSV en el <em>Detective CSV</em> o proyectar escenarios en el <em>Modo Asistido</em>. Estoy a tu disposición para analizar márgenes, rentabilidad y adquisición de clientes con franqueza. ¿Por dónde empezamos?
                     </p>
                   )}
                 </div>
               </div>
+
+              {/* Mensajes del Historial */}
+              {historialMensajes.map((msg, index) => (
+                <div 
+                  key={index} 
+                  className={`flex items-start gap-2.5 ${msg.remitente === 'usuario' ? 'flex-row-reverse' : ''}`}
+                >
+                  {msg.remitente === 'tars' ? (
+                    <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-3.5 h-3.5 text-[#CF9D7B]" />
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-lg bg-[#CF9D7B]/20 border border-[#CF9D7B]/40 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-[#CF9D7B]">
+                      TÚ
+                    </div>
+                  )}
+
+                  <div 
+                    className={`p-3 rounded-xl max-w-[80%] ${
+                      msg.remitente === 'usuario'
+                        ? 'bg-[#CF9D7B] text-[#05080A] rounded-tr-none font-medium'
+                        : 'bg-[#0E171E] text-gray-300 border border-[#1D2B36] rounded-tl-none'
+                    }`}
+                  >
+                    <p>{msg.texto}</p>
+                  </div>
+                </div>
+              ))}
+
+              {/* Indicador de pensamiento de IA */}
+              {cargandoChat && (
+                <div className="flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
+                    <Loader2 className="w-3.5 h-3.5 text-[#CF9D7B] animate-spin" />
+                  </div>
+                  <div className="bg-[#0E171E] p-3 rounded-r-xl rounded-bl-xl border border-[#1D2B36] text-gray-400 text-[11px] italic">
+                    Mini-TARS está calculando escenarios...
+                  </div>
+                </div>
+              )}
+
             </div>
 
-            <div className="pt-2 border-t border-[#1A2630] flex gap-2">
+            {/* Input y Botón de Enviar (Interactivos con Formulario) */}
+            <form onSubmit={handleEnviarMensajeChat} className="pt-2 border-t border-[#1A2630] flex gap-2">
               <input 
                 type="text" 
+                value={mensajeInput}
+                onChange={(e) => setMensajeInput(e.target.value)}
                 placeholder="Preguntar a Mini-TARS..." 
-                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono"
+                disabled={cargandoChat}
+                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono disabled:opacity-50"
               />
               <button 
-                className={`px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity flex items-center gap-1.5 ${cargandoChat ? 'opacity-70 pointer-events-none' : ''}`}
+                type="submit"
+                disabled={cargandoChat || !mensajeInput.trim()}
+                className={`px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity flex items-center gap-1.5 ${
+                  cargandoChat || !mensajeInput.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                }`}
               >
                 {cargandoChat ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : 'Enviar'}
               </button>
-            </div>
+            </form>
           </div>
         )}
 
