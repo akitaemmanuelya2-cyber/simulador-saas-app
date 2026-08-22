@@ -117,11 +117,7 @@ async def tars_chat(request: ChatRequest):
         }
     
     try:
-        # Intentar con gemini-1.5-flash y fallback a gemini-pro
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-        except Exception:
-            model = genai.GenerativeModel("gemini-pro")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         
         prompt_sistema = f"""
         Eres Mini-TARS, un socio analítico, asesor cuantitativo y copiloto de negocios directo, franco y estratégico.
@@ -138,6 +134,11 @@ async def tars_chat(request: ChatRequest):
         Consulta del usuario:
         {request.mensaje}
         """
+        
+        response = model.generate_content(prompt_sistema)
+        return {"respuesta": response.text}
+    except Exception as e:
+        return {"respuesta": f"Estimado(a) empresario(a), ocurrió un inconveniente con el motor de IA: {str(e)}"}
         
         # Si falla el método general, usamos el modelo clásico directo
         try:
