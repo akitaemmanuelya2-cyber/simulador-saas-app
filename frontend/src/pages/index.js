@@ -854,4 +854,7 @@ export default function Home() {
           {/* Indicador de estado online */}
           <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
         </button>
-      </div>
+      </div> {/* <-- ESTE CIERRA EL NAVBAR <header className="..."> que empezó en la línea 130 aprox */}
+    </div>
+  );
+}
