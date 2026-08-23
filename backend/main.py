@@ -128,16 +128,41 @@ async def tars_chat(request: ChatRequest):
     }
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key={GEMINI_API_KEY}"
-        res = requests.post(url, json=payload, timeout=25)
-        data = res.json()
+        # 1. Obtener la lista real de modelos disponibles para tu API Key
+        list_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        list_res = requests.get(list_url, timeout=10)
+        
+        if list_res.status_code != 200:
+            return {"respuesta": f"Estimado(a) empresario(a), error al validar API Key en Google: {list_res.text}"}
 
-        if res.status_code == 200:
-            texto = data['candidates'][0]['content']['parts'][0]['text']
-            return {"respuesta": texto}
-        else:
-            error_msg = data.get("error", {}).get("message", "Error en API de Google")
-            return {"respuesta": f"Estimado(a) empresario(a), Google Gemini reporta: {error_msg}"}
+        modelos = list_res.json().get("models", [])
+        
+        # Filtrar únicamente los modelos que soportan generateContent
+        candidatos = [
+            m["name"] for m in modelos 
+            if "generateContent" in m.get("supportedGenerationMethods", [])
+        ]
+
+        if not candidatos:
+            return {"respuesta": "Estimado(a) empresario(a), tu API Key no tiene modelos con permiso 'generateContent' activos."}
+
+        # Priorizar modelos tipo 'flash' o 'pro'
+        candidatos.sort(key=lambda x: ("flash" not in x, "pro" not in x))
+
+        # 2. Intentar la generación con los modelos disponibles hasta que uno responda HTTP 200
+        ultimo_error = ""
+        for model_name in candidatos:
+            url_generar = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={GEMINI_API_KEY}"
+            res = requests.post(url_generar, json=payload, timeout=20)
+            
+            if res.status_code == 200:
+                data = res.json()
+                texto = data['candidates'][0]['content']['parts'][0]['text']
+                return {"respuesta": texto}
+            else:
+                ultimo_error = res.text
+
+        return {"respuesta": f"Estimado(a) empresario(a), se intentó con los modelos activos pero Google reportó: {ultimo_error}"}
 
     except Exception as e:
         return {"respuesta": f"Estimado(a) empresario(a), inconveniente de red con la IA: {str(e)}"}
