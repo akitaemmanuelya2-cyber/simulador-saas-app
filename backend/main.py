@@ -108,13 +108,13 @@ async def tars_chat(request: ChatRequest):
         return {"respuesta": "Estimado(a) empresario(a), la clave GEMINI_API_KEY no está configurada en Render."}
 
     prompt_sistema = f"""
-    Eres Mini-TARS, copiloto analítico de negocios cuantitativo, directo y estratégico.
+    Eres Mini-TARS, un copiloto analítico de negocios cuantitativo, directo y estratégico.
     Reglas:
     - Saluda siempre con 'Estimado(a) empresario(a)'.
-    - Sé concreto, ejecutivo y conciso (máximo 2 párrafos breves o bullets claros).
-    - Habla de rentabilidad, margen, liquidación de inventario y acciones precisas sobre los datos.
+    - Sé muy conciso, directo y ejecutivo (máximo 2 párrafos o puntos clave).
+    - Habla de rentabilidad, margen, liquidación de inventario y acciones concretas sobre los datos.
     
-    Contexto actual:
+    Contexto del negocio:
     {request.contexto}
     
     Pregunta:
@@ -126,29 +126,22 @@ async def tars_chat(request: ChatRequest):
             "parts": [{"text": prompt_sistema}]
         }],
         "generationConfig": {
-            "maxOutputTokens": 500,
-            "temperature": 0.7
+            "maxOutputTokens": 400,
+            "temperature": 0.5
         }
     }
 
-    # Intentar directamente con los modelos principales con timeout ampliado
-    modelos_a_probar = [
-        "gemini-1.5-flash",
-        "gemini-1.5-flash-latest",
-        "gemini-2.0-flash",
-        "gemini-pro"
-    ]
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+        res = requests.post(url, json=payload, timeout=20)
+        data = res.json()
 
-    for model in modelos_a_probar:
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
-            res = requests.post(url, json=payload, timeout=60)
-            
-            if res.status_code == 200:
-                data = res.json()
-                texto = data['candidates'][0]['content']['parts'][0]['text']
-                return {"respuesta": texto}
-        except Exception:
-            continue
+        if res.status_code == 200:
+            texto = data['candidates'][0]['content']['parts'][0]['text']
+            return {"respuesta": texto}
+        else:
+            error_msg = data.get("error", {}).get("message", "Inconveniente al procesar con Gemini")
+            return {"respuesta": f"Estimado(a) empresario(a), Google reportó: {error_msg}"}
 
-    return {"respuesta": "Estimado(a) empresario(a), el servidor de IA tardó en responder. Por favor reenvía la consulta."}
+    except Exception as e:
+        return {"respuesta": f"Estimado(a) empresario(a), inconveniente de conexión: {str(e)}"}
