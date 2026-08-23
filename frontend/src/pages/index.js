@@ -614,7 +614,13 @@ export default function Home() {
             </div>
           </div>
         )}
-
+{/* VISTA DEL MODO ASISTIDO */}
+        {activeTab === 'asistido' && (
+          <ModoAsistido 
+            onVolverHome={() => setActiveTab('lobby')}
+            moneda={moneda}
+          />
+        )}
 {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
         {activeTab === 'simulador' && (
           <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto">
