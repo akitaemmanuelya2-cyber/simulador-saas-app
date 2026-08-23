@@ -38,6 +38,19 @@ export default function Home() {
   const [cargandoChat, setCargandoChat] = useState(false);
   const [mensajeInput, setMensajeInput] = useState('');
   const [historialMensajes, setHistorialMensajes] = useState([]);
+  const [moneda, setMoneda] = useState('COP');
+
+  const formatearDinero = (valor) => {
+    const num = Number(valor) || 0;
+    if (moneda === 'COP') {
+      return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(num);
+    } else if (moneda === 'USD') {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(num);
+    } else if (moneda === 'EUR') {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+    }
+    return `$ ${num.toLocaleString()}`;
+  };
   
   const canvasRef = useRef(null);
   const chatRef = useRef(null);
@@ -47,7 +60,7 @@ export default function Home() {
   const [datosAuditoria, setDatosAuditoria] = useState(null);
   const [errorCSV, setErrorCSV] = useState(null);
 
-  // Estados del Modo Asistido (Simulador)
+  // Estados del Simulador
   const [precioOriginal, setPrecioOriginal] = useState(50000);
   const [nuevoPrecio, setNuevoPrecio] = useState(55000);
   const [costoUnitario, setCostoUnitario] = useState(25000);
@@ -224,7 +237,6 @@ export default function Home() {
     const textoUsuario = mensajeInput.trim();
     setMensajeInput('');
     
-    // Agregar el mensaje del usuario al historial
     const nuevoHistorial = [...historialMensajes, { remitente: 'usuario', texto: textoUsuario }];
     setHistorialMensajes(nuevoHistorial);
     setCargandoChat(true);
@@ -232,7 +244,6 @@ export default function Home() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
       
-      // Construir contexto actual del negocio para alimentar la IA
       const contextoNegocio = {
         datosAuditoria: datosAuditoria || null,
         simulador: {
@@ -293,7 +304,7 @@ export default function Home() {
       doc.setTextColor(200, 205, 210);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CO')} | Auditor Responsable: Emmanuel Tapasco`, 14, 26);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Auditor Responsable: Emmanuel Tapasco`, 14, 26);
 
       doc.setTextColor(20, 30, 40);
       doc.setFontSize(12);
@@ -302,9 +313,9 @@ export default function Home() {
 
       const metricasData = [
         ['Total Registros Procesados', datosAuditoria.total_registros.toLocaleString('es-CO')],
-        ['Facturación Total Acumulada', `$${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}`],
+        ['Facturación Total Acumulada', formatearDinero(datosAuditoria.ventas_historicas)],
         ['Unidades Vendidas', datosAuditoria.unidades_historicas.toLocaleString('es-CO')],
-        ['Precio Promedio Ponderado', `$${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}`],
+        ['Precio Promedio Ponderado', formatearDinero(datosAuditoria.precio_promedio)],
       ];
 
       autoTable(doc, {
@@ -322,8 +333,8 @@ export default function Home() {
       doc.text('2. DIAGNÓSTICO ESTRATÉGICO DE CATÁLOGO', 14, diagStartY);
 
       const diagData = [
-        ['Producto Estrella (Líder)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO') || '0'}`],
-        ['Producto Crítico (Bajo Desempeño)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', `$${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO') || '0'}`],
+        ['Producto Estrella (Líder)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)],
+        ['Producto Crítico (Bajo Desempeño)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)],
       ];
 
       autoTable(doc, {
@@ -343,7 +354,7 @@ export default function Home() {
       const rankingData = (datosAuditoria.ranking_productos || []).map((item, idx) => [
         `#0${idx + 1}`,
         item.nombre,
-        `$${item.ventas.toLocaleString('es-CO')}`,
+        formatearDinero(item.ventas),
       ]);
 
       autoTable(doc, {
@@ -395,15 +406,26 @@ export default function Home() {
           >
             Lobby
           </button>
+          
           <button 
             onClick={() => setActiveTab('simulador')}
             className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
               activeTab === 'simulador' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
             }`}
           >
+            Simulador
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('asistido')}
+            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
+              activeTab === 'asistido' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
             Modo Asistido
           </button>
-          <button 
+
+          <button
             onClick={() => setActiveTab('auditoria')}
             className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
               activeTab === 'auditoria' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
@@ -411,6 +433,24 @@ export default function Home() {
           >
             Detective CSV
           </button>
+
+          {/* SELECTOR DE DIVISA */}
+          <div className="flex items-center gap-1 bg-[#0D151B]/80 border border-[#1E293B] p-1 rounded-full ml-2">
+            {['COP', 'USD', 'EUR'].map((curr) => (
+              <button
+                key={curr}
+                type="button"
+                onClick={() => setMoneda(curr)}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                  moneda === curr
+                    ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-sm'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {curr === 'COP' ? '🇨🇴 COP' : curr === 'USD' ? '🇺🇸 USD' : '🇪🇺 EUR'}
+              </button>
+            ))}
+          </div>
         </nav>
       </header>
 
@@ -440,7 +480,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               <div 
-                onClick={() => setActiveTab('simulador')}
+                onClick={() => setActiveTab('asistido')}
                 className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.12)]"
               >
                 <div className="space-y-4">
@@ -452,13 +492,13 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-tight pt-1">Modo Asistido</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Simulación paramétrica de elasticidad de precios, estructura de costos y distribución óptima de presupuesto publicitario.
+                    Completa manualmente tus datos o descarga la plantilla CSV para auditar tu catálogo sin depender de archivos previos.
                   </p>
                 </div>
                 <div className="flex gap-2 pt-6">
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Costos</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Margen</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Proyección</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Plantilla</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Tabla</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Lienzo</span>
                 </div>
               </div>
 
@@ -496,14 +536,14 @@ export default function Home() {
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
-                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Mix de Marketing</h3>
+                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Simulador SaaS</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Cálculo predictivo del Costo de Adquisición de Clientes (CAC) y retorno esperado sobre inversión en pauta digital.
+                    Simulación paramétrica de elasticidad de precios, estructura de costos y distribución óptima de presupuesto publicitario.
                   </p>
                 </div>
                 <div className="flex gap-2 pt-6">
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Meta Ads</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Google Ads</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Costos</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Margen</span>
                   <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">CAC</span>
                 </div>
               </div>
@@ -512,42 +552,40 @@ export default function Home() {
           </div>
         )}
 
+        {/* VISTA DEL MODO ASISTIDO (LIENZO EN BLANCO) */}
+        {activeTab === 'asistido' && (
+          <ModoAsistido 
+            onVolverHome={() => setActiveTab('lobby')}
+            onProcesarDatos={(datos) => {
+              const totalVentas = datos.reduce((acc, d) => acc + (d.cantidad * d.precio), 0);
+              const totalUnidades = datos.reduce((acc, d) => acc + d.cantidad, 0);
+              const precioPromedio = totalUnidades > 0 ? (totalVentas / totalUnidades) : 0;
+              
+              const ranking = datos.map(d => ({
+                nombre: d.producto,
+                ventas: d.cantidad * d.precio
+              })).sort((a, b) => b.ventas - a.ventas);
+
+              const nuevoReporte = {
+                total_registros: datos.length,
+                ventas_historicas: totalVentas,
+                unidades_historicas: totalUnidades,
+                precio_promedio: precioPromedio,
+                ranking_productos: ranking.slice(0, 5),
+                diagnostico: {
+                  rey: ranking[0] || { nombre: 'N/A', ventas: 0 },
+                  hueso: ranking[ranking.length - 1] || { nombre: 'N/A', ventas: 0 }
+                }
+              };
+
+              setDatosAuditoria(nuevoReporte);
+              setActiveTab('auditoria');
+            }}
+          />
+        )}
+
         {/* VISTA DEL SIMULADOR ASISTIDO */}
         {activeTab === 'simulador' && (
-          <ModoAsistido 
-          onVolverHome={() => setActiveTab('lobby')}
-          onProcesarDatos={(datos) => {
-            const totalVentas = datos.reduce((acc, d) => acc + (d.cantidad * d.precio), 0);
-            const totalUnidades = datos.reduce((acc, d) => acc + d.cantidad, 0);
-            const precioPromedio = totalUnidades > 0 ? (totalVentas / totalUnidades) : 0;
-            
-            const ranking = datos.map(d => ({
-              nombre: d.producto,
-              ventas: d.cantidad * d.precio
-            })).sort((a, b) => b.ventas - a.ventas);
-
-            const nuevoReporte = {
-              total_registros: datos.length,
-              ventas_historicas: totalVentas,
-              unidades_historicas: totalUnidades,
-              precio_promedio: precioPromedio,
-              ranking_productos: ranking.slice(0, 5),
-              diagnostico: {
-                rey: ranking[0] || { nombre: 'N/A', ventas: 0 },
-                hueso: ranking[ranking.length - 1] || { nombre: 'N/A', ventas: 0 }
-              }
-            };
-
-            if (typeof setAuditData === 'function') setAuditData(nuevoReporte);
-            if (typeof setReporteAuditoria === 'function') setReporteAuditoria(nuevoReporte);
-
-            setActiveTab('auditoria');
-          }}
-        />
-      )}
-
-      {/* VISTA DEL SIMULADOR ASISTIDO */}
-      {activeTab === 'simulador' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-8 rounded-2xl space-y-6 shadow-2xl">
@@ -558,7 +596,7 @@ export default function Home() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs text-gray-400">Precio Actual ($ COP)</label>
+                  <label className="text-xs text-gray-400">Precio Base Actual ({moneda})</label>
                   <input 
                     type="number" 
                     value={precioOriginal}
@@ -568,7 +606,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-400">Nuevo Precio Simulado ($ COP)</label>
+                  <label className="text-xs text-gray-400">Nuevo Precio Simulado ({moneda})</label>
                   <input 
                     type="number" 
                     value={nuevoPrecio}
@@ -578,7 +616,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-400">Costo Unitario ($ COP)</label>
+                  <label className="text-xs text-gray-400">Costo Unitario de Proveedor ({moneda})</label>
                   <input 
                     type="number" 
                     value={costoUnitario}
@@ -588,7 +626,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-400">Unidades Históricas</label>
+                  <label className="text-xs text-gray-400">Unidades Históricas Vendidas</label>
                   <input 
                     type="number" 
                     value={unidadesHistoricas}
@@ -598,7 +636,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-400">Presupuesto de Marketing ($ COP)</label>
+                  <label className="text-xs text-gray-400">Presupuesto de Marketing ({moneda})</label>
                   <input 
                     type="number" 
                     value={presupuestoMkt}
@@ -614,7 +652,7 @@ export default function Home() {
                 <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-2 shadow-xl">
                   <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia Histórica</span>
                   <div className="text-3xl font-bold text-white tracking-tight font-mono">
-                    ${gananciaBase.toLocaleString('es-CO')}
+                    {formatearDinero(gananciaBase)}
                   </div>
                   <span className="text-[10px] text-gray-500">Línea base sin modificaciones</span>
                 </div>
@@ -622,10 +660,10 @@ export default function Home() {
                 <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl space-y-2 shadow-xl shadow-[#CF9D7B]/5">
                   <span className="text-xs text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Ganancia Proyectada</span>
                   <div className="text-3xl font-bold text-white tracking-tight font-mono">
-                    ${gananciaProyectada.toLocaleString('es-CO')}
+                    {formatearDinero(gananciaProyectada)}
                   </div>
                   <span className={`text-[11px] font-mono font-medium ${deltaGanancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {deltaGanancia >= 0 ? '▲ +' : '▼ -'}${Math.abs(deltaGanancia).toLocaleString('es-CO')} vs Base
+                    {deltaGanancia >= 0 ? '▲ +' : '▼ -'}{formatearDinero(Math.abs(deltaGanancia))} vs Base
                   </span>
                 </div>
               </div>
@@ -635,7 +673,7 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">CAC Estimado</span>
-                    <p className="text-base font-bold text-white mt-1 font-mono">${costoAdquisicion.toLocaleString('es-CO')}</p>
+                    <p className="text-base font-bold text-white mt-1 font-mono">{formatearDinero(costoAdquisicion)}</p>
                   </div>
                   <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">Nuevos Clientes</span>
@@ -690,7 +728,7 @@ export default function Home() {
                 <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
                   <div>
                     <h4 className="text-lg font-bold text-white tracking-tight">¿Listo para proyectar nuevos escenarios?</h4>
-                    <p className="text-xs text-gray-400">Pasa el precio promedio (${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}) y volumen histórico al Simulador.</p>
+                    <p className="text-xs text-gray-400">Pasa el precio promedio ({formatearDinero(datosAuditoria.precio_promedio)}) y volumen histórico al Simulador.</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <button 
@@ -718,7 +756,7 @@ export default function Home() {
                   </div>
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Ventas Totales</span>
-                    <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">${datosAuditoria.ventas_historicas.toLocaleString('es-CO')}</p>
+                    <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">{formatearDinero(datosAuditoria.ventas_historicas)}</p>
                   </div>
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Unidades Vendidas</span>
@@ -726,7 +764,7 @@ export default function Home() {
                   </div>
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
                     <span className="text-xs text-gray-400 font-mono uppercase">Precio Promedio</span>
-                    <p className="text-2xl font-bold text-white mt-1 font-mono">${Math.round(datosAuditoria.precio_promedio).toLocaleString('es-CO')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 font-mono">{formatearDinero(datosAuditoria.precio_promedio)}</p>
                   </div>
                 </div>
 
@@ -765,7 +803,7 @@ export default function Home() {
                               backgroundColor: '#0D161C', 
                               border: '1px solid rgba(207, 157, 123, 0.6)', 
                               borderRadius: '12px', 
-                              padding: '10px 14px',
+                              padding: '10px 14px', 
                               boxShadow: '0 12px 30px rgba(0,0,0,0.85)'
                             }}
                             labelStyle={{
@@ -781,7 +819,7 @@ export default function Home() {
                               fontSize: '12px',
                               fontFamily: 'monospace'
                             }}
-                            formatter={(value) => [`$${value.toLocaleString('es-CO')}`, 'Ventas Totales']}
+                            formatter={(value) => [formatearDinero(value), 'Ventas Totales']}
                           />
                           <Bar dataKey="ventas" radius={[8, 8, 0, 0]} animationDuration={1000}>
                             {datosAuditoria.ranking_productos.map((_, index) => (
@@ -804,7 +842,7 @@ export default function Home() {
                       </div>
                       <h4 className="text-xl font-bold text-white tracking-tight">{datosAuditoria.diagnostico.rey.nombre}</h4>
                       <p className="text-xs text-gray-400 leading-relaxed">
-                        Generó el mayor volumen de facturación con <span className="text-white font-mono font-medium">${datosAuditoria.diagnostico.rey.ventas.toLocaleString('es-CO')}</span> en ventas.
+                        Generó el mayor volumen de facturación con <span className="text-white font-mono font-medium">{formatearDinero(datosAuditoria.diagnostico.rey.ventas)}</span> en ventas.
                       </p>
                     </div>
 
@@ -815,7 +853,7 @@ export default function Home() {
                       </div>
                       <h4 className="text-xl font-bold text-white tracking-tight">{datosAuditoria.diagnostico.hueso.nombre}</h4>
                       <p className="text-xs text-gray-400 leading-relaxed">
-                        Menor facturación del período con apenas <span className="text-white font-mono font-medium">${datosAuditoria.diagnostico.hueso.ventas.toLocaleString('es-CO')}</span>.
+                        Menor facturación del período con apenas <span className="text-white font-mono font-medium">{formatearDinero(datosAuditoria.diagnostico.hueso.ventas)}</span>.
                       </p>
                     </div>
                   </div>
@@ -866,7 +904,7 @@ export default function Home() {
                   <p className="text-[#CF9D7B] font-semibold text-[11px] mb-1">⚡ Diagnóstico Inicial:</p>
                   {datosAuditoria ? (
                     <p>
-                      Estimado(a) empresario(a), cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' con facturación total de ${datosAuditoria.diagnostico?.rey?.ventas?.toLocaleString('es-CO')} COP. Por otro lado, tu producto más lento es '{datosAuditoria.diagnostico?.hueso?.nombre}' con ${datosAuditoria.diagnostico?.hueso?.ventas?.toLocaleString('es-CO')} COP. ¿Qué estrategia o duda analítica quieres consultar hoy?
+                      Estimado(a) empresario(a), cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' con facturación total de {formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)}. Por otro lado, tu producto más lento es '{datosAuditoria.diagnostico?.hueso?.nombre}' con {formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)}. ¿Qué estrategia o duda analítica quieres consultar hoy?
                     </p>
                   ) : (
                     <p>
@@ -918,7 +956,7 @@ export default function Home() {
 
             </div>
 
-            {/* Input y Botón de Enviar (Interactivos con Formulario) */}
+            {/* Input y Botón de Enviar */}
             <form onSubmit={handleEnviarMensajeChat} className="pt-2 border-t border-[#1A2630] flex gap-2">
               <input 
                 type="text" 
@@ -929,7 +967,7 @@ export default function Home() {
                 className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono disabled:opacity-50"
               />
               <button 
-                type="submit"
+                type="submit" 
                 disabled={cargandoChat || !mensajeInput.trim()}
                 className={`px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity flex items-center gap-1.5 ${
                   cargandoChat || !mensajeInput.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
