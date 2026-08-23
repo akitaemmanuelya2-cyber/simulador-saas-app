@@ -40,18 +40,39 @@ export default function Home() {
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
 
+  // Tasas de cambio (Base: 1 USD)
+  const TASAS_CAMBIO = {
+    USD: 1,
+    COP: 3300, // 1 USD = 3.300 COP
+    EUR: 0.92  // 1 USD = 0.92 EUR
+  };
+
   const formatearDinero = (valor) => {
     const num = Number(valor) || 0;
+    const valorConvertido = num * TASAS_CAMBIO[moneda];
+
     if (moneda === 'COP') {
-      return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(num);
+      return new Intl.NumberFormat('es-CO', { 
+        style: 'currency', 
+        currency: 'COP', 
+        maximumFractionDigits: 0 
+      }).format(valorConvertido);
     } else if (moneda === 'USD') {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(num);
+      return new Intl.NumberFormat('en-US', { 
+        style: 'currency', 
+        currency: 'USD', 
+        minimumFractionDigits: 2 
+      }).format(valorConvertido);
     } else if (moneda === 'EUR') {
-      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+      return new Intl.NumberFormat('de-DE', { 
+        style: 'currency', 
+        currency: 'EUR', 
+        minimumFractionDigits: 2 
+      }).format(valorConvertido);
     }
-    return `$ ${num.toLocaleString()}`;
+    return `$ ${valorConvertido.toLocaleString()}`;
   };
-  
+
   const canvasRef = useRef(null);
   const chatRef = useRef(null);
 
