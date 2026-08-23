@@ -1,5 +1,5 @@
 'use client';
-
+import ModoAsistido from '../ModoAsistido';
 import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -514,6 +514,40 @@ export default function Home() {
 
         {/* VISTA DEL SIMULADOR ASISTIDO */}
         {activeTab === 'simulador' && (
+          <ModoAsistido 
+          onVolverHome={() => setActiveTab('lobby')}
+          onProcesarDatos={(datos) => {
+            const totalVentas = datos.reduce((acc, d) => acc + (d.cantidad * d.precio), 0);
+            const totalUnidades = datos.reduce((acc, d) => acc + d.cantidad, 0);
+            const precioPromedio = totalUnidades > 0 ? (totalVentas / totalUnidades) : 0;
+            
+            const ranking = datos.map(d => ({
+              nombre: d.producto,
+              ventas: d.cantidad * d.precio
+            })).sort((a, b) => b.ventas - a.ventas);
+
+            const nuevoReporte = {
+              total_registros: datos.length,
+              ventas_historicas: totalVentas,
+              unidades_historicas: totalUnidades,
+              precio_promedio: precioPromedio,
+              ranking_productos: ranking.slice(0, 5),
+              diagnostico: {
+                rey: ranking[0] || { nombre: 'N/A', ventas: 0 },
+                hueso: ranking[ranking.length - 1] || { nombre: 'N/A', ventas: 0 }
+              }
+            };
+
+            if (typeof setAuditData === 'function') setAuditData(nuevoReporte);
+            if (typeof setReporteAuditoria === 'function') setReporteAuditoria(nuevoReporte);
+
+            setActiveTab('auditoria');
+          }}
+        />
+      )}
+
+      {/* VISTA DEL SIMULADOR ASISTIDO */}
+      {activeTab === 'simulador' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-8 rounded-2xl space-y-6 shadow-2xl">
