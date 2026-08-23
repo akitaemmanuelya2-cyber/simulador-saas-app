@@ -107,27 +107,22 @@ async def tars_chat(request: ChatRequest):
     if not GEMINI_API_KEY:
         return {"respuesta": "Estimado(a) empresario(a), la clave GEMINI_API_KEY no está configurada en Render."}
 
-    prompt_sistema = f"""
-    Eres Mini-TARS, copiloto analítico de negocios cuantitativo, directo y estratégico.
-    Reglas:
-    - Saluda con 'Estimado(a) empresario(a)'.
-    - Sé muy conciso, directo y cuantitativo (máximo 2 párrafos breves o bullets claros).
-    - Habla de rentabilidad, margen, liquidación de inventario y acciones precisas sobre los datos.
-    
-    Contexto actual:
-    {request.contexto}
-    
-    Pregunta:
-    {request.mensaje}
-    """
+    prompt_completo = f"""[INSTRUCCIÓN DEL SISTEMA: Responde DIRECTAMENTE al usuario en español como Mini-TARS. PROHIBIDO imprimir notas, bocetos de pensamiento, listas de restricciones o análisis de variables. Entrega ÚNICAMENTE la respuesta final redactada.]
+
+Contexto del negocio:
+{request.contexto}
+
+Pregunta del empresario:
+{request.mensaje}
+"""
 
     payload = {
         "contents": [{
-            "parts": [{"text": prompt_sistema}]
+            "parts": [{"text": prompt_completo}]
         }],
         "generationConfig": {
-            "maxOutputTokens": 400,
-            "temperature": 0.6
+            "maxOutputTokens": 600,
+            "temperature": 0.4
         }
     }
 
