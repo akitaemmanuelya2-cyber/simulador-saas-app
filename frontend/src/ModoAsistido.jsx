@@ -27,10 +27,17 @@ import {
 } from 'recharts';
 
 export default function ModoAsistido({ onVolverHome, moneda = 'USD', formatearDinero }) {
-  // Función auxiliar de respaldo por si no se pasa por props
+// Formateador local para entrada directa (no multiplica por tasa, solo da formato)
   const formatoMoneda = (val) => {
-    if (typeof formatearDinero === 'function') return formatearDinero(val);
-    return `$ ${Number(val || 0).toLocaleString()}`;
+    const num = Number(val || 0);
+    if (moneda === 'COP') {
+      return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(num);
+    } else if (moneda === 'USD') {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(num);
+    } else if (moneda === 'EUR') {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+    }
+    return `$ ${num.toLocaleString()}`;
   };
 
   const [filas, setFilas] = useState([
