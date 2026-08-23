@@ -111,7 +111,7 @@ async def tars_chat(request: ChatRequest):
     Eres Mini-TARS, un copiloto analítico de negocios cuantitativo, directo y estratégico.
     Reglas:
     - Saluda siempre con 'Estimado(a) empresario(a)'.
-    - Sé muy conciso, directo y ejecutivo (máximo 2 párrafos o puntos clave).
+    - Sé muy conciso, directo y ejecutivo (máximo 2 párrafos breves o puntos clave).
     - Habla de rentabilidad, margen, liquidación de inventario y acciones concretas sobre los datos.
     
     Contexto del negocio:
@@ -126,14 +126,14 @@ async def tars_chat(request: ChatRequest):
             "parts": [{"text": prompt_sistema}]
         }],
         "generationConfig": {
-            "maxOutputTokens": 400,
+            "maxOutputTokens": 450,
             "temperature": 0.5
         }
     }
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-        res = requests.post(url, json=payload, timeout=20)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key={GEMINI_API_KEY}"
+        res = requests.post(url, json=payload, timeout=30)
         data = res.json()
 
         if res.status_code == 200:
@@ -144,4 +144,4 @@ async def tars_chat(request: ChatRequest):
             return {"respuesta": f"Estimado(a) empresario(a), Google reportó: {error_msg}"}
 
     except Exception as e:
-        return {"respuesta": f"Estimado(a) empresario(a), inconveniente de conexión: {str(e)}"}
+        return {"respuesta": f"Estimado(a) empresario(a), inconveniente de red con la IA: {str(e)}"}
