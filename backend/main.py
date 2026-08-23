@@ -108,61 +108,47 @@ async def tars_chat(request: ChatRequest):
         return {"respuesta": "Estimado(a) empresario(a), la clave GEMINI_API_KEY no está configurada en Render."}
 
     prompt_sistema = f"""
-    Eres Mini-TARS, un socio analítico, asesor cuantitativo y copiloto de negocios directo, franco y estratégico.
+    Eres Mini-TARS, copiloto analítico de negocios cuantitativo, directo y estratégico.
     Reglas:
-    - Dirígete al usuario siempre como 'Estimado(a) empresario(a)' si vas a saludar.
-    - Habla claro sobre números, márgenes, rentabilidad y adquisición de clientes (CAC, ROAS).
-    - No uses rodeos corporativos ni introducciones vacías.
+    - Saluda siempre con 'Estimado(a) empresario(a)'.
+    - Sé concreto, ejecutivo y conciso (máximo 2 párrafos breves o bullets claros).
+    - Habla de rentabilidad, margen, liquidación de inventario y acciones precisas sobre los datos.
     
-    Contexto del negocio:
+    Contexto actual:
     {request.contexto}
     
-    Consulta:
+    Pregunta:
     {request.mensaje}
     """
 
     payload = {
         "contents": [{
             "parts": [{"text": prompt_sistema}]
-        }]
+        }],
+        "generationConfig": {
+            "maxOutputTokens": 500,
+            "temperature": 0.7
+        }
     }
 
-    try:
-        # 1. Obtener la lista real de modelos disponibles para tu API Key
-        list_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
-        list_res = requests.get(list_url, timeout=10)
-        
-        if list_res.status_code != 200:
-            return {"respuesta": f"Estimado(a) empresario(a), error al validar API Key en Google: {list_res.text}"}
+    # Intentar directamente con los modelos principales con timeout ampliado
+    modelos_a_probar = [
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-2.0-flash",
+        "gemini-pro"
+    ]
 
-        modelos = list_res.json().get("models", [])
-        
-        # Filtrar únicamente los modelos que soportan generateContent
-        candidatos = [
-            m["name"] for m in modelos 
-            if "generateContent" in m.get("supportedGenerationMethods", [])
-        ]
-
-        if not candidatos:
-            return {"respuesta": "Estimado(a) empresario(a), tu API Key no tiene modelos con permiso 'generateContent' activos."}
-
-        # Priorizar modelos tipo 'flash' o 'pro'
-        candidatos.sort(key=lambda x: ("flash" not in x, "pro" not in x))
-
-        # 2. Intentar la generación con los modelos disponibles hasta que uno responda HTTP 200
-        ultimo_error = ""
-        for model_name in candidatos:
-            url_generar = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={GEMINI_API_KEY}"
-            res = requests.post(url_generar, json=payload, timeout=20)
+    for model in modelos_a_probar:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+            res = requests.post(url, json=payload, timeout=60)
             
             if res.status_code == 200:
                 data = res.json()
                 texto = data['candidates'][0]['content']['parts'][0]['text']
                 return {"respuesta": texto}
-            else:
-                ultimo_error = res.text
+        except Exception:
+            continue
 
-        return {"respuesta": f"Estimado(a) empresario(a), se intentó con los modelos activos pero Google reportó: {ultimo_error}"}
-
-    except Exception as e:
-        return {"respuesta": f"Estimado(a) empresario(a), inconveniente de red con la IA: {str(e)}"}
+    return {"respuesta": "Estimado(a) empresario(a), el servidor de IA tardó en responder. Por favor reenvía la consulta."}
