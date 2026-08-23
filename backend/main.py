@@ -128,7 +128,7 @@ async def tars_chat(request: ChatRequest):
     }
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
         res = requests.post(url, json=payload, timeout=25)
         data = res.json()
         
@@ -136,8 +136,8 @@ async def tars_chat(request: ChatRequest):
             texto = data['candidates'][0]['content']['parts'][0]['text']
             return {"respuesta": texto}
         else:
-            # Fallback a gemini-1.5-pro
-            url_fallback = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
+            # Fallback con gemini-2.0-flash
+            url_fallback = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
             res_fb = requests.post(url_fallback, json=payload, timeout=25)
             data_fb = res_fb.json()
             if res_fb.status_code == 200:
