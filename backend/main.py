@@ -108,13 +108,13 @@ async def tars_chat(request: ChatRequest):
         return {"respuesta": "Estimado(a) empresario(a), la clave GEMINI_API_KEY no está configurada en Render."}
 
     prompt_sistema = f"""
-    Eres Mini-TARS, un copiloto analítico de negocios cuantitativo, directo y estratégico.
+    Eres Mini-TARS, copiloto analítico de negocios cuantitativo, directo y estratégico.
     Reglas:
-    - Saluda siempre con 'Estimado(a) empresario(a)'.
-    - Sé muy conciso, directo y ejecutivo (máximo 2 párrafos breves o puntos clave).
-    - Habla de rentabilidad, margen, liquidación de inventario y acciones concretas sobre los datos.
+    - Saluda con 'Estimado(a) empresario(a)'.
+    - Sé muy conciso, directo y cuantitativo (máximo 2 párrafos breves o bullets claros).
+    - Habla de rentabilidad, margen, liquidación de inventario y acciones precisas sobre los datos.
     
-    Contexto del negocio:
+    Contexto actual:
     {request.contexto}
     
     Pregunta:
@@ -126,22 +126,41 @@ async def tars_chat(request: ChatRequest):
             "parts": [{"text": prompt_sistema}]
         }],
         "generationConfig": {
-            "maxOutputTokens": 450,
-            "temperature": 0.5
+            "maxOutputTokens": 400,
+            "temperature": 0.6
         }
     }
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key={GEMINI_API_KEY}"
-        res = requests.post(url, json=payload, timeout=30)
-        data = res.json()
+        # 1. Consultar a Google los modelos disponibles para tu clave
+        list_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        list_res = requests.get(list_url, timeout=10)
+        
+        candidatos = []
+        if list_res.status_code == 200:
+            modelos = list_res.json().get("models", [])
+            for m in modelos:
+                if "generateContent" in m.get("supportedGenerationMethods", []):
+                    candidatos.append(m["name"])
 
-        if res.status_code == 200:
-            texto = data['candidates'][0]['content']['parts'][0]['text']
-            return {"respuesta": texto}
-        else:
-            error_msg = data.get("error", {}).get("message", "Inconveniente al procesar con Gemini")
-            return {"respuesta": f"Estimado(a) empresario(a), Google reportó: {error_msg}"}
+        # Fallback de nombres si no responde la lista
+        if not candidatos:
+            candidatos = ["models/gemini-1.5-flash", "models/gemini-2.0-flash", "models/gemini-pro"]
+
+        # 2. Iterar sobre los modelos habilitados hasta obtener respuesta exitosa
+        for model_path in candidatos:
+            clean_name = model_path.replace("models/", "")
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_name}:generateContent?key={GEMINI_API_KEY}"
+            
+            try:
+                res = requests.post(url, json=payload, timeout=20)
+                if res.status_code == 200:
+                    data = res.json()
+                    return {"respuesta": data['candidates'][0]['content']['parts'][0]['text']}
+            except Exception:
+                continue
+
+        return {"respuesta": "Estimado(a) empresario(a), no fue posible enlazar con los modelos disponibles en este momento."}
 
     except Exception as e:
-        return {"respuesta": f"Estimado(a) empresario(a), inconveniente de red con la IA: {str(e)}"}
+        return {"respuesta": f"Estimado(a) empresario(a), inconveniente de conexión: {str(e)}"}
