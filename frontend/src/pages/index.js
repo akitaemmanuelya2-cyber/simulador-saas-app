@@ -39,14 +39,14 @@ export default function Home() {
   const [mensajeInput, setMensajeInput] = useState('');
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
-
-  // Tasas de cambio (Base: 1 USD)
+// Tasas de cambio (Base: 1 USD)
   const TASAS_CAMBIO = {
     USD: 1,
     COP: 3300, // 1 USD = 3.300 COP
     EUR: 0.92  // 1 USD = 0.92 EUR
   };
 
+  // 1. Formateador con conversión (Para Detective CSV y datos en USD)
   const formatearDinero = (valor) => {
     const num = Number(valor) || 0;
     const valorConvertido = num * TASAS_CAMBIO[moneda];
@@ -71,6 +71,31 @@ export default function Home() {
       }).format(valorConvertido);
     }
     return `$ ${valorConvertido.toLocaleString()}`;
+  };
+
+  // 2. Formateador directo sin conversión (Para el Simulador y entradas manuales)
+  const formatearDineroDirecto = (valor) => {
+    const num = Number(valor) || 0;
+    if (moneda === 'COP') {
+      return new Intl.NumberFormat('es-CO', { 
+        style: 'currency', 
+        currency: 'COP', 
+        maximumFractionDigits: 0 
+      }).format(num);
+    } else if (moneda === 'USD') {
+      return new Intl.NumberFormat('en-US', { 
+        style: 'currency', 
+        currency: 'USD', 
+        minimumFractionDigits: 2 
+      }).format(num);
+    } else if (moneda === 'EUR') {
+      return new Intl.NumberFormat('de-DE', { 
+        style: 'currency', 
+        currency: 'EUR', 
+        minimumFractionDigits: 2 
+      }).format(num);
+    }
+    return `$ ${num.toLocaleString()}`;
   };
 
   const canvasRef = useRef(null);
@@ -573,15 +598,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* VISTA DEL MODO ASISTIDO (LIENZO EN BLANCO) */}
-        {activeTab === 'asistido' && (
-          <ModoAsistido 
-            onVolverHome={() => setActiveTab('lobby')}
-            moneda={moneda}
-            formatearDinero={formatearDinero}
-          />
-        )}
-        {/* VISTA DEL SIMULADOR ASISTIDO */}
+{/* VISTA DEL SIMULADOR ASISTIDO */}
         {activeTab === 'simulador' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
@@ -596,7 +613,7 @@ export default function Home() {
                   <label className="text-xs text-gray-400">Precio Base Actual ({moneda})</label>
                   <input 
                     type="number" 
-                    value={precioOriginal}
+                    value={precioOriginal} 
                     onChange={(e) => setPrecioOriginal(Number(e.target.value))}
                     className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
@@ -606,7 +623,7 @@ export default function Home() {
                   <label className="text-xs text-gray-400">Nuevo Precio Simulado ({moneda})</label>
                   <input 
                     type="number" 
-                    value={nuevoPrecio}
+                    value={nuevoPrecio} 
                     onChange={(e) => setNuevoPrecio(Number(e.target.value))}
                     className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
@@ -616,7 +633,7 @@ export default function Home() {
                   <label className="text-xs text-gray-400">Costo Unitario de Proveedor ({moneda})</label>
                   <input 
                     type="number" 
-                    value={costoUnitario}
+                    value={costoUnitario} 
                     onChange={(e) => setCostoUnitario(Number(e.target.value))}
                     className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
@@ -626,7 +643,7 @@ export default function Home() {
                   <label className="text-xs text-gray-400">Unidades Históricas Vendidas</label>
                   <input 
                     type="number" 
-                    value={unidadesHistoricas}
+                    value={unidadesHistoricas} 
                     onChange={(e) => setUnidadesHistoricas(Number(e.target.value))}
                     className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
@@ -636,7 +653,7 @@ export default function Home() {
                   <label className="text-xs text-gray-400">Presupuesto de Marketing ({moneda})</label>
                   <input 
                     type="number" 
-                    value={presupuestoMkt}
+                    value={presupuestoMkt} 
                     onChange={(e) => setPresupuestoMkt(Number(e.target.value))}
                     className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 transition-colors font-mono"
                   />
@@ -649,7 +666,7 @@ export default function Home() {
                 <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-2 shadow-xl">
                   <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia Histórica</span>
                   <div className="text-3xl font-bold text-white tracking-tight font-mono">
-                    {formatearDinero(gananciaBase)}
+                    {formatearDineroDirecto(gananciaBase)}
                   </div>
                   <span className="text-[10px] text-gray-500">Línea base sin modificaciones</span>
                 </div>
@@ -657,10 +674,10 @@ export default function Home() {
                 <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl space-y-2 shadow-xl shadow-[#CF9D7B]/5">
                   <span className="text-xs text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Ganancia Proyectada</span>
                   <div className="text-3xl font-bold text-white tracking-tight font-mono">
-                    {formatearDinero(gananciaProyectada)}
+                    {formatearDineroDirecto(gananciaProyectada)}
                   </div>
                   <span className={`text-[11px] font-mono font-medium ${deltaGanancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {deltaGanancia >= 0 ? '▲ +' : '▼ -'}{formatearDinero(Math.abs(deltaGanancia))} vs Base
+                    {deltaGanancia >= 0 ? '▲ +' : '▼ -'}{formatearDineroDirecto(Math.abs(deltaGanancia))} vs Base
                   </span>
                 </div>
               </div>
@@ -670,7 +687,7 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">CAC Estimado</span>
-                    <p className="text-base font-bold text-white mt-1 font-mono">{formatearDinero(costoAdquisicion)}</p>
+                    <p className="text-base font-bold text-white mt-1 font-mono">{formatearDineroDirecto(costoAdquisicion)}</p>
                   </div>
                   <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B]">
                     <span className="text-[10px] text-gray-400 uppercase font-mono">Nuevos Clientes</span>
