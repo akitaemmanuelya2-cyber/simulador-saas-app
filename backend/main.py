@@ -128,24 +128,30 @@ async def tars_chat(request: ChatRequest):
     }
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-        res = requests.post(url, json=payload, timeout=25)
-        data = res.json()
+        # 1. Consultar dinámicamente qué modelos soportan generateContent para tu API key
+        list_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        list_res = requests.get(list_url, timeout=15)
         
+        modelo_seleccionado = "models/gemini-1.5-flash"
+        if list_res.status_code == 200:
+            modelos = list_res.json().get("models", [])
+            for m in modelos:
+                metodos = m.get("supportedGenerationMethods", [])
+                if "generateContent" in metodos and ("flash" in m["name"] or "pro" in m["name"] or "gemini" in m["name"]):
+                    modelo_seleccionado = m["name"]
+                    break
+
+        # 2. Llamar directamente al modelo detectado
+        url_generar = f"https://generativelanguage.googleapis.com/v1beta/{modelo_seleccionado}:generateContent?key={GEMINI_API_KEY}"
+        res = requests.post(url_generar, json=payload, timeout=25)
+        data = res.json()
+
         if res.status_code == 200:
             texto = data['candidates'][0]['content']['parts'][0]['text']
             return {"respuesta": texto}
         else:
-            # Fallback con gemini-2.0-flash
-            url_fallback = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-            res_fb = requests.post(url_fallback, json=payload, timeout=25)
-            data_fb = res_fb.json()
-            if res_fb.status_code == 200:
-                texto_fb = data_fb['candidates'][0]['content']['parts'][0]['text']
-                return {"respuesta": texto_fb}
-            
-            error_msg = data.get("error", {}).get("message", "Error en API de Google")
+            error_msg = data.get("error", {}).get("message", "Inconveniente al procesar solicitud con Gemini")
             return {"respuesta": f"Estimado(a) empresario(a), Google Gemini reporta: {error_msg}"}
-            
+
     except Exception as e:
         return {"respuesta": f"Estimado(a) empresario(a), inconveniente de red con la IA: {str(e)}"}
