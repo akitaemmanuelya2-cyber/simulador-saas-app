@@ -21,13 +21,15 @@ import {
   Bot,
   Send
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
   Cell,
   CartesianGrid
 } from 'recharts';
@@ -1051,6 +1053,64 @@ export default function Home() {
                     </div>
                   </div>
                 )}
+                {/* SUITE DE INTELIGENCIA VISUAL ADICIONAL: TENDENCIA & CONCENTRACIÓN */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+
+          {/* 1. Tendencia Temporal Mensual */}
+          <div className="bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl backdrop-blur-xl shadow-xl">
+            <div className="mb-4">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#CF9D7B]">Velocidad & Estacionalidad</span>
+              <h3 className="text-lg font-bold text-white tracking-tight">Tendencia de Ingresos Mensuales</h3>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={datosTendenciaMensual} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="gradVentas" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#CF9D7B" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#CF9D7B" stopOpacity={0.0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#16222C" vertical={false} />
+                  <XAxis dataKey="mes" stroke="#64748b" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0E171E', borderColor: '#1D2B36', borderRadius: '12px', fontSize: '12px' }}
+                    formatter={(val) => [formatearDinero(val), 'Facturación']}
+                  />
+                  <Area type="monotone" dataKey="ventas" stroke="#CF9D7B" strokeWidth={2.5} fillOpacity={1} fill="url(#gradVentas)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* 2. Concentración por Cliente (Pareto / Riesgo) */}
+          <div className="bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl backdrop-blur-xl shadow-xl">
+            <div className="mb-4">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Riesgo de Cartera & Concentración</span>
+              <h3 className="text-lg font-bold text-white tracking-tight">Top Clientes por Facturación</h3>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart layout="vertical" data={datosConcentracionClientes} margin={{ top: 10, right: 20, left: 25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#16222C" horizontal={false} />
+                  <XAxis type="number" stroke="#64748b" fontSize={11} tickLine={false} />
+                  <YAxis dataKey="cliente" type="category" stroke="#94a3b8" fontSize={10} tickLine={false} width={110} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0E171E', borderColor: '#1D2B36', borderRadius: '12px', fontSize: '12px' }}
+                    formatter={(val) => [formatearDinero(val), 'Compras']}
+                  />
+                  <Bar dataKey="ventas" fill="#1D2B36" radius={[0, 6, 6, 0]}>
+                    {(datosConcentracionClientes || []).map((_, i) => (
+                      <Cell key={`bar-${i}`} fill={i === 0 ? '#CF9D7B' : '#1e3a5f'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+        </div>
 
                 {/* Diagnóstico Rey vs Hueso */}
                 {datosAuditoria.diagnostico?.rey && (
