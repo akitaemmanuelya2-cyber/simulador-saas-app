@@ -133,28 +133,52 @@ export default function Home() {
     { mes: 'Dic', ventas: 527.81 * factorConversion },
   ];
 
-  // --- DETECCIÓN DINÁMICA DE CLIENTES ---
-  const tieneColumnaClientes = Boolean(
-    datosAuditoria?.filas?.some(fila => fila['Customer Name'] || fila['Cliente'] || fila['cliente'])
-  );
-
+// --- DETECCIÓN DINÁMICA UNIVERSAL DE CLIENTES ---
   const datosConcentracionClientes = React.useMemo(() => {
-    if (!datosAuditoria?.filas || !tieneColumnaClientes) return [];
+    // Si el backend ya devolvió el ranking de clientes precalculado
+    if (datosAuditoria?.ranking_clientes && Array.isArray(datosAuditoria.ranking_clientes) && datosAuditoria.ranking_clientes.length > 0) {
+      return datosAuditoria.ranking_clientes.slice(0, 5).map(c => ({
+        cliente: c.nombre || c.cliente || c['Customer Name'] || 'Cliente',
+        ventas: (parseFloat(c.ventas || c.total || c.Sales) || 0) * factorConversion
+      }));
+    }
+
+    // Si viene en el array de filas brutas
+    const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
+    if (!Array.isArray(filas) || filas.length === 0) return [];
 
     const mapaClientes = {};
-    datosAuditoria.filas.forEach((fila) => {
-      const cliente = fila['Customer Name'] || fila['Cliente'] || fila['cliente'];
-      const venta = parseFloat(fila['Sales'] || fila['Ventas'] || fila['ventas']) || 0;
-      if (cliente) {
-        mapaClientes[cliente] = (mapaClientes[cliente] || 0) + (venta * factorConversion);
+    let encontroColumna = false;
+
+    filas.forEach((fila) => {
+      // Búsqueda flexible de la clave de cliente sin importar mayúsculas/espacios
+      const claveCliente = Object.keys(fila).find(k => {
+        const norm = k.toLowerCase().trim().replace(/[\s_-]/g, '');
+        return norm === 'customername' || norm === 'cliente' || norm === 'nombrecliente' || norm === 'customer';
+      });
+
+      const claveVenta = Object.keys(fila).find(k => {
+        const norm = k.toLowerCase().trim().replace(/[\s_-]/g, '');
+        return norm === 'sales' || norm === 'ventas' || norm === 'venta' || norm === 'total';
+      });
+
+      if (claveCliente && fila[claveCliente]) {
+        encontroColumna = true;
+        const nombre = String(fila[claveCliente]).trim();
+        const valorVenta = parseFloat(fila[claveVenta || 'Sales']) || 0;
+        mapaClientes[nombre] = (mapaClientes[nombre] || 0) + (valorVenta * factorConversion);
       }
     });
+
+    if (!encontroColumna) return [];
 
     return Object.entries(mapaClientes)
       .map(([cliente, ventas]) => ({ cliente, ventas }))
       .sort((a, b) => b.ventas - a.ventas)
       .slice(0, 5);
-  }, [datosAuditoria, tieneColumnaClientes, factorConversion]);
+  }, [datosAuditoria, factorConversion]);
+
+  const tieneColumnaClientes = datosConcentracionClientes.length > 0;
 
   // --- MATEMÁTICAS DEL SIMULADOR TEMPORAL, METAS Y GRÁFICOS ---
   const margenUnitarioActual = Math.max(0, precioOriginal - costoUnitario);
