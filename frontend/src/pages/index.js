@@ -1097,14 +1097,34 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div 
+                  <div
                     className={`p-3 rounded-xl max-w-[80%] ${
                       msg.remitente === 'usuario'
                         ? 'bg-[#CF9D7B] text-[#05080A] rounded-tr-none font-medium'
                         : 'bg-[#0E171E] text-gray-300 border border-[#1D2B36] rounded-tl-none'
                     }`}
                   >
-                    <p>{msg.texto}</p>
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {typeof msg.texto === 'string'
+                        ? msg.texto.split(/(\*\*.*?\*\*)/g).map((parte, i) => {
+                            if (parte.startsWith('**') && parte.endsWith('**')) {
+                              return (
+                                <strong
+                                  key={i}
+                                  className={
+                                    msg.remitente === 'usuario'
+                                      ? 'font-bold text-black'
+                                      : 'text-[#CF9D7B] font-bold'
+                                  }
+                                >
+                                  {parte.slice(2, -2)}
+                                </strong>
+                              );
+                            }
+                            return parte;
+                          })
+                        : msg.texto}
+                    </p>
                   </div>
                 </div>
               ))}
