@@ -307,19 +307,19 @@ export default function Home() {
 
     try {
       const contextoNegocio = {
-        moneda,
-        datosAuditoria: datosAuditoria || null,
-        simulador: {
-          precioOriginal,
-          nuevoPrecio,
-          costoUnitario,
-          ventasPorDia,
-          mesesProyeccion,
-          metaIngreso,
-          gananciaTotalPeriodo,
-          margenUnitarioSimulado
-        }
-      };
+          monedaActiva: moneda, // 'USD', 'COP' o 'EUR'
+          datosAuditoria: datosAuditoria || null,
+          simulador: {
+            precioOriginal,
+            nuevoPrecio,
+            costoUnitario,
+            ventasPorDia,
+            mesesProyeccion,
+            metaIngreso,
+            gananciaTotalPeriodo,
+            margenUnitarioSimulado
+          }
+        };
 
       const res = await fetch('/api/chat', {
         method: 'POST',
