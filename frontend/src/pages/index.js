@@ -107,6 +107,7 @@ export default function Home() {
   const [cargandoCSV, setCargandoCSV] = useState(false);
   const [datosAuditoria, setDatosAuditoria] = useState(null);
   const [errorCSV, setErrorCSV] = useState(null);
+  const [subTabGrafica, setSubTabGrafica] = useState('productos');
 
 // Estados del Simulador Temporal y Metas
   const [precioOriginal, setPrecioOriginal] = useState(10000);
@@ -117,21 +118,8 @@ export default function Home() {
   const [metaIngreso, setMetaIngreso] = useState(5000000);
   // --- DATOS REACTIVOS PARA LA SUITE GRÁFICA DEL DETECTIVE CSV ---
   const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
-
-  const datosTendenciaMensual = datosAuditoria?.tendencia_mensual || [
-    { mes: 'Ene', ventas: 599.29 * factorConversion },
-    { mes: 'Feb', ventas: 148.97 * factorConversion },
-    { mes: 'Mar', ventas: 575.20 * factorConversion },
-    { mes: 'Abr', ventas: 934.11 * factorConversion },
-    { mes: 'May', ventas: 60.67 * factorConversion },
-    { mes: 'Jun', ventas: 217.90 * factorConversion },
-    { mes: 'Jul', ventas: 32.63 * factorConversion },
-    { mes: 'Ago', ventas: 769.63 * factorConversion },
-    { mes: 'Sep', ventas: 1424.52 * factorConversion },
-    { mes: 'Oct', ventas: 118.05 * factorConversion },
-    { mes: 'Nov', ventas: 1340.91 * factorConversion },
-    { mes: 'Dic', ventas: 527.81 * factorConversion },
-  ];
+  const datosTendenciaMensual = datosAuditoria?.tendencia_mensual || [];
+  
 
 // --- DETECCIÓN DINÁMICA UNIVERSAL DE CLIENTES ---
   const datosConcentracionClientes = React.useMemo(() => {
@@ -1054,165 +1042,123 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Gráfico Recharts */}
-                {datosAuditoria.ranking_productos?.length > 0 && (
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl space-y-4 shadow-2xl relative overflow-hidden">
-                    <div className="flex justify-between items-center relative z-10">
-                      <div>
-                        <span className="text-xs text-[#CF9D7B] font-semibold uppercase tracking-wider font-mono">Distribución de Ingresos</span>
-                        <h3 className="text-xl font-bold text-white tracking-tight mt-1">Top 5 Productos más Vendidos</h3>
-                      </div>
-                      <BarChart3 className="w-5 h-5 text-[#CF9D7B]" />
-                    </div>
+               {/* CENTRO ANALÍTICO VISUAL (SUBPESTAÑAS INTELIGENTES) */}
+        {datosAuditoria && (
+          <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
+            
+            {/* Cabecera y Selector de Subpestañas */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#16222C] pb-4">
+              <div>
+                <span className="text-xs text-[#CF9D7B] font-semibold uppercase tracking-wider font-mono">Centro Analítico Visual</span>
+                <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">
+                  {subTabGrafica === 'productos' && 'Top 5 Productos más Vendidos'}
+                  {subTabGrafica === 'tendencia' && 'Tendencia Temporal de Facturación'}
+                  {subTabGrafica === 'clientes' && 'Concentración de Cartera (Top Clientes)'}
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  {subTabGrafica === 'productos' && 'Distribución de ingresos por producto líder para identificar concentración de ventas.'}
+                  {subTabGrafica === 'tendencia' && 'Evolución y estacionalidad de ingresos mensuales en el período analizado.'}
+                  {subTabGrafica === 'clientes' && 'Evaluación del riesgo de concentración y dependencia en compradores clave.'}
+                </p>
+              </div>
 
-                    <div className="h-72 w-full pt-4 relative z-10">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={datosAuditoria.ranking_productos} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="barRey" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#E5B898" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#8F5D38" stopOpacity={0.8} />
-                            </linearGradient>
-                            <linearGradient id="barNormal" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#2A4354" stopOpacity={0.9} />
-                              <stop offset="100%" stopColor="#121F28" stopOpacity={0.8} />
-                            </linearGradient>
-                          </defs>
+              {/* Botones de Navegación Condicionales */}
+              <div className="flex items-center gap-2 bg-[#0E171E] p-1.5 rounded-xl border border-[#1E2D3D] self-start md:self-auto">
+                <button
+                  onClick={() => setSubTabGrafica('productos')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    subTabGrafica === 'productos'
+                      ? 'bg-[#CF9D7B] text-[#05080A] font-bold shadow-md'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Productos
+                </button>
 
-                          <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                          <XAxis dataKey="nombre" stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-                          <YAxis stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} />
-                          
-                          <Tooltip 
-                            cursor={{ fill: 'rgba(207, 157, 123, 0.08)' }}
-                            contentStyle={{ 
-                              backgroundColor: '#0D161C', 
-                              border: '1px solid rgba(207, 157, 123, 0.6)', 
-                              borderRadius: '12px', 
-                              padding: '10px 14px', 
-                              boxShadow: '0 12px 30px rgba(0,0,0,0.85)'
-                            }}
-                            labelStyle={{
-                              color: '#FFFFFF',
-                              fontWeight: '700',
-                              fontSize: '13px',
-                              marginBottom: '4px',
-                              fontFamily: 'monospace'
-                            }}
-                            itemStyle={{
-                              color: '#CF9D7B',
-                              fontWeight: '600',
-                              fontSize: '12px',
-                              fontFamily: 'monospace'
-                            }}
-                            formatter={(value) => [formatearDinero(value), 'Ventas Totales']}
-                          />
-                          <Bar dataKey="ventas" radius={[8, 8, 0, 0]} animationDuration={1000}>
-                            {datosAuditoria.ranking_productos.map((_, index) => (
-                              <Cell key={`cell-${index}`} fill={index === 0 ? 'url(#barRey)' : 'url(#barNormal)'} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
+                {datosTendenciaMensual && datosTendenciaMensual.length > 0 && (
+                  <button
+                    onClick={() => setSubTabGrafica('tendencia')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      subTabGrafica === 'tendencia'
+                        ? 'bg-[#CF9D7B] text-[#05080A] font-bold shadow-md'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Estacionalidad
+                  </button>
                 )}
-                {/* SUITE DE INTELIGENCIA VISUAL ADICIONAL: TENDENCIA & CONCENTRACIÓN */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
-          {/* 1. Tendencia Temporal Mensual */}
-          <div className="bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl backdrop-blur-xl shadow-xl">
-            <div className="mb-4">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#CF9D7B]">Velocidad & Estacionalidad</span>
-              <h3 className="text-lg font-bold text-white tracking-tight">Tendencia de Ingresos Mensuales</h3>
+                {datosConcentracionClientes && datosConcentracionClientes.length > 0 && (
+                  <button
+                    onClick={() => setSubTabGrafica('clientes')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      subTabGrafica === 'clientes'
+                        ? 'bg-[#CF9D7B] text-[#05080A] font-bold shadow-md'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Clientes
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="h-64 w-full">
+
+            {/* Contenedor del Gráfico Activo */}
+            <div className="h-72 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={datosTendenciaMensual} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="gradVentas" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#CF9D7B" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#CF9D7B" stopOpacity={0.0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#16222C" vertical={false} />
-                  <XAxis dataKey="mes" stroke="#64748b" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0E171E', borderColor: '#1D2B36', borderRadius: '12px', fontSize: '12px' }}
-                    formatter={(val) => [formatearDinero(val), 'Facturación']}
-                  />
-                  <Area type="monotone" dataKey="ventas" stroke="#CF9D7B" strokeWidth={2.5} fillOpacity={1} fill="url(#gradVentas)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          {/* 2. Panel Dinámico: Concentración de Clientes o Aviso Elegante */}
-          <div className="bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl backdrop-blur-xl shadow-xl flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Riesgo de Cartera & Concentración</span>
-              <h3 className="text-lg font-bold text-white tracking-tight">Top Clientes por Facturación</h3>
-            </div>
-
-            {tieneColumnaClientes && datosConcentracionClientes.length > 0 ? (
-              <div className="h-64 w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart layout="vertical" data={datosConcentracionClientes} margin={{ top: 10, right: 20, left: 25, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#16222C" horizontal={false} />
-                    <XAxis type="number" stroke="#64748b" fontSize={11} tickLine={false} />
-                    <YAxis dataKey="cliente" type="category" stroke="#94a3b8" fontSize={10} tickLine={false} width={110} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#0E171E', borderColor: '#1D2B36', borderRadius: '12px', fontSize: '12px' }}
-                      formatter={(val) => [formatearDinero(val), 'Compras']}
+                {subTabGrafica === 'productos' ? (
+                  <BarChart data={datosAuditoria.ranking_productos} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+                    <XAxis dataKey="nombre" stroke="#6B7280" fontSize={11} tickLine={false} />
+                    <YAxis stroke="#6B7280" fontSize={11} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2E39', borderRadius: '12px', fontSize: '12px' }}
+                      formatter={(val) => [formatearDinero(val), 'Ventas Totales']}
                     />
-                    <Bar dataKey="ventas" fill="#1D2B36" radius={[0, 6, 6, 0]}>
-                      {datosConcentracionClientes.map((_, i) => (
-                        <Cell key={`bar-${i}`} fill={i === 0 ? '#CF9D7B' : '#1e3a5f'} />
+                    <Bar dataKey="ventas" fill="#CF9D7B" radius={[6, 6, 0, 0]}>
+                      {(datosAuditoria.ranking_productos || []).map((_, index) => (
+                        <Cell key={`bar-prod-${index}`} fill={index === 0 ? '#CF9D7B' : '#1e3a5f'} />
                       ))}
                     </Bar>
                   </BarChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-64 w-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-[#1E2D3D] rounded-xl my-auto">
-                <div className="w-10 h-10 rounded-full bg-[#0E171E] border border-[#2A3A4A] flex items-center justify-center mb-3 text-[#CF9D7B]">
-                  <AlertCircle className="w-5 h-5 opacity-80" />
-                </div>
-                <p className="text-sm font-semibold text-gray-200">Sin trazabilidad de clientes</p>
-                <p className="text-xs text-gray-400 mt-1 max-w-xs">
-                  El archivo CSV procesado no cuenta con columnas como <code className="text-[#CF9D7B] font-mono">Customer Name</code> o <code className="text-[#CF9D7B] font-mono">Cliente</code>.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* 2. Concentración por Cliente (Pareto / Riesgo) */}
-          <div className="bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl backdrop-blur-xl shadow-xl">
-            <div className="mb-4">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Riesgo de Cartera & Concentración</span>
-              <h3 className="text-lg font-bold text-white tracking-tight">Top Clientes por Facturación</h3>
-            </div>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart layout="vertical" data={datosConcentracionClientes} margin={{ top: 10, right: 20, left: 25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#16222C" horizontal={false} />
-                  <XAxis type="number" stroke="#64748b" fontSize={11} tickLine={false} />
-                  <YAxis dataKey="cliente" type="category" stroke="#94a3b8" fontSize={10} tickLine={false} width={110} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0E171E', borderColor: '#1D2B36', borderRadius: '12px', fontSize: '12px' }}
-                    formatter={(val) => [formatearDinero(val), 'Compras']}
-                  />
-                  <Bar dataKey="ventas" fill="#1D2B36" radius={[0, 6, 6, 0]}>
-                    {(datosConcentracionClientes || []).map((_, i) => (
-                      <Cell key={`bar-${i}`} fill={i === 0 ? '#CF9D7B' : '#1e3a5f'} />
-                    ))}
-                  </Bar>
-                </BarChart>
+                ) : subTabGrafica === 'tendencia' ? (
+                  <AreaChart data={datosTendenciaMensual} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorTendencia" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#CF9D7B" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#CF9D7B" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+                    <XAxis dataKey="mes" stroke="#6B7280" fontSize={11} tickLine={false} />
+                    <YAxis stroke="#6B7280" fontSize={11} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2E39', borderRadius: '12px', fontSize: '12px' }}
+                      formatter={(val) => [formatearDinero(val), 'Facturación']}
+                    />
+                    <Area type="monotone" dataKey="ventas" stroke="#CF9D7B" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTendencia)" />
+                  </AreaChart>
+                ) : (
+                  <BarChart layout="vertical" data={datosConcentracionClientes} margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" horizontal={false} />
+                    <XAxis type="number" stroke="#6B7280" fontSize={11} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
+                    <YAxis dataKey="cliente" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} width={120} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2E39', borderRadius: '12px', fontSize: '12px' }}
+                      formatter={(val) => [formatearDinero(val), 'Compras Totales']}
+                    />
+                    <Bar dataKey="ventas" fill="#1D2B36" radius={[0, 6, 6, 0]}>
+                      {(datosConcentracionClientes || []).map((_, i) => (
+                        <Cell key={`bar-cli-${i}`} fill={i === 0 ? '#CF9D7B' : '#1e3a5f'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                )}
               </ResponsiveContainer>
             </div>
-          </div>
 
-        </div>
+          </div>
+        )}
 
                 {/* Diagnóstico Rey vs Hueso */}
                 {datosAuditoria.diagnostico?.rey && (
