@@ -115,6 +115,31 @@ export default function Home() {
   const [ventasPorDia, setVentasPorDia] = useState(20);
   const [mesesProyeccion, setMesesProyeccion] = useState(2);
   const [metaIngreso, setMetaIngreso] = useState(5000000);
+  // --- DATOS REACTIVOS PARA LA SUITE GRÁFICA DEL DETECTIVE CSV ---
+  const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
+
+  const datosTendenciaMensual = datosAuditoria?.tendencia_mensual || [
+    { mes: 'Ene', ventas: 599.29 * factorConversion },
+    { mes: 'Feb', ventas: 148.97 * factorConversion },
+    { mes: 'Mar', ventas: 575.20 * factorConversion },
+    { mes: 'Abr', ventas: 934.11 * factorConversion },
+    { mes: 'May', ventas: 60.67 * factorConversion },
+    { mes: 'Jun', ventas: 217.90 * factorConversion },
+    { mes: 'Jul', ventas: 32.63 * factorConversion },
+    { mes: 'Ago', ventas: 769.63 * factorConversion },
+    { mes: 'Sep', ventas: 1424.52 * factorConversion },
+    { mes: 'Oct', ventas: 118.05 * factorConversion },
+    { mes: 'Nov', ventas: 1340.91 * factorConversion },
+    { mes: 'Dic', ventas: 527.81 * factorConversion },
+  ];
+
+  const datosConcentracionClientes = datosAuditoria?.concentracion_clientes || [
+    { cliente: 'Sandra Milena Gómez', ventas: 1413.15 * factorConversion },
+    { cliente: 'Juan Fernando Q.', ventas: 889.24 * factorConversion },
+    { cliente: 'María Camila O.', ventas: 886.88 * factorConversion },
+    { cliente: 'Luz Marina Z.', ventas: 805.03 * factorConversion },
+    { cliente: 'Gloria Amparo M.', ventas: 580.47 * factorConversion },
+  ];
 
   // --- MATEMÁTICAS DEL SIMULADOR TEMPORAL, METAS Y GRÁFICOS ---
   const margenUnitarioActual = Math.max(0, precioOriginal - costoUnitario);
