@@ -133,13 +133,28 @@ export default function Home() {
     { mes: 'Dic', ventas: 527.81 * factorConversion },
   ];
 
-  const datosConcentracionClientes = datosAuditoria?.concentracion_clientes || [
-    { cliente: 'Sandra Milena Gómez', ventas: 1413.15 * factorConversion },
-    { cliente: 'Juan Fernando Q.', ventas: 889.24 * factorConversion },
-    { cliente: 'María Camila O.', ventas: 886.88 * factorConversion },
-    { cliente: 'Luz Marina Z.', ventas: 805.03 * factorConversion },
-    { cliente: 'Gloria Amparo M.', ventas: 580.47 * factorConversion },
-  ];
+  // --- DETECCIÓN DINÁMICA DE CLIENTES ---
+  const tieneColumnaClientes = Boolean(
+    datosAuditoria?.filas?.some(fila => fila['Customer Name'] || fila['Cliente'] || fila['cliente'])
+  );
+
+  const datosConcentracionClientes = React.useMemo(() => {
+    if (!datosAuditoria?.filas || !tieneColumnaClientes) return [];
+
+    const mapaClientes = {};
+    datosAuditoria.filas.forEach((fila) => {
+      const cliente = fila['Customer Name'] || fila['Cliente'] || fila['cliente'];
+      const venta = parseFloat(fila['Sales'] || fila['Ventas'] || fila['ventas']) || 0;
+      if (cliente) {
+        mapaClientes[cliente] = (mapaClientes[cliente] || 0) + (venta * factorConversion);
+      }
+    });
+
+    return Object.entries(mapaClientes)
+      .map(([cliente, ventas]) => ({ cliente, ventas }))
+      .sort((a, b) => b.ventas - a.ventas)
+      .slice(0, 5);
+  }, [datosAuditoria, tieneColumnaClientes, factorConversion]);
 
   // --- MATEMÁTICAS DEL SIMULADOR TEMPORAL, METAS Y GRÁFICOS ---
   const margenUnitarioActual = Math.max(0, precioOriginal - costoUnitario);
@@ -1107,6 +1122,44 @@ export default function Home() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+          </div>
+          {/* 2. Panel Dinámico: Concentración de Clientes o Aviso Elegante */}
+          <div className="bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl backdrop-blur-xl shadow-xl flex flex-col justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Riesgo de Cartera & Concentración</span>
+              <h3 className="text-lg font-bold text-white tracking-tight">Top Clientes por Facturación</h3>
+            </div>
+
+            {tieneColumnaClientes && datosConcentracionClientes.length > 0 ? (
+              <div className="h-64 w-full mt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart layout="vertical" data={datosConcentracionClientes} margin={{ top: 10, right: 20, left: 25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#16222C" horizontal={false} />
+                    <XAxis type="number" stroke="#64748b" fontSize={11} tickLine={false} />
+                    <YAxis dataKey="cliente" type="category" stroke="#94a3b8" fontSize={10} tickLine={false} width={110} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#0E171E', borderColor: '#1D2B36', borderRadius: '12px', fontSize: '12px' }}
+                      formatter={(val) => [formatearDinero(val), 'Compras']}
+                    />
+                    <Bar dataKey="ventas" fill="#1D2B36" radius={[0, 6, 6, 0]}>
+                      {datosConcentracionClientes.map((_, i) => (
+                        <Cell key={`bar-${i}`} fill={i === 0 ? '#CF9D7B' : '#1e3a5f'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-64 w-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-[#1E2D3D] rounded-xl my-auto">
+                <div className="w-10 h-10 rounded-full bg-[#0E171E] border border-[#2A3A4A] flex items-center justify-center mb-3 text-[#CF9D7B]">
+                  <AlertCircle className="w-5 h-5 opacity-80" />
+                </div>
+                <p className="text-sm font-semibold text-gray-200">Sin trazabilidad de clientes</p>
+                <p className="text-xs text-gray-400 mt-1 max-w-xs">
+                  El archivo CSV procesado no cuenta con columnas como <code className="text-[#CF9D7B] font-mono">Customer Name</code> o <code className="text-[#CF9D7B] font-mono">Cliente</code>.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 2. Concentración por Cliente (Pareto / Riesgo) */}
