@@ -430,6 +430,59 @@ export default function Home() {
         headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
         styles: { fontSize: 9, cellPadding: 3 },
       });
+      // 4. BITÁCORA ESTRATÉGICA CON MINI TARS
+    if (historialMensajes && historialMensajes.length > 0) {
+      let posY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 14 : 200;
+
+      if (posY > 240) {
+        doc.addPage();
+        posY = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(15, 23, 42); // Slate oscuro
+      doc.text("4. BITÁCORA ESTRATÉGICA & DIÁLOGO CON COPILOTO AI (MINI TARS)", 14, posY);
+      posY += 8;
+
+      historialMensajes.forEach((msg) => {
+        const esUsuario = msg.remitente === 'usuario';
+        const emisor = esUsuario ? "USUARIO" : "MINI TARS";
+        
+        // Limpieza de caracteres de markdown para un PDF impecable
+        const textoLimpio = (typeof msg.texto === 'string' ? msg.texto : '')
+          .replace(/\*\*/g, '')
+          .replace(/\*/g, '');
+
+        const lineasTexto = doc.splitTextToSize(textoLimpio, 175);
+        const alturaBloque = lineasTexto.length * 4.5 + 8;
+
+        // Salto automático de página si el mensaje supera el margen inferior
+        if (posY + alturaBloque > 280) {
+          doc.addPage();
+          posY = 20;
+        }
+
+        // Encabezado del remitente
+        doc.setFontSize(8.5);
+        doc.setFont("helvetica", "bold");
+        if (esUsuario) {
+          doc.setTextColor(207, 157, 123); // Cobre / Ámbar #CF9D7B
+        } else {
+          doc.setTextColor(51, 65, 85);
+        }
+        doc.text(`[${emisor}]`, 14, posY);
+        posY += 4.5;
+
+        // Cuerpo del mensaje
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(71, 85, 105);
+        doc.text(lineasTexto, 14, posY);
+
+        posY += lineasTexto.length * 4.2 + 4;
+      });
+    }
 
       doc.save('Reporte_Auditoria_Forense.pdf');
     } catch (error) {
