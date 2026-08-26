@@ -279,51 +279,49 @@ export default function Home() {
     }
   };
 
-  // Transferir datos al Simulador
+// Transferir datos al Simulador (Actualizado a ventas por día)
   const transferirAlSimulador = () => {
     if (!datosAuditoria) return;
     const precio = Math.round(datosAuditoria.precio_promedio) || 50000;
     const unidades = Math.round(datosAuditoria.unidades_historicas) || 100;
-    
+
     setPrecioOriginal(precio);
     setNuevoPrecio(Math.round(precio * 1.10));
     setCostoUnitario(Math.round(precio * 0.50));
-    setUnidadesHistoricas(unidades);
+    setVentasPorDia(Math.max(1, Math.round(unidades / 30))); // Calcula el promedio diario mensual
+    setMesesProyeccion(2);
     setActiveTab('simulador');
   };
 
-  // Enviar consulta interactiva a Mini-TARS
+  // Enviar consulta interactiva a Mini-TARS vía API Route interna
   const handleEnviarMensajeChat = async (e) => {
     if (e) e.preventDefault();
     if (!mensajeInput.trim() || cargandoChat) return;
 
     const textoUsuario = mensajeInput.trim();
     setMensajeInput('');
-    
+
     const nuevoHistorial = [...historialMensajes, { remitente: 'usuario', texto: textoUsuario }];
     setHistorialMensajes(nuevoHistorial);
     setCargandoChat(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
-      
       const contextoNegocio = {
+        moneda,
         datosAuditoria: datosAuditoria || null,
         simulador: {
           precioOriginal,
           nuevoPrecio,
           costoUnitario,
-          unidadesHistoricas,
-          presupuestoMkt,
-          gananciaBase,
-          gananciaProyectada,
-          deltaGanancia,
-          costoAdquisicion,
-          nuevosClientes
+          ventasPorDia,
+          mesesProyeccion,
+          metaIngreso,
+          gananciaTotalPeriodo,
+          margenUnitarioSimulado
         }
       };
 
-      const response = await fetch(`${apiUrl}/api/tars-chat`, {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -332,18 +330,22 @@ export default function Home() {
         })
       });
 
-      if (!response.ok) throw new Error('Error en la respuesta de Mini-TARS');
+      const data = await res.json();
 
-      const data = await response.json();
-      setHistorialMensajes([...nuevoHistorial, { remitente: 'tars', texto: data.respuesta || data.mensaje || 'Listo, analizado.' }]);
-    } catch (err) {
-      setHistorialMensajes([
-        ...nuevoHistorial, 
-        { 
+      if (data.respuesta) {
+        setHistorialMensajes(prev => [...prev, { remitente: 'tars', texto: data.respuesta }]);
+      } else {
+        setHistorialMensajes(prev => [...prev, { 
           remitente: 'tars', 
-          texto: 'Disculpa, tuve un microcorte con el enlace cuántico en el servidor. Verifica que la API de Render esté activa e inténtalo de nuevo.' 
-        }
-      ]);
+          texto: 'No pude obtener una respuesta válida. Revisa la configuración de la clave de Gemini.' 
+        }]);
+      }
+    } catch (error) {
+      console.error('Error comunicando con Mini-TARS:', error);
+      setHistorialMensajes(prev => [...prev, { 
+        remitente: 'tars', 
+        texto: 'Hubo un error de conexión al consultar con Mini-TARS.' 
+      }]);
     } finally {
       setCargandoChat(false);
     }
