@@ -1105,26 +1105,42 @@ export default function Home() {
                     }`}
                   >
                     <p className="whitespace-pre-wrap leading-relaxed">
-                      {typeof msg.texto === 'string'
-                        ? msg.texto.split(/(\*\*.*?\*\*)/g).map((parte, i) => {
-                            if (parte.startsWith('**') && parte.endsWith('**')) {
-                              return (
-                                <strong
-                                  key={i}
-                                  className={
-                                    msg.remitente === 'usuario'
-                                      ? 'font-bold text-black'
-                                      : 'text-[#CF9D7B] font-bold'
-                                  }
-                                >
-                                  {parte.slice(2, -2)}
-                                </strong>
-                              );
-                            }
-                            return parte;
-                          })
-                        : msg.texto}
-                    </p>
+  {typeof msg.texto === 'string'
+    ? msg.texto.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((parte, i) => {
+        // Negrita con doble asterisco: **texto**
+        if (parte.startsWith('**') && parte.endsWith('**') && parte.length > 4) {
+          return (
+            <strong
+              key={i}
+              className={
+                msg.remitente === 'usuario'
+                  ? 'font-bold text-black'
+                  : 'text-[#CF9D7B] font-bold'
+              }
+            >
+              {parte.slice(2, -2)}
+            </strong>
+          );
+        }
+        // Cursiva / Resalte con asterisco simple: *texto*
+        if (parte.startsWith('*') && parte.endsWith('*') && parte.length > 2) {
+          return (
+            <span
+              key={i}
+              className={
+                msg.remitente === 'usuario'
+                  ? 'italic'
+                  : 'text-[#CF9D7B] font-medium italic'
+              }
+            >
+              {parte.slice(1, -1)}
+            </span>
+          );
+        }
+        return parte;
+      })
+    : msg.texto}
+</p>
                   </div>
                 </div>
               ))}
