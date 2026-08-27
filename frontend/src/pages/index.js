@@ -1509,55 +1509,75 @@ export default function Home() {
           </div>
         )}
 
-        {/* 💥 Cinemática: Vuelo desde el fondo + Choque contra la pantalla + Caída a cabina */}
+        {/* 🚀 Cinemática: Mini Nave Espacial con Giros 360° y Fuego de Aterrizaje Cian/Naranja */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
-          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
-            {/* Animación del Robot volando y estrellándose */}
             <motion.div
-              initial={{ scale: 0.05, opacity: 0, x: 0, y: 0, rotate: 0 }}
+              initial={{ 
+                x: '-10vw', 
+                y: '10vh', 
+                scale: 0.6, 
+                rotate: 15, 
+                opacity: 0 
+              }}
               animate={{
-                // 1. Zoom brutal hacia el centro -> 2. Impacto aplastado -> 3. Resbalón y caída a la esquina
-                scale: [0.05, 2.4, 2.2, 2.2, 1],
-                opacity: [0, 1, 1, 1, 1],
-                x: ['0vw', '0vw', '0vw', '10vw', 'calc(50vw - 4.5rem)'],
-                y: ['0vh', '0vh', '0vh', '15vh', 'calc(50vh - 4.5rem)'],
-                rotate: [0, -12, 12, 25, 0]
+                // Recorrido espacial: entra, sube, da loop 360 sobre tarjetas, baja y aterriza en esquina
+                x: ['-10vw', '25vw', '55vw', '35vw', 'calc(100vw - 6rem)', 'calc(100vw - 5.5rem)'],
+                y: ['10vh', '15vh', '30vh', '55vh', 'calc(100vh - 8rem)', 'calc(100vh - 5.5rem)'],
+                rotate: [15, 45, 390, 740, 360, 0], // Doble giro 360° acrobático
+                scale: [0.6, 1.1, 1.25, 1.1, 0.95, 1],
+                opacity: [0, 1, 1, 1, 1, 1]
               }}
               transition={{
-                duration: 3.4,
-                times: [0, 0.35, 0.5, 0.7, 1],
+                duration: 4.2,
+                times: [0, 0.25, 0.5, 0.75, 0.92, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
-              className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/95 backdrop-blur-xl border-2 border-[#CF9D7B] shadow-[0_0_50px_rgba(207,157,123,0.8)] pointer-events-auto cursor-pointer"
+              className="absolute flex items-center justify-center pointer-events-auto cursor-pointer"
               onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
-              <Bot className="w-8 h-8 text-[#CF9D7B]" />
-              <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
-            </motion.div>
+              {/* Contenedor Cápsula / Nave Espacial */}
+              <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#081016]/95 backdrop-blur-xl border border-[#38BDF8]/60 shadow-[0_0_30px_rgba(56,189,248,0.4)]">
+                
+                {/* Cabina con Mini-TARS */}
+                <Bot className="w-7 h-7 text-[#CF9D7B] animate-pulse" />
+                <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
 
-            {/* ⚡ Efecto de Grietas en la Pantalla (Vidrio roto al momento exacto del choque) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{
-                opacity: [0, 0, 1, 0.8, 0],
-                scale: [0.5, 0.5, 1.2, 1.2, 1.3]
-              }}
-              transition={{
-                duration: 3.4,
-                times: [0, 0.34, 0.36, 0.65, 0.85],
-                ease: "easeOut"
-              }}
-              className="absolute pointer-events-none w-72 h-72 flex items-center justify-center"
-            >
-              <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#CF9D7B] fill-none drop-shadow-[0_0_12px_rgba(207,157,123,0.9)]">
-                {/* Red de fracturas y grietas de vidrio */}
-                <path d="M100 100 L30 40 M100 100 L170 30 M100 100 L180 140 M100 100 L40 160 M100 100 L100 20 M100 100 L110 185" strokeWidth="2.5" />
-                <path d="M60 65 L45 90 M140 60 L160 85 M145 125 L120 150 M70 135 L50 120" strokeWidth="1.5" />
-                <polygon points="90,95 105,90 110,105 95,110" strokeWidth="1.5" stroke="#38BDF8" fill="rgba(56,189,248,0.15)" />
-                <circle cx="100" cy="100" r="18" strokeWidth="1" strokeDasharray="4 3" stroke="#FFFFFF" />
-              </svg>
+                {/* 🔥 Fuego y Humo de Propulsión / Aterrizaje (Azul Cian + Naranja) */}
+                <motion.div
+                  animate={{
+                    scale: [0.9, 1.3, 0.9],
+                    opacity: [0.8, 1, 0.8]
+                  }}
+                  transition={{ repeat: Infinity, duration: 0.15, ease: "linear" }}
+                  className="absolute -bottom-6 w-12 h-10 pointer-events-none flex items-center justify-center"
+                >
+                  <svg viewBox="0 0 100 80" className="w-full h-full overflow-visible drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                    {/* Llamarada externa naranja */}
+                    <path d="M40 0 C30 30, 20 50, 50 80 C80 50, 70 30, 60 0 Z" fill="url(#plasmaOrange)" opacity="0.9" />
+                    {/* Núcleo de plasma azul cian */}
+                    <path d="M45 0 C38 20, 32 35, 50 60 C68 35, 62 20, 55 0 Z" fill="url(#plasmaCyan)" opacity="0.95" />
+                    {/* Ondas / humo de expansión en la base */}
+                    <ellipse cx="50" cy="72" rx="35" ry="8" fill="rgba(56, 189, 248, 0.3)" />
+                    <ellipse cx="50" cy="68" rx="22" ry="5" fill="rgba(249, 115, 22, 0.4)" />
+
+                    <defs>
+                      <linearGradient id="plasmaOrange" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#F97316" stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#CF9D7B" stopOpacity="0.2" />
+                      </linearGradient>
+                      <linearGradient id="plasmaCyan" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+                        <stop offset="40%" stopColor="#38BDF8" stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#0284C7" stopOpacity="0.1" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </motion.div>
+
+              </div>
             </motion.div>
 
           </div>
