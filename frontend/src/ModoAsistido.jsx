@@ -284,27 +284,42 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
       {reporteGenerado && (
         <div className="space-y-8 animate-fadeIn">
           
-          {/* Métricas Clave */}
+          {/* Métricas Clave con Explicación Clara */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
-              <span className="text-xs text-gray-400 font-mono uppercase">Ventas Totales</span>
-              <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">{formatoMoneda(reporteGenerado.totalVentas)}</p>
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+              <div>
+                <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ventas Totales</span>
+                <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">{formatoMoneda(reporteGenerado.totalVentas)}</p>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-2">Dinero bruto ingresado por todas las ventas.</p>
             </div>
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
-              <span className="text-xs text-gray-400 font-mono uppercase">Costo Proveedores</span>
-              <p className="text-2xl font-bold text-gray-300 mt-1 font-mono">{formatoMoneda(reporteGenerado.totalCostos)}</p>
+
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+              <div>
+                <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Costo Proveedores</span>
+                <p className="text-2xl font-bold text-gray-300 mt-1 font-mono">{formatoMoneda(reporteGenerado.totalCostos)}</p>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-2">Lo que te costó comprar la mercancía.</p>
             </div>
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
-              <span className="text-xs text-gray-400 font-mono uppercase">Ganancia Bruta</span>
-              <p className="text-2xl font-bold text-emerald-400 mt-1 font-mono">{formatoMoneda(reporteGenerado.gananciaTotal)}</p>
+
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+              <div>
+                <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia Bruta</span>
+                <p className="text-2xl font-bold text-emerald-400 mt-1 font-mono">{formatoMoneda(reporteGenerado.gananciaTotal)}</p>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-2">La plata real que te queda en el bolsillo.</p>
             </div>
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
-              <span className="text-xs text-gray-400 font-mono uppercase">Precio Promedio</span>
-              <p className="text-2xl font-bold text-white mt-1 font-mono">{formatoMoneda(reporteGenerado.precioPromedio)}</p>
+
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+              <div>
+                <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Precio Promedio</span>
+                <p className="text-2xl font-bold text-white mt-1 font-mono">{formatoMoneda(reporteGenerado.precioPromedio)}</p>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-2">Ticket medio por cada unidad que vendes.</p>
             </div>
           </div>
 
-          {/* SUITE GRÁFICA MULTI-PESTAÑA Y TRIADA DE DIAGNÓSTICO */}
+          {/* SUITE GRÁFICA MULTI-PESTAÑA Y TRÍADA DE DIAGNÓSTICO */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* Panel Gráfico Interactivo (7 cols) */}
@@ -313,12 +328,12 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#141F28] pb-3">
                   <div>
                     <span className="text-[10px] font-mono text-[#CF9D7B] uppercase tracking-wider font-semibold">
-                      Suite Visual // Catálogo
+                      Vista Gráfica
                     </span>
                     <h4 className="text-base font-bold text-white tracking-tight">
-                      {tabGraficaAsistido === 'barras' && 'Participación por Producto'}
-                      {tabGraficaAsistido === 'matriz' && 'Matriz de Margen Unitario (3D)'}
-                      {tabGraficaAsistido === 'estructura' && 'Composición: Costos vs. Ganancia'}
+                      {tabGraficaAsistido === 'barras' && '¿Cómo se reparten tus ventas?'}
+                      {tabGraficaAsistido === 'matriz' && 'Costo vs. Precio de Venta (3D)'}
+                      {tabGraficaAsistido === 'estructura' && '¿Cuánto se va al proveedor y cuánto te queda?'}
                     </h4>
                   </div>
 
@@ -368,14 +383,14 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                       onClick={() => setCriterioBarras('ventas')}
                       className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${criterioBarras === 'ventas' ? 'bg-[#38BDF8]/20 text-[#38BDF8] font-bold' : 'text-gray-500 hover:text-gray-300'}`}
                     >
-                      • Facturación Total
+                      • Por Dinero ($)
                     </button>
                     <button
                       type="button"
                       onClick={() => setCriterioBarras('unidades')}
                       className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${criterioBarras === 'unidades' ? 'bg-[#F472B6]/20 text-[#F472B6] font-bold' : 'text-gray-500 hover:text-gray-300'}`}
                     >
-                      • Rotación (Uds)
+                      • Por Cantidad (Uds)
                     </button>
                   </div>
                 )}
@@ -404,12 +419,12 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                                   {data.nombre}
                                 </p>
                                 <p className="text-gray-300">
-                                  {esUds ? 'Unidades Vendidas: ' : 'Facturación: '}
+                                  {esUds ? 'Unidades vendidas: ' : 'Ventas totales: '}
                                   <span className={`font-mono font-bold ${esUds ? 'text-[#F472B6]' : 'text-[#38BDF8]'}`}>
                                     {esUds ? `${data.unidades} uds` : formatoMoneda(data.ventas)}
                                   </span>
                                 </p>
-                                <p className="text-gray-400 text-[10px]">Margen: {data.margenPct.toFixed(1)}%</p>
+                                <p className="text-gray-400 text-[10px]">Margen de ganancia: {data.margenPct.toFixed(1)}%</p>
                               </div>
                             );
                           }
@@ -462,9 +477,9 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
                                   {data.nombre}
                                 </p>
-                                <p className="text-gray-300">Costo Proveedor: <span className="font-mono text-gray-400">{formatoMoneda(data.costoUnitario)}</span></p>
-                                <p className="text-gray-300">Precio Venta: <span className="font-mono text-[#38BDF8]">{formatoMoneda(data.precioUnitario)}</span></p>
-                                <p className="text-gray-300">Margen Unitario: <span className="font-mono text-[#34D399] font-bold">+{formatoMoneda(data.precioUnitario - data.costoUnitario)} ({data.margenPct.toFixed(1)}%)</span></p>
+                                <p className="text-gray-300">Te cuesta: <span className="font-mono text-gray-400">{formatoMoneda(data.costoUnitario)}</span></p>
+                                <p className="text-gray-300">Lo vendes en: <span className="font-mono text-[#38BDF8]">{formatoMoneda(data.precioUnitario)}</span></p>
+                                <p className="text-gray-300">Ganas por unidad: <span className="font-mono text-[#34D399] font-bold">+{formatoMoneda(data.precioUnitario - data.costoUnitario)} ({data.margenPct.toFixed(1)}%)</span></p>
                               </div>
                             );
                           }
@@ -508,9 +523,9 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                             return (
                               <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
                                 <p className="font-bold text-white">{data.nombre}</p>
-                                <p className="text-gray-300">Costo Total: <span className="font-mono text-rose-400">{formatoMoneda(data.costos)}</span></p>
-                                <p className="text-gray-300">Ganancia Bruta: <span className="font-mono text-[#34D399] font-bold">+{formatoMoneda(data.ganancia)}</span></p>
-                                <p className="text-gray-400 text-[10px] border-t border-[#1E2D3D] pt-1">Total Facturado: {formatoMoneda(data.ventas)}</p>
+                                <p className="text-gray-300">Al proveedor: <span className="font-mono text-rose-400">{formatoMoneda(data.costos)}</span></p>
+                                <p className="text-gray-300">Para tu bolsillo: <span className="font-mono text-[#34D399] font-bold">+{formatoMoneda(data.ganancia)}</span></p>
+                                <p className="text-gray-400 text-[10px] border-t border-[#1E2D3D] pt-1">Total vendido: {formatoMoneda(data.ventas)}</p>
                               </div>
                             );
                           }
@@ -525,53 +540,53 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
 
               </div>
 
-              {/* Descripción Ejecutiva Dinámica en Lenguaje Natural */}
-              <div className="p-3 bg-[#0A1218] border border-[#182633] rounded-xl text-xs">
+              {/* Descripción Clara y Relajada en Lenguaje Natural */}
+              <div className="p-3.5 bg-[#0A1218] border border-[#182633] rounded-xl text-xs">
                 {tabGraficaAsistido === 'barras' && (
                   <p className="text-gray-300 leading-relaxed">
-                    <span className="text-[#38BDF8] font-bold">Diagnóstico de Volumen:</span> El producto líder en volumen es <strong className="text-white">{reporteGenerado.rey.nombre}</strong> con <span className="text-[#38BDF8] font-mono">{formatoMoneda(reporteGenerado.rey.ventas)}</span> generados ({reporteGenerado.rey.unidades} unidades).
+                    <span className="text-[#38BDF8] font-bold">En resumen:</span> Tu producto más fuerte en ventas es <strong className="text-white">{reporteGenerado.rey.nombre}</strong> con <span className="text-[#38BDF8] font-mono font-bold">{formatoMoneda(reporteGenerado.rey.ventas)}</span> generados ({reporteGenerado.rey.unidades} unidades vendidas).
                   </p>
                 )}
                 {tabGraficaAsistido === 'matriz' && (
                   <p className="text-gray-300 leading-relaxed">
-                    <span className="text-[#F472B6] font-bold">Diagnóstico de Margen:</span> Las esferas 3D muestran la distancia entre costo y precio de venta. El producto con mayor margen porcentual es <strong className="text-white">{[...reporteGenerado.ranking].sort((a,b) => b.margenPct - a.margenPct)[0]?.nombre}</strong> con un <span className="text-emerald-400 font-mono font-bold">{[...reporteGenerado.ranking].sort((a,b) => b.margenPct - a.margenPct)[0]?.margenPct.toFixed(1)}%</span> de rentabilidad.
+                    <span className="text-[#F472B6] font-bold">En resumen:</span> Las esferas más altas son las que más margen te dejan. El producto más rentable es <strong className="text-white">{[...reporteGenerado.ranking].sort((a,b) => b.margenPct - a.margenPct)[0]?.nombre}</strong> con un <span className="text-emerald-400 font-mono font-bold">{[...reporteGenerado.ranking].sort((a,b) => b.margenPct - a.margenPct)[0]?.margenPct.toFixed(1)}%</span> de ganancia limpia por unidad.
                   </p>
                 )}
                 {tabGraficaAsistido === 'estructura' && (
                   <p className="text-gray-300 leading-relaxed">
-                    <span className="text-[#34D399] font-bold">Diagnóstico de Absorción:</span> De los <span className="text-white font-mono">{formatoMoneda(reporteGenerado.totalVentas)}</span> facturados, <span className="text-rose-400 font-mono">{formatoMoneda(reporteGenerado.totalCostos)}</span> cubren compras a proveedores y <span className="text-emerald-400 font-mono font-bold">+{formatoMoneda(reporteGenerado.gananciaTotal)}</span> quedan como ganancia líquida.
+                    <span className="text-[#34D399] font-bold">En resumen:</span> De los <span className="text-white font-mono font-bold">{formatoMoneda(reporteGenerado.totalVentas)}</span> que vendiste, <span className="text-rose-400 font-mono">{formatoMoneda(reporteGenerado.totalCostos)}</span> se fueron pagando costos y te quedaron libres <span className="text-emerald-400 font-mono font-bold">+{formatoMoneda(reporteGenerado.gananciaTotal)}</span>.
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Triada Diagnóstica (5 cols) */}
+            {/* Tríada de Resumen Rápido (5 cols) */}
             <div className="lg:col-span-5 grid grid-cols-1 gap-3.5">
               
               <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-4 rounded-2xl space-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-emerald-400">
                   <Award className="w-4 h-4" />
-                  <span className="text-[11px] font-semibold uppercase font-mono">Producto Estrella</span>
+                  <span className="text-[11px] font-semibold uppercase font-mono">El que más vende</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <h5 className="text-base font-bold text-white">{reporteGenerado.rey.nombre}</h5>
                   <span className="text-xs font-mono text-emerald-400 font-semibold">{formatoMoneda(reporteGenerado.rey.ventas)}</span>
                 </div>
-                <p className="text-[11px] text-gray-400">Aporta el mayor flujo de caja bruto del portafolio.</p>
+                <p className="text-[11px] text-gray-400">Es el que te trae la mayor cantidad de dinero al negocio.</p>
               </div>
 
               <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-4 rounded-2xl space-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-[#CF9D7B]">
                   <TrendingUp className="w-4 h-4" />
-                  <span className="text-[11px] font-semibold uppercase font-mono">Eficiencia del Catálogo</span>
+                  <span className="text-[11px] font-semibold uppercase font-mono">Rendimiento General</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xs text-gray-400">Margen Promedio:</p>
+                    <p className="text-xs text-gray-400">Margen promedio:</p>
                     <span className="text-lg font-bold text-white font-mono">{reporteGenerado.margenGlobalPct.toFixed(1)}%</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-400">Ganancia Neta Base:</p>
+                    <p className="text-xs text-gray-400">Ganancia limpia total:</p>
                     <span className="text-sm font-bold text-emerald-400 font-mono">+{formatoMoneda(reporteGenerado.gananciaTotal)}</span>
                   </div>
                 </div>
@@ -580,13 +595,13 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
               <div className="bg-[#081015]/90 backdrop-blur-xl border border-rose-900/40 p-4 rounded-2xl space-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-rose-400">
                   <AlertTriangle className="w-4 h-4" />
-                  <span className="text-[11px] font-semibold uppercase font-mono">Producto Crítico</span>
+                  <span className="text-[11px] font-semibold uppercase font-mono">El más flojo en ventas</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <h5 className="text-base font-bold text-white">{reporteGenerado.hueso.nombre}</h5>
                   <span className="text-xs font-mono text-rose-400 font-semibold">{formatoMoneda(reporteGenerado.hueso.ventas)}</span>
                 </div>
-                <p className="text-[11px] text-gray-400">Menor facturación generada en el período.</p>
+                <p className="text-[11px] text-gray-400">El que menos ventas generó. Conviene impulsarlo o replantearlo.</p>
               </div>
 
             </div>
