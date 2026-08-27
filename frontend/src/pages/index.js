@@ -1509,15 +1509,15 @@ export default function Home() {
           </div>
         )}
 
-        {/* Cinemática de Mini-TARS en el Lobby -> Acople en botón flotante */}
+        {/* Cinemática estilo Tom y Jerry con Torbellino de patas giratorio */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <motion.div
-            initial={{ x: '-85vw', y: '-40vh', scale: 0.8, rotate: -15, opacity: 0 }}
+            initial={{ x: '-85vw', y: '-40vh', scale: 0.85, rotate: -12, opacity: 0 }}
             animate={{
               x: ['-85vw', '-40vw', '-40vw', '-40vw', '0vw'],
               y: ['-40vh', '-25vh', '-25vh', '-28vh', '0vh'],
-              rotate: [-15, 10, -5, 0, 0],
-              scale: [0.8, 1.1, 0.9, 1.15, 1],
+              rotate: [-12, 8, -4, 0, 0],
+              scale: [0.85, 1.1, 0.95, 1.15, 1],
               opacity: [0, 1, 1, 1, 1]
             }}
             transition={{
@@ -1529,6 +1529,20 @@ export default function Home() {
             className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] cursor-pointer"
             onClick={() => setAbrirChatIA(!abrirChatIA)}
           >
+            {/* 🌪️ Torbellino de patas / estela de velocidad giratoria (Efecto Caricatura) */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 0.18, ease: "linear" }}
+              className="absolute -bottom-2 -left-1 w-10 h-7 pointer-events-none"
+            >
+              <svg viewBox="0 0 100 70" className="w-full h-full overflow-visible">
+                {/* Óvalos de estela con blur tipo movimiento */}
+                <ellipse cx="50" cy="35" rx="38" ry="22" fill="none" stroke="#CF9D7B" strokeWidth="4" strokeDasharray="25 15" opacity="0.8" />
+                <ellipse cx="45" cy="38" rx="28" ry="16" fill="none" stroke="#38BDF8" strokeWidth="3" strokeDasharray="18 12" opacity="0.6" />
+                <ellipse cx="55" cy="30" rx="18" ry="10" fill="none" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.7" />
+              </svg>
+            </motion.div>
+
             <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
             <Bot className="w-7 h-7 text-[#CF9D7B] animate-bounce" />
             <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
