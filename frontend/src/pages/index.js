@@ -1509,42 +1509,49 @@ export default function Home() {
           </div>
         )}
 
-        {/* Cinemática estilo Tom y Jerry con Torbellino de patas giratorio */}
+        {/* 🐬 Cinemática: Nado de Delfín en el Mar de Datos */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <motion.div
-            initial={{ x: '-85vw', y: '-40vh', scale: 0.85, rotate: -12, opacity: 0 }}
+            initial={{ x: '-90vw', y: '10vh', scale: 0.8, rotate: -25, opacity: 0 }}
             animate={{
-              x: ['-85vw', '-40vw', '-40vw', '-40vw', '0vw'],
-              y: ['-40vh', '-25vh', '-25vh', '-28vh', '0vh'],
-              rotate: [-12, 8, -4, 0, 0],
-              scale: [0.85, 1.1, 0.95, 1.15, 1],
-              opacity: [0, 1, 1, 1, 1]
+              // Arcos de saltos (sale a la superficie, se zambulle, vuelve a saltar y aterriza)
+              x: ['-90vw', '-65vw', '-45vw', '-25vw', '-10vw', '0vw'],
+              y: ['10vh', '-35vh', '5vh', '-30vh', '0vh', '0vh'],
+              rotate: [-25, 20, -30, 25, -10, 0],
+              scale: [0.8, 1.15, 0.9, 1.15, 0.95, 1],
+              opacity: [0, 1, 1, 1, 1, 1]
             }}
             transition={{
-              duration: 3.6,
-              times: [0, 0.35, 0.55, 0.75, 1],
+              duration: 3.8,
+              times: [0, 0.25, 0.5, 0.75, 0.9, 1],
               ease: 'easeInOut'
             }}
             onAnimationComplete={() => setAnimacionTarsCompletada(true)}
-            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] cursor-pointer"
+            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_30px_rgba(56,189,248,0.35)] cursor-pointer"
             onClick={() => setAbrirChatIA(!abrirChatIA)}
           >
-            {/* 🌪️ Torbellino de patas / estela de velocidad giratoria (Efecto Caricatura) */}
+            {/* 🌊 Estela / Ondas de agua digital y salpicadura */}
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 0.18, ease: "linear" }}
-              className="absolute -bottom-2 -left-1 w-10 h-7 pointer-events-none"
+              animate={{
+                scale: [0.6, 1.3, 0.6],
+                opacity: [0.8, 0.2, 0.8]
+              }}
+              transition={{ repeat: Infinity, duration: 0.6, ease: "easeInOut" }}
+              className="absolute -bottom-3 w-16 h-6 pointer-events-none flex items-center justify-center"
             >
-              <svg viewBox="0 0 100 70" className="w-full h-full overflow-visible">
-                {/* Óvalos de estela con blur tipo movimiento */}
-                <ellipse cx="50" cy="35" rx="38" ry="22" fill="none" stroke="#CF9D7B" strokeWidth="4" strokeDasharray="25 15" opacity="0.8" />
-                <ellipse cx="45" cy="38" rx="28" ry="16" fill="none" stroke="#38BDF8" strokeWidth="3" strokeDasharray="18 12" opacity="0.6" />
-                <ellipse cx="55" cy="30" rx="18" ry="10" fill="none" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.7" />
+              <svg viewBox="0 0 80 30" className="w-full h-full overflow-visible">
+                {/* Ondas expansivas en el agua */}
+                <ellipse cx="40" cy="15" rx="36" ry="10" fill="none" stroke="#38BDF8" strokeWidth="2.5" strokeDasharray="12 6" opacity="0.8" />
+                <ellipse cx="40" cy="15" rx="22" ry="6" fill="none" stroke="#CF9D7B" strokeWidth="2" opacity="0.6" />
+                {/* Gotas/Partículas de datos */}
+                <circle cx="18" cy="8" r="2" fill="#38BDF8" />
+                <circle cx="62" cy="8" r="2" fill="#38BDF8" />
+                <circle cx="40" cy="2" r="1.5" fill="#FFFFFF" />
               </svg>
             </motion.div>
 
-            <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
-            <Bot className="w-7 h-7 text-[#CF9D7B] animate-bounce" />
+            <span className="absolute inset-0 rounded-2xl border border-[#38BDF8]/40 animate-ping opacity-40 pointer-events-none"></span>
+            <Bot className="w-7 h-7 text-[#CF9D7B]" />
             <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
           </motion.div>
         ) : (
