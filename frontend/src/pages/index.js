@@ -3,6 +3,7 @@ import ModoAsistido from '../ModoAsistido';
 import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, 
   ArrowUpRight, 
@@ -40,6 +41,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('lobby');
   const [abrirChatIA, setAbrirChatIA] = useState(false);
   const [cargandoChat, setCargandoChat] = useState(false);
+  const [animacionTarsCompletada, setAnimacionTarsCompletada] = useState(false);
   const [mensajeInput, setMensajeInput] = useState('');
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
@@ -1380,7 +1382,7 @@ export default function Home() {
       </main>
 
       {/* ============================================================ */}
-      {/* 🤖 WIDGET FLOTANTE INTERACTIVO MINI-TARS */}
+      {/* 🤖 WIDGET INTERACTIVO & CINEMÁTICA DE MINI-TARS (FRAMER MOTION) */}
       {/* ============================================================ */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         
@@ -1405,10 +1407,8 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Historial de Chat Dinámico */}
+            {/* Historial de Chat */}
             <div ref={chatRef} className="space-y-3.5 text-xs font-mono leading-relaxed max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#1D2B36] scrollbar-track-transparent">
-              
-              {/* Mensaje de Bienvenida Inicial */}
               <div className="flex items-start gap-2.5">
                 <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
                   <Bot className="w-3.5 h-3.5 text-[#CF9D7B]" />
@@ -1417,7 +1417,7 @@ export default function Home() {
                   <p className="text-[#CF9D7B] font-semibold text-[11px] mb-1">⚡ Diagnóstico Inicial:</p>
                   {datosAuditoria ? (
                     <p>
-                      Estimado(a) empresario(a), cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' con facturación total de {formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)}. Por otro lado, tu producto más lento es '{datosAuditoria.diagnostico?.hueso?.nombre}' con {formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)}. ¿Qué estrategia o duda analítica quieres consultar hoy?
+                      Estimado(a) empresario(a), cargaste una base de datos con {datosAuditoria.total_registros} registros. He detectado que tu producto estrella es '{datosAuditoria.diagnostico?.rey?.nombre}' con facturación total de {formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)}. ¿Qué estrategia o duda analítica quieres consultar hoy?
                     </p>
                   ) : (
                     <p>
@@ -1427,7 +1427,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Mensajes del Historial */}
               {historialMensajes.map((msg, index) => (
                 <div 
                   key={index} 
@@ -1455,28 +1454,14 @@ export default function Home() {
                         ? msg.texto.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((parte, i) => {
                             if (parte.startsWith('**') && parte.endsWith('**') && parte.length > 4) {
                               return (
-                                <strong
-                                  key={i}
-                                  className={
-                                    msg.remitente === 'usuario'
-                                      ? 'font-bold text-black'
-                                      : 'text-[#CF9D7B] font-bold'
-                                  }
-                                >
+                                <strong key={i} className={msg.remitente === 'usuario' ? 'font-bold text-black' : 'text-[#CF9D7B] font-bold'}>
                                   {parte.slice(2, -2)}
                                 </strong>
                               );
                             }
                             if (parte.startsWith('*') && parte.endsWith('*') && parte.length > 2) {
                               return (
-                                <span
-                                  key={i}
-                                  className={
-                                    msg.remitente === 'usuario'
-                                      ? 'italic'
-                                      : 'text-[#CF9D7B] font-medium italic'
-                                  }
-                                >
+                                <span key={i} className={msg.remitente === 'usuario' ? 'italic' : 'text-[#CF9D7B] font-medium italic'}>
                                   {parte.slice(1, -1)}
                                 </span>
                               );
@@ -1489,7 +1474,6 @@ export default function Home() {
                 </div>
               ))}
 
-              {/* Indicador de pensamiento de IA */}
               {cargandoChat && (
                 <div className="flex items-start gap-2.5">
                   <div className="w-6 h-6 rounded-lg bg-[#0E171E] border border-[#1D2B36] flex items-center justify-center flex-shrink-0">
@@ -1500,10 +1484,9 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
             </div>
 
-            {/* Input y Botón de Enviar */}
+            {/* Input del Chat */}
             <form onSubmit={handleEnviarMensajeChat} className="pt-2 border-t border-[#1A2630] flex gap-2">
               <input 
                 type="text" 
@@ -1526,15 +1509,41 @@ export default function Home() {
           </div>
         )}
 
-        {/* Botón flotante */}
-        <button
-          onClick={() => setAbrirChatIA(!abrirChatIA)}
-          className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
-        >
-          <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
-          <Bot className="w-7 h-7 text-[#CF9D7B] group-hover:rotate-12 transition-transform duration-300" />
-          <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
-        </button>
+        {/* Cinemática de Mini-TARS en el Lobby -> Acople en botón flotante */}
+        {activeTab === 'lobby' && !animacionTarsCompletada ? (
+          <motion.div
+            initial={{ x: '-85vw', y: '-40vh', scale: 0.8, rotate: -15, opacity: 0 }}
+            animate={{
+              x: ['-85vw', '-40vw', '-40vw', '-40vw', '0vw'],
+              y: ['-40vh', '-25vh', '-25vh', '-28vh', '0vh'],
+              rotate: [-15, 10, -5, 0, 0],
+              scale: [0.8, 1.1, 0.9, 1.15, 1],
+              opacity: [0, 1, 1, 1, 1]
+            }}
+            transition={{
+              duration: 3.6,
+              times: [0, 0.35, 0.55, 0.75, 1],
+              ease: 'easeInOut'
+            }}
+            onAnimationComplete={() => setAnimacionTarsCompletada(true)}
+            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] cursor-pointer"
+            onClick={() => setAbrirChatIA(!abrirChatIA)}
+          >
+            <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
+            <Bot className="w-7 h-7 text-[#CF9D7B] animate-bounce" />
+            <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
+          </motion.div>
+        ) : (
+          <button
+            onClick={() => setAbrirChatIA(!abrirChatIA)}
+            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
+          >
+            <span className="absolute inset-0 rounded-2xl border border-[#CF9D7B]/50 animate-ping opacity-40 pointer-events-none"></span>
+            <Bot className="w-7 h-7 text-[#CF9D7B] group-hover:rotate-12 transition-transform duration-300" />
+            <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
+          </button>
+        )}
+
       </div>
 
     </div>
