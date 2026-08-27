@@ -32,7 +32,8 @@ import {
   Cell,
   ScatterChart,
   Scatter,
-  ZAxis
+  ZAxis,
+  Legend,
 } from 'recharts';
 
 export default function Home() {

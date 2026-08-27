@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   ArrowLeft, 
   Plus, 
@@ -11,7 +11,9 @@ import {
   TrendingUp, 
   Lightbulb, 
   CheckCircle2,
-  DollarSign
+  DollarSign,
+  PieChart,
+  Target
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -20,7 +22,11 @@ import {
   XAxis, 
   YAxis, 
   Tooltip, 
-  CartesianGrid 
+  CartesianGrid,
+  Cell,
+  ScatterChart,
+  Scatter,
+  Legend
 } from 'recharts';
 
 export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
@@ -36,6 +42,18 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
     return `$ ${num.toLocaleString()}`;
   };
 
+  // Paleta Cyber-Slate para consistencia de marca
+  const PALETA_COLORES = [
+    '#38BDF8', // Cyan Eléctrico
+    '#F472B6', // Rosa Neón
+    '#34D399', // Menta Esmeralda
+    '#FBBF24', // Ámbar Solar
+    '#A78BFA', // Violeta Astral
+    '#FB923C', // Naranja Mandarina
+    '#2DD4BF', // Turquesa Glaciar
+    '#E879F9'  // Orquídea Neón
+  ];
+
   const [filas, setFilas] = useState([
     { id: 1, producto: 'Arroz', cantidad: 10, costo: 1800, precio: 3000 },
     { id: 2, producto: 'Arepas', cantidad: 10, costo: 1200, precio: 2000 },
@@ -43,6 +61,8 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
   ]);
 
   const [reporteGenerado, setReporteGenerado] = useState(null);
+  const [tabGraficaAsistido, setTabGraficaAsistido] = useState('barras'); // 'barras' | 'matriz' | 'estructura'
+  const [criterioBarras, setCriterioBarras] = useState('ventas'); // 'ventas' | 'unidades'
 
   const handleAgregarFila = () => {
     setFilas([
@@ -80,23 +100,28 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
 
     const mapaProductos = {};
     filas.forEach((f) => {
-      if (!mapaProductos[f.producto]) {
-        mapaProductos[f.producto] = { 
-          nombre: f.producto, 
+      if (!f.producto || !f.producto.trim()) return;
+      const nom = f.producto.trim();
+      if (!mapaProductos[nom]) {
+        mapaProductos[nom] = { 
+          nombre: nom, 
           ventas: 0, 
           costos: 0,
-          unidades: 0 
+          unidades: 0,
+          costoUnitario: f.costo,
+          precioUnitario: f.precio
         };
       }
-      mapaProductos[f.producto].ventas += f.cantidad * f.precio;
-      mapaProductos[f.producto].costos += f.cantidad * f.costo;
-      mapaProductos[f.producto].unidades += f.cantidad;
+      mapaProductos[nom].ventas += f.cantidad * f.precio;
+      mapaProductos[nom].costos += f.cantidad * f.costo;
+      mapaProductos[nom].unidades += f.cantidad;
     });
 
-    const ranking = Object.values(mapaProductos).map(p => ({
+    const ranking = Object.values(mapaProductos).map((p, idx) => ({
       ...p,
       ganancia: p.ventas - p.costos,
-      margenPct: p.ventas > 0 ? ((p.ventas - p.costos) / p.ventas) * 100 : 0
+      margenPct: p.ventas > 0 ? ((p.ventas - p.costos) / p.ventas) * 100 : 0,
+      color: PALETA_COLORES[idx % PALETA_COLORES.length]
     })).sort((a, b) => b.ventas - a.ventas);
 
     const rey = ranking[0] || { nombre: 'N/A', ventas: 0, unidades: 0, ganancia: 0, margenPct: 0 };
@@ -130,7 +155,7 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
       margenGlobalPct,
       totalUnidades,
       precioPromedio,
-      ranking: ranking.slice(0, 5),
+      ranking,
       rey,
       hueso,
       recomendaciones
@@ -140,7 +165,7 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
   return (
     <div className="space-y-8 animate-fadeIn max-w-6xl mx-auto pb-12">
       
-      {/* Barra superior limpia */}
+      {/* Barra superior */}
       <div className="flex justify-between items-center bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-2xl">
         <div className="flex items-center gap-3">
           <button 
@@ -261,56 +286,269 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
           
           {/* Métricas Clave */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
               <span className="text-xs text-gray-400 font-mono uppercase">Ventas Totales</span>
               <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">{formatoMoneda(reporteGenerado.totalVentas)}</p>
             </div>
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
               <span className="text-xs text-gray-400 font-mono uppercase">Costo Proveedores</span>
               <p className="text-2xl font-bold text-gray-300 mt-1 font-mono">{formatoMoneda(reporteGenerado.totalCostos)}</p>
             </div>
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
               <span className="text-xs text-gray-400 font-mono uppercase">Ganancia Bruta</span>
               <p className="text-2xl font-bold text-emerald-400 mt-1 font-mono">{formatoMoneda(reporteGenerado.gananciaTotal)}</p>
             </div>
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl shadow-xl">
               <span className="text-xs text-gray-400 font-mono uppercase">Precio Promedio</span>
               <p className="text-2xl font-bold text-white mt-1 font-mono">{formatoMoneda(reporteGenerado.precioPromedio)}</p>
             </div>
           </div>
 
-          {/* Gráfico y Bloque Diagnóstico de 3 Columnas */}
+          {/* SUITE GRÁFICA MULTI-PESTAÑA Y TRIADA DE DIAGNÓSTICO */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* Gráfico de barras */}
-            <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Participación</span>
-                  <h4 className="text-base font-bold text-white">Facturación por Producto</h4>
+            {/* Panel Gráfico Interactivo (7 cols) */}
+            <div className="lg:col-span-7 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-xl space-y-4 flex flex-col justify-between">
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#141F28] pb-3">
+                  <div>
+                    <span className="text-[10px] font-mono text-[#CF9D7B] uppercase tracking-wider font-semibold">
+                      Suite Visual // Catálogo
+                    </span>
+                    <h4 className="text-base font-bold text-white tracking-tight">
+                      {tabGraficaAsistido === 'barras' && 'Participación por Producto'}
+                      {tabGraficaAsistido === 'matriz' && 'Matriz de Margen Unitario (3D)'}
+                      {tabGraficaAsistido === 'estructura' && 'Composición: Costos vs. Ganancia'}
+                    </h4>
+                  </div>
+
+                  {/* Selector de Pestañas */}
+                  <div className="flex items-center gap-1.5 bg-[#0D151B] p-1 rounded-xl border border-[#18232B]">
+                    <button
+                      type="button"
+                      onClick={() => setTabGraficaAsistido('barras')}
+                      className={`px-2.5 py-1 rounded-lg text-xs transition-all ${
+                        tabGraficaAsistido === 'barras'
+                          ? 'bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/40 font-bold shadow-sm'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Barras
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTabGraficaAsistido('matriz')}
+                      className={`px-2.5 py-1 rounded-lg text-xs transition-all ${
+                        tabGraficaAsistido === 'matriz'
+                          ? 'bg-[#F472B6]/20 text-[#F472B6] border border-[#F472B6]/40 font-bold shadow-sm'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Matriz 3D
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTabGraficaAsistido('estructura')}
+                      className={`px-2.5 py-1 rounded-lg text-xs transition-all ${
+                        tabGraficaAsistido === 'estructura'
+                          ? 'bg-[#34D399]/20 text-[#34D399] border border-[#34D399]/40 font-bold shadow-sm'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Estructura
+                    </button>
+                  </div>
                 </div>
-                <BarChart3 className="w-5 h-5 text-[#CF9D7B]" />
+
+                {/* Sub-selector para gráfico de barras */}
+                {tabGraficaAsistido === 'barras' && (
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setCriterioBarras('ventas')}
+                      className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${criterioBarras === 'ventas' ? 'bg-[#38BDF8]/20 text-[#38BDF8] font-bold' : 'text-gray-500 hover:text-gray-300'}`}
+                    >
+                      • Facturación Total
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCriterioBarras('unidades')}
+                      className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${criterioBarras === 'unidades' ? 'bg-[#F472B6]/20 text-[#F472B6] font-bold' : 'text-gray-500 hover:text-gray-300'}`}
+                    >
+                      • Rotación (Uds)
+                    </button>
+                  </div>
+                )}
               </div>
+
+              {/* RENDERIZADO DINÁMICO DE GRÁFICOS */}
               <div className="h-64 w-full pt-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={reporteGenerado.ranking} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                    <XAxis dataKey="nombre" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-                    <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '10px' }}
-                      formatter={(val) => [formatoMoneda(val), 'Ventas']}
-                    />
-                    <Bar dataKey="ventas" fill="#CF9D7B" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                
+                {/* 1. Vista de Barras */}
+                {tabGraficaAsistido === 'barras' && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={reporteGenerado.ranking} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+                      <XAxis dataKey="nombre" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
+                      <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => criterioBarras === 'unidades' ? v : `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip 
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            const esUds = criterioBarras === 'unidades';
+                            return (
+                              <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                <p className="font-bold text-white flex items-center gap-2">
+                                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
+                                  {data.nombre}
+                                </p>
+                                <p className="text-gray-300">
+                                  {esUds ? 'Unidades Vendidas: ' : 'Facturación: '}
+                                  <span className={`font-mono font-bold ${esUds ? 'text-[#F472B6]' : 'text-[#38BDF8]'}`}>
+                                    {esUds ? `${data.unidades} uds` : formatoMoneda(data.ventas)}
+                                  </span>
+                                </p>
+                                <p className="text-gray-400 text-[10px]">Margen: {data.margenPct.toFixed(1)}%</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Bar 
+                        dataKey={criterioBarras === 'unidades' ? 'unidades' : 'ventas'} 
+                        radius={[6, 6, 0, 0]}
+                      >
+                        {reporteGenerado.ranking.map((entry, index) => (
+                          <Cell key={`bar-asist-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+
+                {/* 2. Vista de Matriz Costo vs Precio (3D) */}
+                {tabGraficaAsistido === 'matriz' && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart margin={{ top: 20, right: 20, bottom: 10, left: -20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#16222A" />
+                      <XAxis 
+                        type="number" 
+                        dataKey="costoUnitario" 
+                        name="Costo Unitario" 
+                        stroke="#6B7280" 
+                        fontSize={11} 
+                        tickLine={false}
+                        tickFormatter={(v) => `$${v}`}
+                      />
+                      <YAxis 
+                        type="number" 
+                        dataKey="precioUnitario" 
+                        name="Precio Venta" 
+                        stroke="#6B7280" 
+                        fontSize={11} 
+                        tickLine={false}
+                        tickFormatter={(v) => `$${v}`}
+                      />
+                      <Tooltip 
+                        cursor={{ strokeDasharray: '3 3', stroke: '#F472B6', strokeOpacity: 0.3 }}
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                <p className="font-bold text-white flex items-center gap-2">
+                                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
+                                  {data.nombre}
+                                </p>
+                                <p className="text-gray-300">Costo Proveedor: <span className="font-mono text-gray-400">{formatoMoneda(data.costoUnitario)}</span></p>
+                                <p className="text-gray-300">Precio Venta: <span className="font-mono text-[#38BDF8]">{formatoMoneda(data.precioUnitario)}</span></p>
+                                <p className="text-gray-300">Margen Unitario: <span className="font-mono text-[#34D399] font-bold">+{formatoMoneda(data.precioUnitario - data.costoUnitario)} ({data.margenPct.toFixed(1)}%)</span></p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Scatter 
+                        name="Productos" 
+                        data={reporteGenerado.ranking}
+                        shape={(props) => {
+                          const { cx, cy, fill } = props;
+                          return (
+                            <g>
+                              <circle cx={cx} cy={cy} r={14} fill="none" stroke="#FFFFFF" strokeWidth={2.5} opacity={0.85} />
+                              <circle cx={cx} cy={cy} r={11} fill={fill} />
+                              <circle cx={cx - 3.5} cy={cy - 3.5} r={3} fill="#FFFFFF" opacity={0.65} />
+                            </g>
+                          );
+                        }}
+                      >
+                        {reporteGenerado.ranking.map((entry, index) => (
+                          <Cell key={`scatter-asist-${index}`} fill={entry.color} />
+                        ))}
+                      </Scatter>
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                )}
+
+                {/* 3. Vista de Estructura de Costos vs Ganancia */}
+                {tabGraficaAsistido === 'estructura' && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={reporteGenerado.ranking} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+                      <XAxis dataKey="nombre" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
+                      <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip 
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                <p className="font-bold text-white">{data.nombre}</p>
+                                <p className="text-gray-300">Costo Total: <span className="font-mono text-rose-400">{formatoMoneda(data.costos)}</span></p>
+                                <p className="text-gray-300">Ganancia Bruta: <span className="font-mono text-[#34D399] font-bold">+{formatoMoneda(data.ganancia)}</span></p>
+                                <p className="text-gray-400 text-[10px] border-t border-[#1E2D3D] pt-1">Total Facturado: {formatoMoneda(data.ventas)}</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Bar dataKey="costos" name="Costo Proveedores" fill="#E11D48" stackId="a" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="ganancia" name="Ganancia Neta" fill="#34D399" stackId="a" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+
+              </div>
+
+              {/* Descripción Ejecutiva Dinámica en Lenguaje Natural */}
+              <div className="p-3 bg-[#0A1218] border border-[#182633] rounded-xl text-xs">
+                {tabGraficaAsistido === 'barras' && (
+                  <p className="text-gray-300 leading-relaxed">
+                    <span className="text-[#38BDF8] font-bold">Diagnóstico de Volumen:</span> El producto líder en volumen es <strong className="text-white">{reporteGenerado.rey.nombre}</strong> con <span className="text-[#38BDF8] font-mono">{formatoMoneda(reporteGenerado.rey.ventas)}</span> generados ({reporteGenerado.rey.unidades} unidades).
+                  </p>
+                )}
+                {tabGraficaAsistido === 'matriz' && (
+                  <p className="text-gray-300 leading-relaxed">
+                    <span className="text-[#F472B6] font-bold">Diagnóstico de Margen:</span> Las esferas 3D muestran la distancia entre costo y precio de venta. El producto con mayor margen porcentual es <strong className="text-white">{[...reporteGenerado.ranking].sort((a,b) => b.margenPct - a.margenPct)[0]?.nombre}</strong> con un <span className="text-emerald-400 font-mono font-bold">{[...reporteGenerado.ranking].sort((a,b) => b.margenPct - a.margenPct)[0]?.margenPct.toFixed(1)}%</span> de rentabilidad.
+                  </p>
+                )}
+                {tabGraficaAsistido === 'estructura' && (
+                  <p className="text-gray-300 leading-relaxed">
+                    <span className="text-[#34D399] font-bold">Diagnóstico de Absorción:</span> De los <span className="text-white font-mono">{formatoMoneda(reporteGenerado.totalVentas)}</span> facturados, <span className="text-rose-400 font-mono">{formatoMoneda(reporteGenerado.totalCostos)}</span> cubren compras a proveedores y <span className="text-emerald-400 font-mono font-bold">+{formatoMoneda(reporteGenerado.gananciaTotal)}</span> quedan como ganancia líquida.
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Triada Diagnóstica: Estrella, Rendimiento Global y Crítico */}
-            <div className="lg:col-span-6 grid grid-cols-1 gap-3.5">
+            {/* Triada Diagnóstica (5 cols) */}
+            <div className="lg:col-span-5 grid grid-cols-1 gap-3.5">
               
-              <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-4 rounded-2xl space-y-1">
+              <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-4 rounded-2xl space-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-emerald-400">
                   <Award className="w-4 h-4" />
                   <span className="text-[11px] font-semibold uppercase font-mono">Producto Estrella</span>
@@ -319,17 +557,17 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                   <h5 className="text-base font-bold text-white">{reporteGenerado.rey.nombre}</h5>
                   <span className="text-xs font-mono text-emerald-400 font-semibold">{formatoMoneda(reporteGenerado.rey.ventas)}</span>
                 </div>
+                <p className="text-[11px] text-gray-400">Aporta el mayor flujo de caja bruto del portafolio.</p>
               </div>
 
-              {/* Tarjeta Central: Margen y Eficiencia de Costos */}
-              <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-4 rounded-2xl space-y-1">
+              <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-4 rounded-2xl space-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-[#CF9D7B]">
                   <TrendingUp className="w-4 h-4" />
                   <span className="text-[11px] font-semibold uppercase font-mono">Eficiencia del Catálogo</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xs text-gray-400">Margen Comercial Promedio:</p>
+                    <p className="text-xs text-gray-400">Margen Promedio:</p>
                     <span className="text-lg font-bold text-white font-mono">{reporteGenerado.margenGlobalPct.toFixed(1)}%</span>
                   </div>
                   <div className="text-right">
@@ -339,7 +577,7 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                 </div>
               </div>
 
-              <div className="bg-[#081015]/90 backdrop-blur-xl border border-rose-900/40 p-4 rounded-2xl space-y-1">
+              <div className="bg-[#081015]/90 backdrop-blur-xl border border-rose-900/40 p-4 rounded-2xl space-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-rose-400">
                   <AlertTriangle className="w-4 h-4" />
                   <span className="text-[11px] font-semibold uppercase font-mono">Producto Crítico</span>
@@ -348,6 +586,7 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
                   <h5 className="text-base font-bold text-white">{reporteGenerado.hueso.nombre}</h5>
                   <span className="text-xs font-mono text-rose-400 font-semibold">{formatoMoneda(reporteGenerado.hueso.ventas)}</span>
                 </div>
+                <p className="text-[11px] text-gray-400">Menor facturación generada en el período.</p>
               </div>
 
             </div>
