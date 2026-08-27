@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Mini Nave Espacial con Giros 360° y Fuego de Aterrizaje Cian/Naranja */}
+        {/* 🚀 Cinemática: Nave Cápsula Espacial Envolvente (Solo Ojitos Visibles) */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,10 +1522,9 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // Recorrido espacial: entra, sube, da loop 360 sobre tarjetas, baja y aterriza en esquina
                 x: ['-10vw', '25vw', '55vw', '35vw', 'calc(100vw - 6rem)', 'calc(100vw - 5.5rem)'],
                 y: ['10vh', '15vh', '30vh', '55vh', 'calc(100vh - 8rem)', 'calc(100vh - 5.5rem)'],
-                rotate: [15, 45, 390, 740, 360, 0], // Doble giro 360° acrobático
+                rotate: [15, 45, 390, 740, 360, 0],
                 scale: [0.6, 1.1, 1.25, 1.1, 0.95, 1],
                 opacity: [0, 1, 1, 1, 1, 1]
               }}
@@ -1538,12 +1537,36 @@ export default function Home() {
               className="absolute flex items-center justify-center pointer-events-auto cursor-pointer"
               onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
-              {/* Contenedor Cápsula / Nave Espacial */}
-              <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#081016]/95 backdrop-blur-xl border border-[#38BDF8]/60 shadow-[0_0_30px_rgba(56,189,248,0.4)]">
+              {/* 🛸 Nave Espacial Envolvente Blindada */}
+              <div className="relative flex flex-col items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-b from-[#14202A] via-[#090F14] to-[#04070A] border-2 border-[#CF9D7B]/80 shadow-[0_0_35px_rgba(56,189,248,0.5)]">
                 
-                {/* Cabina con Mini-TARS */}
-                <Bot className="w-7 h-7 text-[#CF9D7B] animate-pulse" />
-                <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
+                {/* Antena / Sensor Superior */}
+                <div className="absolute -top-2 w-1.5 h-2 bg-[#CF9D7B] rounded-full flex items-center justify-center">
+                  <div className="w-1 h-1 bg-[#38BDF8] rounded-full animate-ping"></div>
+                </div>
+
+                {/* Alerones laterales aerodinámicos */}
+                <div className="absolute -left-2 top-4 w-2 h-6 bg-[#1A2834] border-l border-y border-[#38BDF8]/60 rounded-l-md transform -skew-y-12"></div>
+                <div className="absolute -right-2 top-4 w-2 h-6 bg-[#1A2834] border-r border-y border-[#38BDF8]/60 rounded-r-md transform skew-y-12"></div>
+
+                {/* 🪟 Escotilla / Cabina de Cristal Polarizado con los Ojitos */}
+                <div className="w-11 h-7 bg-[#05080B]/90 border border-[#38BDF8]/70 rounded-full flex items-center justify-center gap-2 px-2 shadow-[inset_0_0_8px_rgba(56,189,248,0.4)]">
+                  {/* Ojo Izquierdo */}
+                  <motion.div 
+                    animate={{ scaleY: [1, 1, 0.1, 1] }} 
+                    transition={{ repeat: Infinity, duration: 2.8, times: [0, 0.85, 0.9, 1] }}
+                    className="w-2.5 h-3 bg-[#CF9D7B] rounded-sm shadow-[0_0_8px_#CF9D7B]"
+                  />
+                  {/* Ojo Derecho */}
+                  <motion.div 
+                    animate={{ scaleY: [1, 1, 0.1, 1] }} 
+                    transition={{ repeat: Infinity, duration: 2.8, times: [0, 0.85, 0.9, 1] }}
+                    className="w-2.5 h-3 bg-[#CF9D7B] rounded-sm shadow-[0_0_8px_#CF9D7B]"
+                  />
+                </div>
+
+                {/* Indicador de estado orbital */}
+                <span className={`absolute top-1.5 right-1.5 w-2.5 h-2.5 border border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
 
                 {/* 🔥 Fuego y Humo de Propulsión / Aterrizaje (Azul Cian + Naranja) */}
                 <motion.div
@@ -1555,11 +1578,8 @@ export default function Home() {
                   className="absolute -bottom-6 w-12 h-10 pointer-events-none flex items-center justify-center"
                 >
                   <svg viewBox="0 0 100 80" className="w-full h-full overflow-visible drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                    {/* Llamarada externa naranja */}
                     <path d="M40 0 C30 30, 20 50, 50 80 C80 50, 70 30, 60 0 Z" fill="url(#plasmaOrange)" opacity="0.9" />
-                    {/* Núcleo de plasma azul cian */}
                     <path d="M45 0 C38 20, 32 35, 50 60 C68 35, 62 20, 55 0 Z" fill="url(#plasmaCyan)" opacity="0.95" />
-                    {/* Ondas / humo de expansión en la base */}
                     <ellipse cx="50" cy="72" rx="35" ry="8" fill="rgba(56, 189, 248, 0.3)" />
                     <ellipse cx="50" cy="68" rx="22" ry="5" fill="rgba(249, 115, 22, 0.4)" />
 
