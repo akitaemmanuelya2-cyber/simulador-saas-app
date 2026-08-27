@@ -25,13 +25,14 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  AreaChart,
-  Area,
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
   Cell,
-  CartesianGrid
+  ScatterChart,
+  Scatter,
+  ZAxis
 } from 'recharts';
 
 export default function Home() {
@@ -41,7 +42,8 @@ export default function Home() {
   const [mensajeInput, setMensajeInput] = useState('');
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
-// Tasas de cambio (Base: 1 USD)
+
+  // Tasas de cambio (Base: 1 USD)
   const TASAS_CAMBIO = {
     USD: 1,
     COP: 3300, // 1 USD = 3.300 COP
@@ -107,66 +109,139 @@ export default function Home() {
   const [cargandoCSV, setCargandoCSV] = useState(false);
   const [datosAuditoria, setDatosAuditoria] = useState(null);
   const [errorCSV, setErrorCSV] = useState(null);
-  const [subTabGrafica, setSubTabGrafica] = useState('productos');
+  
+  // Selector para Análisis Profundo (Top 10)
+  const [criterioAnalisis, setCriterioAnalisis] = useState('unidades'); // 'unidades' | 'facturacion' | 'clientes'
 
-// Estados del Simulador Temporal y Metas
+  // Paleta cromática exclusiva de alto contraste (Cyber-Slate Edition)
+  const PALETA_COLORES = [
+    '#38BDF8', // Cyan Eléctrico
+    '#F472B6', // Rosa Neón / Fucsia
+    '#34D399', // Menta Esmeralda
+    '#FBBF24', // Ámbar Solar
+    '#A78BFA', // Violeta Astral
+    '#FB923C', // Naranja Mandarina
+    '#2DD4BF', // Turquesa Glaciar
+    '#E879F9', // Orquídea Neón
+    '#4ADE80', // Lima Brillante
+    '#60A5FA', // Azul Cobalto
+    '#F87171', // Coral Fuego
+    '#94A3B8'  // Acero Refinado
+  ];
+
+  // Estados del Simulador Temporal y Metas
   const [precioOriginal, setPrecioOriginal] = useState(10000);
   const [nuevoPrecio, setNuevoPrecio] = useState(15000);
   const [costoUnitario, setCostoUnitario] = useState(5000);
   const [ventasPorDia, setVentasPorDia] = useState(20);
   const [mesesProyeccion, setMesesProyeccion] = useState(2);
   const [metaIngreso, setMetaIngreso] = useState(5000000);
-  // --- DATOS REACTIVOS PARA LA SUITE GRÁFICA DEL DETECTIVE CSV ---
-  const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
-  const datosTendenciaMensual = datosAuditoria?.tendencia_mensual || [];
-  
 
-// --- DETECCIÓN DINÁMICA UNIVERSAL DE CLIENTES ---
-  const datosConcentracionClientes = React.useMemo(() => {
-    // Si el backend ya devolvió el ranking de clientes precalculado
-    if (datosAuditoria?.ranking_clientes && Array.isArray(datosAuditoria.ranking_clientes) && datosAuditoria.ranking_clientes.length > 0) {
-      return datosAuditoria.ranking_clientes.slice(0, 5).map(c => ({
-        cliente: c.nombre || c.cliente || c['Customer Name'] || 'Cliente',
-        ventas: (parseFloat(c.ventas || c.total || c.Sales) || 0) * factorConversion
-      }));
+  // Factor de conversión monetaria reactiva
+  const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
+
+  // 1. Datos para la Matriz BCG (Rentabilidad vs Rotación)
+  const datosMatrizBCG = React.useMemo(() => {
+    const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
+    if (!Array.isArray(filas) || filas.length === 0) {
+      if (datosAuditoria?.ranking_productos && Array.isArray(datosAuditoria.ranking_productos)) {
+        return datosAuditoria.ranking_productos.map((p, idx) => ({
+          nombre: p.nombre || p.producto,
+          unidades: p.unidades || p.cantidad || (idx + 2),
+          ventas: (parseFloat(p.ventas || p.total) || 0) * factorConversion,
+          color: PALETA_COLORES[idx % PALETA_COLORES.length]
+        }));
+      }
+      return [];
     }
 
-    // Si viene en el array de filas brutas
-    const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
-    if (!Array.isArray(filas) || filas.length === 0) return [];
-
-    const mapaClientes = {};
-    let encontroColumna = false;
-
+    const mapaProductos = {};
     filas.forEach((fila) => {
-      // Búsqueda flexible de la clave de cliente sin importar mayúsculas/espacios
-      const claveCliente = Object.keys(fila).find(k => {
+      const claveProd = Object.keys(fila).find(k => {
         const norm = k.toLowerCase().trim().replace(/[\s_-]/g, '');
-        return norm === 'customername' || norm === 'cliente' || norm === 'nombrecliente' || norm === 'customer';
+        return norm === 'productname' || norm === 'producto' || norm === 'articulo';
       });
-
       const claveVenta = Object.keys(fila).find(k => {
         const norm = k.toLowerCase().trim().replace(/[\s_-]/g, '');
-        return norm === 'sales' || norm === 'ventas' || norm === 'venta' || norm === 'total';
+        return norm === 'sales' || norm === 'ventas' || norm === 'total';
       });
 
-      if (claveCliente && fila[claveCliente]) {
-        encontroColumna = true;
-        const nombre = String(fila[claveCliente]).trim();
-        const valorVenta = parseFloat(fila[claveVenta || 'Sales']) || 0;
-        mapaClientes[nombre] = (mapaClientes[nombre] || 0) + (valorVenta * factorConversion);
+      if (claveProd && fila[claveProd]) {
+        const nombre = String(fila[claveProd]).trim();
+        const venta = parseFloat(fila[claveVenta || 'Sales']) || 0;
+        if (!mapaProductos[nombre]) {
+          mapaProductos[nombre] = { nombre, unidades: 0, ventas: 0 };
+        }
+        mapaProductos[nombre].unidades += 1;
+        mapaProductos[nombre].ventas += (venta * factorConversion);
       }
     });
 
-    if (!encontroColumna) return [];
-
-    return Object.entries(mapaClientes)
-      .map(([cliente, ventas]) => ({ cliente, ventas }))
+    return Object.values(mapaProductos)
       .sort((a, b) => b.ventas - a.ventas)
-      .slice(0, 5);
+      .slice(0, 10)
+      .map((item, idx) => ({
+        ...item,
+        color: PALETA_COLORES[idx % PALETA_COLORES.length]
+      }));
   }, [datosAuditoria, factorConversion]);
 
-  const tieneColumnaClientes = datosConcentracionClientes.length > 0;
+  // 2. Colecciones dinámicas para Análisis Profundo (Top 10)
+  const top10ProductosUnidades = React.useMemo(() => {
+    return [...datosMatrizBCG].sort((a, b) => b.unidades - a.unidades).slice(0, 10);
+  }, [datosMatrizBCG]);
+
+  const top10ProductosFacturacion = React.useMemo(() => {
+    return [...datosMatrizBCG].sort((a, b) => b.ventas - a.ventas).slice(0, 10);
+  }, [datosMatrizBCG]);
+
+  const top10Clientes = React.useMemo(() => {
+    const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
+    if (!Array.isArray(filas) || filas.length === 0) {
+      if (datosAuditoria?.ranking_clientes && Array.isArray(datosAuditoria.ranking_clientes)) {
+        return datosAuditoria.ranking_clientes.map((c, idx) => ({
+          nombre: c.nombre || c.cliente || c['Customer Name'] || 'Cliente',
+          ventas: (parseFloat(c.ventas || c.total || c.Sales) || 0) * factorConversion,
+          color: PALETA_COLORES[idx % PALETA_COLORES.length]
+        })).slice(0, 10);
+      }
+      return [];
+    }
+
+    const mapaClientes = {};
+    let hayColumna = false;
+
+    filas.forEach((fila) => {
+      const claveCli = Object.keys(fila).find(k => {
+        const norm = k.toLowerCase().trim().replace(/[\s_-]/g, '');
+        return norm === 'customername' || norm === 'cliente' || norm === 'nombrecliente' || norm === 'customer';
+      });
+      const claveVenta = Object.keys(fila).find(k => {
+        const norm = k.toLowerCase().trim().replace(/[\s_-]/g, '');
+        return norm === 'sales' || norm === 'ventas' || norm === 'total';
+      });
+
+      if (claveCli && fila[claveCli]) {
+        hayColumna = true;
+        const nombre = String(fila[claveCli]).trim();
+        const venta = parseFloat(fila[claveVenta || 'Sales']) || 0;
+        mapaClientes[nombre] = (mapaClientes[nombre] || 0) + (venta * factorConversion);
+      }
+    });
+
+    if (!hayColumna) return [];
+
+    return Object.entries(mapaClientes)
+      .map(([nombre, ventas], idx) => ({
+        nombre,
+        ventas,
+        color: PALETA_COLORES[idx % PALETA_COLORES.length]
+      }))
+      .sort((a, b) => b.ventas - a.ventas)
+      .slice(0, 10);
+  }, [datosAuditoria, factorConversion]);
+
+  const tieneClientes = top10Clientes.length > 0;
 
   // --- MATEMÁTICAS DEL SIMULADOR TEMPORAL, METAS Y GRÁFICOS ---
   const margenUnitarioActual = Math.max(0, precioOriginal - costoUnitario);
@@ -333,7 +408,7 @@ export default function Home() {
     }
   };
 
-// Transferir datos al Simulador (Actualizado a ventas por día)
+  // Transferir datos al Simulador (Actualizado a ventas por día)
   const transferirAlSimulador = () => {
     if (!datosAuditoria) return;
     const precio = Math.round(datosAuditoria.precio_promedio) || 50000;
@@ -342,7 +417,7 @@ export default function Home() {
     setPrecioOriginal(precio);
     setNuevoPrecio(Math.round(precio * 1.10));
     setCostoUnitario(Math.round(precio * 0.50));
-    setVentasPorDia(Math.max(1, Math.round(unidades / 30))); // Calcula el promedio diario mensual
+    setVentasPorDia(Math.max(1, Math.round(unidades / 30)));
     setMesesProyeccion(2);
     setActiveTab('simulador');
   };
@@ -361,19 +436,19 @@ export default function Home() {
 
     try {
       const contextoNegocio = {
-          monedaActiva: moneda, // 'USD', 'COP' o 'EUR'
-          datosAuditoria: datosAuditoria || null,
-          simulador: {
-            precioOriginal,
-            nuevoPrecio,
-            costoUnitario,
-            ventasPorDia,
-            mesesProyeccion,
-            metaIngreso,
-            gananciaTotalPeriodo,
-            margenUnitarioSimulado
-          }
-        };
+        monedaActiva: moneda,
+        datosAuditoria: datosAuditoria || null,
+        simulador: {
+          precioOriginal,
+          nuevoPrecio,
+          costoUnitario,
+          ventasPorDia,
+          mesesProyeccion,
+          metaIngreso,
+          gananciaTotalPeriodo,
+          margenUnitarioSimulado
+        }
+      };
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -484,59 +559,55 @@ export default function Home() {
         headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
         styles: { fontSize: 9, cellPadding: 3 },
       });
-      // 4. BITÁCORA ESTRATÉGICA CON MINI TARS
-    if (historialMensajes && historialMensajes.length > 0) {
-      let posY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 14 : 200;
 
-      if (posY > 240) {
-        doc.addPage();
-        posY = 20;
-      }
+      if (historialMensajes && historialMensajes.length > 0) {
+        let posY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 14 : 200;
 
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(15, 23, 42); // Slate oscuro
-      doc.text("4. BITÁCORA ESTRATÉGICA & DIÁLOGO CON COPILOTO AI (MINI TARS)", 14, posY);
-      posY += 8;
-
-      historialMensajes.forEach((msg) => {
-        const esUsuario = msg.remitente === 'usuario';
-        const emisor = esUsuario ? "USUARIO" : "MINI TARS";
-        
-        // Limpieza de caracteres de markdown para un PDF impecable
-        const textoLimpio = (typeof msg.texto === 'string' ? msg.texto : '')
-          .replace(/\*\*/g, '')
-          .replace(/\*/g, '');
-
-        const lineasTexto = doc.splitTextToSize(textoLimpio, 175);
-        const alturaBloque = lineasTexto.length * 4.5 + 8;
-
-        // Salto automático de página si el mensaje supera el margen inferior
-        if (posY + alturaBloque > 280) {
+        if (posY > 240) {
           doc.addPage();
           posY = 20;
         }
 
-        // Encabezado del remitente
-        doc.setFontSize(8.5);
+        doc.setFontSize(11);
         doc.setFont("helvetica", "bold");
-        if (esUsuario) {
-          doc.setTextColor(207, 157, 123); // Cobre / Ámbar #CF9D7B
-        } else {
-          doc.setTextColor(51, 65, 85);
-        }
-        doc.text(`[${emisor}]`, 14, posY);
-        posY += 4.5;
+        doc.setTextColor(15, 23, 42);
+        doc.text("4. BITÁCORA ESTRATÉGICA & DIÁLOGO CON COPILOTO AI (MINI TARS)", 14, posY);
+        posY += 8;
 
-        // Cuerpo del mensaje
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(71, 85, 105);
-        doc.text(lineasTexto, 14, posY);
+        historialMensajes.forEach((msg) => {
+          const esUsuario = msg.remitente === 'usuario';
+          const emisor = esUsuario ? "USUARIO" : "MINI TARS";
+          
+          const textoLimpio = (typeof msg.texto === 'string' ? msg.texto : '')
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '');
 
-        posY += lineasTexto.length * 4.2 + 4;
-      });
-    }
+          const lineasTexto = doc.splitTextToSize(textoLimpio, 175);
+          const alturaBloque = lineasTexto.length * 4.5 + 8;
+
+          if (posY + alturaBloque > 280) {
+            doc.addPage();
+            posY = 20;
+          }
+
+          doc.setFontSize(8.5);
+          doc.setFont("helvetica", "bold");
+          if (esUsuario) {
+            doc.setTextColor(207, 157, 123);
+          } else {
+            doc.setTextColor(51, 65, 85);
+          }
+          doc.text(`[${emisor}]`, 14, posY);
+          posY += 4.5;
+
+          doc.setFontSize(8);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(71, 85, 105);
+          doc.text(lineasTexto, 14, posY);
+
+          posY += lineasTexto.length * 4.2 + 4;
+        });
+      }
 
       doc.save('Reporte_Auditoria_Forense.pdf');
     } catch (error) {
@@ -723,14 +794,16 @@ export default function Home() {
             </div>
           </div>
         )}
-{/* VISTA DEL MODO ASISTIDO */}
+
+        {/* VISTA DEL MODO ASISTIDO */}
         {activeTab === 'asistido' && (
           <ModoAsistido 
             onVolverHome={() => setActiveTab('lobby')}
             moneda={moneda}
           />
         )}
-{/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
+
+        {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
         {activeTab === 'simulador' && (
           <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto">
             
@@ -994,27 +1067,27 @@ export default function Home() {
               )}
             </div>
 
-            {/* Resultados de la Auditoría */}
+            {/* SECCIÓN DETECTIVE CSV AUDITORÍA COMPLETA */}
             {datosAuditoria && (
-              <div className="space-y-8 animate-fadeIn">
+              <div className="space-y-8">
                 
-                {/* Barra de Acciones */}
-                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
+                {/* 1. Panel de Métricas Clave y Botones de Acción */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-xl">
                   <div>
-                    <h4 className="text-lg font-bold text-white tracking-tight">¿Listo para proyectar nuevos escenarios?</h4>
-                    <p className="text-xs text-gray-400">Pasa el precio promedio ({formatearDinero(datosAuditoria.precio_promedio)}) y volumen histórico al Simulador.</p>
+                    <span className="text-xs font-mono text-[#CF9D7B] uppercase tracking-wider font-semibold">Resumen Forense</span>
+                    <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">Diagnóstico del Catálogo</h3>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button 
+                  <div className="flex items-center gap-3">
+                    <button
                       onClick={exportarPDF}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0D151B] text-[#CF9D7B] border border-[#CF9D7B]/40 text-xs font-semibold rounded-full hover:bg-[#16222C] transition-all cursor-pointer whitespace-nowrap"
+                      className="flex items-center gap-2 px-4 py-2 bg-[#0D151B] border border-[#1E2D3D] hover:border-[#CF9D7B]/50 text-white rounded-xl text-xs font-medium transition-all"
                     >
-                      <Download className="w-4 h-4" />
+                      <Download className="w-4 h-4 text-[#CF9D7B]" />
                       Descargar Reporte PDF
                     </button>
-                    <button 
+                    <button
                       onClick={transferirAlSimulador}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#CF9D7B] text-[#05080A] text-xs font-bold rounded-full hover:shadow-[0_0_15px_rgba(207,157,123,0.4)] transition-all cursor-pointer whitespace-nowrap"
+                      className="flex items-center gap-2 px-4 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold hover:shadow-[0_0_15px_rgba(207,157,123,0.4)] transition-all"
                     >
                       <PlayCircle className="w-4 h-4" />
                       Simular con estos datos
@@ -1022,145 +1095,230 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Métricas Generales */}
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
-                    <span className="text-xs text-gray-400 font-mono uppercase">Total Registros</span>
-                    <p className="text-2xl font-bold text-white mt-1 font-mono">{datosAuditoria.total_registros.toLocaleString('es-CO')}</p>
+                {/* Métricas en Tarjetas Rápidas */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Total Registros</span>
+                    <p className="text-2xl font-bold text-white font-mono">{datosAuditoria.total_registros}</p>
                   </div>
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
-                    <span className="text-xs text-gray-400 font-mono uppercase">Ventas Totales</span>
-                    <p className="text-2xl font-bold text-[#CF9D7B] mt-1 font-mono">{formatearDinero(datosAuditoria.ventas_historicas)}</p>
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Ventas Totales</span>
+                    <p className="text-2xl font-bold text-[#CF9D7B] font-mono">{formatearDinero(datosAuditoria.ventas_historicas)}</p>
                   </div>
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
-                    <span className="text-xs text-gray-400 font-mono uppercase">Unidades Vendidas</span>
-                    <p className="text-2xl font-bold text-white mt-1 font-mono">{datosAuditoria.unidades_historicas.toLocaleString('es-CO')}</p>
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Unidades Vendidas</span>
+                    <p className="text-2xl font-bold text-white font-mono">{datosAuditoria.unidades_historicas}</p>
                   </div>
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl">
-                    <span className="text-xs text-gray-400 font-mono uppercase">Precio Promedio</span>
-                    <p className="text-2xl font-bold text-white mt-1 font-mono">{formatearDinero(datosAuditoria.precio_promedio)}</p>
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Precio Promedio</span>
+                    <p className="text-2xl font-bold text-white font-mono">{formatearDinero(datosAuditoria.precio_promedio)}</p>
                   </div>
                 </div>
 
-               {/* CENTRO ANALÍTICO VISUAL (SUBPESTAÑAS INTELIGENTES) */}
-        {datosAuditoria && (
-          <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
-            
-            {/* Cabecera y Selector de Subpestañas */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#16222C] pb-4">
-              <div>
-                <span className="text-xs text-[#CF9D7B] font-semibold uppercase tracking-wider font-mono">Centro Analítico Visual</span>
-                <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">
-                  {subTabGrafica === 'productos' && 'Top 5 Productos más Vendidos'}
-                  {subTabGrafica === 'tendencia' && 'Tendencia Temporal de Facturación'}
-                  {subTabGrafica === 'clientes' && 'Concentración de Cartera (Top Clientes)'}
-                </h3>
-                <p className="text-xs text-gray-400 mt-1">
-                  {subTabGrafica === 'productos' && 'Distribución de ingresos por producto líder para identificar concentración de ventas.'}
-                  {subTabGrafica === 'tendencia' && 'Evolución y estacionalidad de ingresos mensuales en el período analizado.'}
-                  {subTabGrafica === 'clientes' && 'Evaluación del riesgo de concentración y dependencia en compradores clave.'}
-                </p>
-              </div>
+                {/* 2. SUITE DE CONSULTORÍA VISUAL: MATRIZ BCG */}
+                {datosMatrizBCG.length > 0 && (
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl">
+                    <div className="flex items-center gap-2 mb-6">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#38BDF8] animate-pulse" />
+                      <h3 className="text-lg font-bold text-white tracking-tight">
+                        3. Matriz BCG: Rentabilidad vs. Rotación
+                      </h3>
+                    </div>
 
-              {/* Botones de Navegación Condicionales */}
-              <div className="flex items-center gap-2 bg-[#0E171E] p-1.5 rounded-xl border border-[#1E2D3D] self-start md:self-auto">
-                <button
-                  onClick={() => setSubTabGrafica('productos')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    subTabGrafica === 'productos'
-                      ? 'bg-[#CF9D7B] text-[#05080A] font-bold shadow-md'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Productos
-                </button>
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                      {/* Scatter Chart */}
+                      <div className="lg:col-span-3 h-80 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#16222C" />
+                            <XAxis 
+                              type="number" 
+                              dataKey="unidades" 
+                              name="Unidades Vendidas" 
+                              stroke="#64748B" 
+                              fontSize={11} 
+                              tickLine={false}
+                              label={{ value: 'Unidades Vendidas (Rotación)', position: 'insideBottom', offset: -10, fill: '#64748B', fontSize: 11 }}
+                            />
+                            <YAxis 
+                              type="number" 
+                              dataKey="ventas" 
+                              name="Facturación" 
+                              stroke="#64748B" 
+                              fontSize={11} 
+                              tickLine={false}
+                              tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
+                              label={{ value: 'Facturación / Ganancia Neta', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }}
+                            />
+                            <ZAxis range={[120, 240]} />
+                            <Tooltip 
+                              cursor={{ strokeDasharray: '3 3', stroke: '#38BDF8', strokeOpacity: 0.3 }}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                      <p className="font-bold text-white flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: data.color }} />
+                                        {data.nombre}
+                                      </p>
+                                      <p className="text-gray-300">Rotación: <span className="font-mono text-[#38BDF8]">{data.unidades} uds</span></p>
+                                      <p className="text-gray-300">Facturación: <span className="font-mono text-[#34D399]">{formatearDinero(data.ventas)}</span></p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Scatter name="Productos" data={datosMatrizBCG}>
+                              {datosMatrizBCG.map((entry, index) => (
+                                <Cell 
+                                  key={`cell-scatter-${index}`} 
+                                  fill={entry.color} 
+                                  stroke="#FFFFFF" 
+                                  strokeWidth={1.5} 
+                                  fillOpacity={0.9} 
+                                />
+                              ))}
+                            </Scatter>
+                          </ScatterChart>
+                        </ResponsiveContainer>
+                      </div>
 
-                {datosTendenciaMensual && datosTendenciaMensual.length > 0 && (
-                  <button
-                    onClick={() => setSubTabGrafica('tendencia')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      subTabGrafica === 'tendencia'
-                        ? 'bg-[#CF9D7B] text-[#05080A] font-bold shadow-md'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    Estacionalidad
-                  </button>
+                      {/* Leyenda lateral */}
+                      <div className="lg:col-span-1 bg-[#050B0E]/80 border border-[#16222C] p-4 rounded-xl max-h-80 overflow-y-auto custom-scrollbar">
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-[#64748B] block mb-3">
+                          Catálogo Analizado
+                        </span>
+                        <div className="space-y-2">
+                          {datosMatrizBCG.map((item, idx) => (
+                            <div key={`legend-${idx}`} className="flex items-center gap-2 text-xs">
+                              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: item.color }} />
+                              <span className="text-gray-300 truncate font-medium" title={item.nombre}>
+                                {item.nombre}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
-                {datosConcentracionClientes && datosConcentracionClientes.length > 0 && (
-                  <button
-                    onClick={() => setSubTabGrafica('clientes')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      subTabGrafica === 'clientes'
-                        ? 'bg-[#CF9D7B] text-[#05080A] font-bold shadow-md'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    Clientes
-                  </button>
-                )}
-              </div>
-            </div>
+                {/* 3. Panel: Análisis Profundo del Negocio con Selector */}
+                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#16222C] pb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-white tracking-tight">
+                        4. Análisis Profundo del Negocio
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Explora el desglose clasificado por volumen de unidades, facturación total o clientes clave.
+                      </p>
+                    </div>
 
-            {/* Contenedor del Gráfico Activo */}
-            <div className="h-72 w-full pt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                {subTabGrafica === 'productos' ? (
-                  <BarChart data={datosAuditoria.ranking_productos} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                    <XAxis dataKey="nombre" stroke="#6B7280" fontSize={11} tickLine={false} />
-                    <YAxis stroke="#6B7280" fontSize={11} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2E39', borderRadius: '12px', fontSize: '12px' }}
-                      formatter={(val) => [formatearDinero(val), 'Ventas Totales']}
-                    />
-                    <Bar dataKey="ventas" fill="#CF9D7B" radius={[6, 6, 0, 0]}>
-                      {(datosAuditoria.ranking_productos || []).map((_, index) => (
-                        <Cell key={`bar-prod-${index}`} fill={index === 0 ? '#CF9D7B' : '#1e3a5f'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                ) : subTabGrafica === 'tendencia' ? (
-                  <AreaChart data={datosTendenciaMensual} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorTendencia" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#CF9D7B" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#CF9D7B" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                    <XAxis dataKey="mes" stroke="#6B7280" fontSize={11} tickLine={false} />
-                    <YAxis stroke="#6B7280" fontSize={11} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2E39', borderRadius: '12px', fontSize: '12px' }}
-                      formatter={(val) => [formatearDinero(val), 'Facturación']}
-                    />
-                    <Area type="monotone" dataKey="ventas" stroke="#CF9D7B" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTendencia)" />
-                  </AreaChart>
-                ) : (
-                  <BarChart layout="vertical" data={datosConcentracionClientes} margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#16222A" horizontal={false} />
-                    <XAxis type="number" stroke="#6B7280" fontSize={11} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
-                    <YAxis dataKey="cliente" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} width={120} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2E39', borderRadius: '12px', fontSize: '12px' }}
-                      formatter={(val) => [formatearDinero(val), 'Compras Totales']}
-                    />
-                    <Bar dataKey="ventas" fill="#1D2B36" radius={[0, 6, 6, 0]}>
-                      {(datosConcentracionClientes || []).map((_, i) => (
-                        <Cell key={`bar-cli-${i}`} fill={i === 0 ? '#CF9D7B' : '#1e3a5f'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                )}
-              </ResponsiveContainer>
-            </div>
+                    {/* Selector tipo Radio / Píldoras */}
+                    <div className="flex flex-wrap items-center gap-2 bg-[#0E171E] p-1.5 rounded-xl border border-[#1E2D3D]">
+                      <button
+                        onClick={() => setCriterioAnalisis('unidades')}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                          criterioAnalisis === 'unidades'
+                            ? 'bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/40 font-bold shadow-sm'
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${criterioAnalisis === 'unidades' ? 'bg-[#38BDF8]' : 'border border-gray-500'}`} />
+                        Top 10 Productos (Unidades)
+                      </button>
 
-          </div>
-        )}
+                      <button
+                        onClick={() => setCriterioAnalisis('facturacion')}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                          criterioAnalisis === 'facturacion'
+                            ? 'bg-[#F472B6]/20 text-[#F472B6] border border-[#F472B6]/40 font-bold shadow-sm'
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${criterioAnalisis === 'facturacion' ? 'bg-[#F472B6]' : 'border border-gray-500'}`} />
+                        Top 10 Productos (Facturación)
+                      </button>
 
-                {/* Diagnóstico Rey vs Hueso */}
+                      {tieneClientes && (
+                        <button
+                          onClick={() => setCriterioAnalisis('clientes')}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                            criterioAnalisis === 'clientes'
+                              ? 'bg-[#34D399]/20 text-[#34D399] border border-[#34D399]/40 font-bold shadow-sm'
+                              : 'text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${criterioAnalisis === 'clientes' ? 'bg-[#34D399]' : 'border border-gray-500'}`} />
+                          Top 10 Clientes
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Gráfico de Barras Horizontales con Paleta Categórica */}
+                  <div className="h-96 w-full pt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        layout="vertical"
+                        data={
+                          criterioAnalisis === 'unidades'
+                            ? top10ProductosUnidades
+                            : criterioAnalisis === 'facturacion'
+                            ? top10ProductosFacturacion
+                            : top10Clientes
+                        }
+                        margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#16222C" horizontal={false} />
+                        <XAxis 
+                          type="number" 
+                          stroke="#64748B" 
+                          fontSize={11} 
+                          tickLine={false} 
+                          tickFormatter={(val) => criterioAnalisis === 'unidades' ? val : `$${(val / 1000).toFixed(0)}k`} 
+                        />
+                        <YAxis 
+                          dataKey="nombre" 
+                          type="category" 
+                          stroke="#94A3B8" 
+                          fontSize={11} 
+                          tickLine={false} 
+                          width={160} 
+                        />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2D3D', borderRadius: '12px', fontSize: '12px' }}
+                          formatter={(val) => [
+                            criterioAnalisis === 'unidades' ? `${val} unidades` : formatearDinero(val),
+                            criterioAnalisis === 'unidades' ? 'Rotación' : 'Facturación Total'
+                          ]}
+                        />
+                        <Bar 
+                          dataKey={criterioAnalisis === 'unidades' ? 'unidades' : 'ventas'} 
+                          radius={[0, 6, 6, 0]}
+                        >
+                          {(
+                            criterioAnalisis === 'unidades'
+                              ? top10ProductosUnidades
+                              : criterioAnalisis === 'facturacion'
+                              ? top10ProductosFacturacion
+                              : top10Clientes
+                          ).map((entry, index) => (
+                            <Cell 
+                              key={`bar-deep-${index}`} 
+                              fill={entry.color || PALETA_COLORES[index % PALETA_COLORES.length]} 
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* 4. Diagnóstico Rey vs Hueso */}
                 {datosAuditoria.diagnostico?.rey && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-6 rounded-2xl space-y-3 shadow-xl">
@@ -1266,42 +1424,40 @@ export default function Home() {
                     }`}
                   >
                     <p className="whitespace-pre-wrap leading-relaxed">
-  {typeof msg.texto === 'string'
-    ? msg.texto.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((parte, i) => {
-        // Negrita con doble asterisco: **texto**
-        if (parte.startsWith('**') && parte.endsWith('**') && parte.length > 4) {
-          return (
-            <strong
-              key={i}
-              className={
-                msg.remitente === 'usuario'
-                  ? 'font-bold text-black'
-                  : 'text-[#CF9D7B] font-bold'
-              }
-            >
-              {parte.slice(2, -2)}
-            </strong>
-          );
-        }
-        // Cursiva / Resalte con asterisco simple: *texto*
-        if (parte.startsWith('*') && parte.endsWith('*') && parte.length > 2) {
-          return (
-            <span
-              key={i}
-              className={
-                msg.remitente === 'usuario'
-                  ? 'italic'
-                  : 'text-[#CF9D7B] font-medium italic'
-              }
-            >
-              {parte.slice(1, -1)}
-            </span>
-          );
-        }
-        return parte;
-      })
-    : msg.texto}
-</p>
+                      {typeof msg.texto === 'string'
+                        ? msg.texto.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((parte, i) => {
+                            if (parte.startsWith('**') && parte.endsWith('**') && parte.length > 4) {
+                              return (
+                                <strong
+                                  key={i}
+                                  className={
+                                    msg.remitente === 'usuario'
+                                      ? 'font-bold text-black'
+                                      : 'text-[#CF9D7B] font-bold'
+                                  }
+                                >
+                                  {parte.slice(2, -2)}
+                                </strong>
+                              );
+                            }
+                            if (parte.startsWith('*') && parte.endsWith('*') && parte.length > 2) {
+                              return (
+                                <span
+                                  key={i}
+                                  className={
+                                    msg.remitente === 'usuario'
+                                      ? 'italic'
+                                      : 'text-[#CF9D7B] font-medium italic'
+                                  }
+                                >
+                                  {parte.slice(1, -1)}
+                                </span>
+                              );
+                            }
+                            return parte;
+                          })
+                        : msg.texto}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -1343,7 +1499,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Botón flotante con animación orbital */}
+        {/* Botón flotante */}
         <button
           onClick={() => setAbrirChatIA(!abrirChatIA)}
           className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_25px_rgba(207,157,123,0.35)] hover:shadow-[0_0_35px_rgba(207,157,123,0.6)] transition-all duration-300 hover:scale-110 cursor-pointer"
