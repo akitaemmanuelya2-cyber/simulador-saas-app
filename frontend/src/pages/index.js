@@ -1129,59 +1129,68 @@ export default function Home() {
                       {/* Scatter Chart */}
                       <div className="lg:col-span-3 h-80 w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                          <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#16222C" />
-                            <XAxis 
-                              type="number" 
-                              dataKey="unidades" 
-                              name="Unidades Vendidas" 
-                              stroke="#64748B" 
-                              fontSize={11} 
-                              tickLine={false}
-                              label={{ value: 'Unidades Vendidas (Rotación)', position: 'insideBottom', offset: -10, fill: '#64748B', fontSize: 11 }}
-                            />
-                            <YAxis 
-                              type="number" 
-                              dataKey="ventas" 
-                              name="Facturación" 
-                              stroke="#64748B" 
-                              fontSize={11} 
-                              tickLine={false}
-                              tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
-                              label={{ value: 'Facturación / Ganancia Neta', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }}
-                            />
-                            <ZAxis range={[120, 240]} />
-                            <Tooltip 
-                              cursor={{ strokeDasharray: '3 3', stroke: '#38BDF8', strokeOpacity: 0.3 }}
-                              content={({ active, payload }) => {
-                                if (active && payload && payload.length) {
-                                  const data = payload[0].payload;
-                                  return (
-                                    <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
-                                      <p className="font-bold text-white flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: data.color }} />
-                                        {data.nombre}
-                                      </p>
-                                      <p className="text-gray-300">Rotación: <span className="font-mono text-[#38BDF8]">{data.unidades} uds</span></p>
-                                      <p className="text-gray-300">Facturación: <span className="font-mono text-[#34D399]">{formatearDinero(data.ventas)}</span></p>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              }}
-                            />
-                            <Scatter name="Productos" data={datosMatrizBCG}>
-                              {datosMatrizBCG.map((entry, index) => (
-                                <Cell 
-                                  key={`cell-scatter-${index}`} 
-                                  fill={entry.color} 
-                                  stroke="#FFFFFF" 
-                                  strokeWidth={1.5} 
-                                  fillOpacity={0.9} 
-                                />
-                              ))}
-                            </Scatter>
-                          </ScatterChart>
+                          <ScatterChart margin={{ top: 25, right: 35, bottom: 20, left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#16222C" />
+                        <XAxis 
+                          type="number" 
+                          dataKey="unidades" 
+                          name="Unidades Vendidas" 
+                          stroke="#64748B" 
+                          fontSize={11} 
+                          tickLine={false}
+                          label={{ value: 'Unidades Vendidas (Rotación)', position: 'insideBottom', offset: -10, fill: '#64748B', fontSize: 11 }}
+                        />
+                        <YAxis 
+                          type="number" 
+                          dataKey="ventas" 
+                          name="Facturación" 
+                          stroke="#64748B" 
+                          fontSize={11} 
+                          tickLine={false}
+                          tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
+                          label={{ value: 'Facturación / Ganancia Neta', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }}
+                        />
+                        <Tooltip 
+                          cursor={{ strokeDasharray: '3 3', stroke: '#38BDF8', strokeOpacity: 0.3 }}
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                  <p className="font-bold text-white flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
+                                    {data.nombre}
+                                  </p>
+                                  <p className="text-gray-300">Rotación: <span className="font-mono text-[#38BDF8] font-bold">{data.unidades} uds</span></p>
+                                  <p className="text-gray-300">Facturación: <span className="font-mono text-[#34D399] font-bold">{formatearDinero(data.ventas)}</span></p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Scatter 
+                          name="Productos" 
+                          data={datosMatrizBCG}
+                          shape={(props) => {
+                            const { cx, cy, fill } = props;
+                            return (
+                              <g>
+                                {/* Anillo exterior / Aura */}
+                                <circle cx={cx} cy={cy} r={14} fill="none" stroke="#FFFFFF" strokeWidth={2.5} opacity={0.85} />
+                                {/* Esfera interior sólida */}
+                                <circle cx={cx} cy={cy} r={11} fill={fill} />
+                                {/* Brillo especular 3D */}
+                                <circle cx={cx - 3.5} cy={cy - 3.5} r={3} fill="#FFFFFF" opacity={0.65} />
+                              </g>
+                            );
+                          }}
+                        >
+                          {datosMatrizBCG.map((entry, index) => (
+                            <Cell key={`cell-scatter-${index}`} fill={entry.color} />
+                          ))}
+                        </Scatter>
+                      </ScatterChart>
                         </ResponsiveContainer>
                       </div>
 
@@ -1290,12 +1299,29 @@ export default function Home() {
                           width={160} 
                         />
                         <Tooltip
-                          contentStyle={{ backgroundColor: '#0D161C', borderColor: '#1E2D3D', borderRadius: '12px', fontSize: '12px' }}
-                          formatter={(val) => [
-                            criterioAnalisis === 'unidades' ? `${val} unidades` : formatearDinero(val),
-                            criterioAnalisis === 'unidades' ? 'Rotación' : 'Facturación Total'
-                          ]}
-                        />
+                      cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          const esUnidades = criterioAnalisis === 'unidades';
+                          return (
+                            <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                              <p className="font-bold text-white flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
+                                {data.nombre}
+                              </p>
+                              <p className="text-gray-300">
+                                {esUnidades ? 'Rotación: ' : 'Facturación Total: '}
+                                <span className={`font-mono font-bold ${esUnidades ? 'text-[#38BDF8]' : 'text-[#34D399]'}`}>
+                                  {esUnidades ? `${data.unidades} unidades` : formatearDinero(data.ventas)}
+                                </span>
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
                         <Bar 
                           dataKey={criterioAnalisis === 'unidades' ? 'unidades' : 'ventas'} 
                           radius={[0, 6, 6, 0]}
