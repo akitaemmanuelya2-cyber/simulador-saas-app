@@ -1509,51 +1509,58 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🐬 Cinemática: Nado de Delfín en el Mar de Datos */}
+        {/* 💥 Cinemática: Vuelo desde el fondo + Choque contra la pantalla + Caída a cabina */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
-          <motion.div
-            initial={{ x: '-90vw', y: '10vh', scale: 0.8, rotate: -25, opacity: 0 }}
-            animate={{
-              // Arcos de saltos (sale a la superficie, se zambulle, vuelve a saltar y aterriza)
-              x: ['-90vw', '-65vw', '-45vw', '-25vw', '-10vw', '0vw'],
-              y: ['10vh', '-35vh', '5vh', '-30vh', '0vh', '0vh'],
-              rotate: [-25, 20, -30, 25, -10, 0],
-              scale: [0.8, 1.15, 0.9, 1.15, 0.95, 1],
-              opacity: [0, 1, 1, 1, 1, 1]
-            }}
-            transition={{
-              duration: 3.8,
-              times: [0, 0.25, 0.5, 0.75, 0.9, 1],
-              ease: 'easeInOut'
-            }}
-            onAnimationComplete={() => setAnimacionTarsCompletada(true)}
-            className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/90 backdrop-blur-xl border border-[#CF9D7B]/60 shadow-[0_0_30px_rgba(56,189,248,0.35)] cursor-pointer"
-            onClick={() => setAbrirChatIA(!abrirChatIA)}
-          >
-            {/* 🌊 Estela / Ondas de agua digital y salpicadura */}
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            
+            {/* Animación del Robot volando y estrellándose */}
             <motion.div
+              initial={{ scale: 0.05, opacity: 0, x: 0, y: 0, rotate: 0 }}
               animate={{
-                scale: [0.6, 1.3, 0.6],
-                opacity: [0.8, 0.2, 0.8]
+                // 1. Zoom brutal hacia el centro -> 2. Impacto aplastado -> 3. Resbalón y caída a la esquina
+                scale: [0.05, 2.4, 2.2, 2.2, 1],
+                opacity: [0, 1, 1, 1, 1],
+                x: ['0vw', '0vw', '0vw', '10vw', 'calc(50vw - 4.5rem)'],
+                y: ['0vh', '0vh', '0vh', '15vh', 'calc(50vh - 4.5rem)'],
+                rotate: [0, -12, 12, 25, 0]
               }}
-              transition={{ repeat: Infinity, duration: 0.6, ease: "easeInOut" }}
-              className="absolute -bottom-3 w-16 h-6 pointer-events-none flex items-center justify-center"
+              transition={{
+                duration: 3.4,
+                times: [0, 0.35, 0.5, 0.7, 1],
+                ease: 'easeInOut'
+              }}
+              onAnimationComplete={() => setAnimacionTarsCompletada(true)}
+              className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#090F14]/95 backdrop-blur-xl border-2 border-[#CF9D7B] shadow-[0_0_50px_rgba(207,157,123,0.8)] pointer-events-auto cursor-pointer"
+              onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
-              <svg viewBox="0 0 80 30" className="w-full h-full overflow-visible">
-                {/* Ondas expansivas en el agua */}
-                <ellipse cx="40" cy="15" rx="36" ry="10" fill="none" stroke="#38BDF8" strokeWidth="2.5" strokeDasharray="12 6" opacity="0.8" />
-                <ellipse cx="40" cy="15" rx="22" ry="6" fill="none" stroke="#CF9D7B" strokeWidth="2" opacity="0.6" />
-                {/* Gotas/Partículas de datos */}
-                <circle cx="18" cy="8" r="2" fill="#38BDF8" />
-                <circle cx="62" cy="8" r="2" fill="#38BDF8" />
-                <circle cx="40" cy="2" r="1.5" fill="#FFFFFF" />
+              <Bot className="w-8 h-8 text-[#CF9D7B]" />
+              <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
+            </motion.div>
+
+            {/* ⚡ Efecto de Grietas en la Pantalla (Vidrio roto al momento exacto del choque) */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{
+                opacity: [0, 0, 1, 0.8, 0],
+                scale: [0.5, 0.5, 1.2, 1.2, 1.3]
+              }}
+              transition={{
+                duration: 3.4,
+                times: [0, 0.34, 0.36, 0.65, 0.85],
+                ease: "easeOut"
+              }}
+              className="absolute pointer-events-none w-72 h-72 flex items-center justify-center"
+            >
+              <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#CF9D7B] fill-none drop-shadow-[0_0_12px_rgba(207,157,123,0.9)]">
+                {/* Red de fracturas y grietas de vidrio */}
+                <path d="M100 100 L30 40 M100 100 L170 30 M100 100 L180 140 M100 100 L40 160 M100 100 L100 20 M100 100 L110 185" strokeWidth="2.5" />
+                <path d="M60 65 L45 90 M140 60 L160 85 M145 125 L120 150 M70 135 L50 120" strokeWidth="1.5" />
+                <polygon points="90,95 105,90 110,105 95,110" strokeWidth="1.5" stroke="#38BDF8" fill="rgba(56,189,248,0.15)" />
+                <circle cx="100" cy="100" r="18" strokeWidth="1" strokeDasharray="4 3" stroke="#FFFFFF" />
               </svg>
             </motion.div>
 
-            <span className="absolute inset-0 rounded-2xl border border-[#38BDF8]/40 animate-ping opacity-40 pointer-events-none"></span>
-            <Bot className="w-7 h-7 text-[#CF9D7B]" />
-            <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 border-2 border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
-          </motion.div>
+          </div>
         ) : (
           <button
             onClick={() => setAbrirChatIA(!abrirChatIA)}
