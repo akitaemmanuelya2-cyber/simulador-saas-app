@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Nave Cápsula Espacial Envolvente (Solo Ojitos Visibles) */}
+        {/* 🚀 Cinemática: Cohete Espacial Retro Caricatura (Referencia Pixabay) */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1537,66 +1537,58 @@ export default function Home() {
               className="absolute flex items-center justify-center pointer-events-auto cursor-pointer"
               onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
-              {/* 🛸 Nave Espacial Envolvente Blindada */}
-              <div className="relative flex flex-col items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-b from-[#14202A] via-[#090F14] to-[#04070A] border-2 border-[#CF9D7B]/80 shadow-[0_0_35px_rgba(56,189,248,0.5)]">
-                
-                {/* Antena / Sensor Superior */}
-                <div className="absolute -top-2 w-1.5 h-2 bg-[#CF9D7B] rounded-full flex items-center justify-center">
-                  <div className="w-1 h-1 bg-[#38BDF8] rounded-full animate-ping"></div>
-                </div>
+              {/* Cohete Retro Vectorial */}
+              <div className="relative w-16 h-24 flex items-center justify-center">
+                <svg viewBox="0 0 100 150" className="w-full h-full overflow-visible drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">
+                  {/* Aletas traseras curvas estilo cómic */}
+                  <path d="M22 95 Q5 115 10 135 Q28 128 32 110 Z" fill="#CF9D7B" stroke="#05080A" strokeWidth="2" />
+                  <path d="M78 95 Q95 115 90 135 Q72 128 68 110 Z" fill="#CF9D7B" stroke="#05080A" strokeWidth="2" />
+                  <path d="M44 98 L56 98 L53 125 L47 125 Z" fill="#B38160" stroke="#05080A" strokeWidth="1.5" />
 
-                {/* Alerones laterales aerodinámicos */}
-                <div className="absolute -left-2 top-4 w-2 h-6 bg-[#1A2834] border-l border-y border-[#38BDF8]/60 rounded-l-md transform -skew-y-12"></div>
-                <div className="absolute -right-2 top-4 w-2 h-6 bg-[#1A2834] border-r border-y border-[#38BDF8]/60 rounded-r-md transform skew-y-12"></div>
+                  {/* Cuerpo cilíndrico / fuselaje blanco curvado */}
+                  <path d="M50 15 C75 40 78 85 70 115 L30 115 C22 85 25 40 50 15 Z" fill="#E2E8F0" stroke="#05080A" strokeWidth="2.5" />
+                  
+                  {/* Punta cónica / Ojiva superior */}
+                  <path d="M50 15 C60 27 67 42 68 50 L32 50 C33 42 40 27 50 15 Z" fill="#F97316" stroke="#05080A" strokeWidth="2" />
 
-                {/* 🪟 Escotilla / Cabina de Cristal Polarizado con los Ojitos */}
-                <div className="w-11 h-7 bg-[#05080B]/90 border border-[#38BDF8]/70 rounded-full flex items-center justify-center gap-2 px-2 shadow-[inset_0_0_8px_rgba(56,189,248,0.4)]">
-                  {/* Ojo Izquierdo */}
+                  {/* Franjas aerodinámicas de detalle */}
+                  <path d="M30 102 L70 102 L69 110 L31 110 Z" fill="#CF9D7B" />
+                  <ellipse cx="50" cy="115" rx="18" ry="5" fill="#1E293B" />
+
+                  {/* Ventanilla circular (Ojo de buey con marco) */}
+                  <circle cx="50" cy="72" r="15" fill="#0E171E" stroke="#CF9D7B" strokeWidth="3" />
+                  <circle cx="50" cy="72" r="12" fill="#04070A" stroke="#38BDF8" strokeWidth="1" />
+                </svg>
+
+                {/* 👁️ Ojitos luminosos de Mini-TARS mirando por la escotilla */}
+                <div className="absolute top-[40px] flex items-center gap-1.5 pointer-events-none">
                   <motion.div 
                     animate={{ scaleY: [1, 1, 0.1, 1] }} 
-                    transition={{ repeat: Infinity, duration: 2.8, times: [0, 0.85, 0.9, 1] }}
-                    className="w-2.5 h-3 bg-[#CF9D7B] rounded-sm shadow-[0_0_8px_#CF9D7B]"
+                    transition={{ repeat: Infinity, duration: 2.6, times: [0, 0.85, 0.9, 1] }}
+                    className="w-2 h-2.5 bg-[#38BDF8] rounded-full shadow-[0_0_6px_#38BDF8]"
                   />
-                  {/* Ojo Derecho */}
                   <motion.div 
                     animate={{ scaleY: [1, 1, 0.1, 1] }} 
-                    transition={{ repeat: Infinity, duration: 2.8, times: [0, 0.85, 0.9, 1] }}
-                    className="w-2.5 h-3 bg-[#CF9D7B] rounded-sm shadow-[0_0_8px_#CF9D7B]"
+                    transition={{ repeat: Infinity, duration: 2.6, times: [0, 0.85, 0.9, 1] }}
+                    className="w-2 h-2.5 bg-[#38BDF8] rounded-full shadow-[0_0_6px_#38BDF8]"
                   />
                 </div>
 
-                {/* Indicador de estado orbital */}
-                <span className={`absolute top-1.5 right-1.5 w-2.5 h-2.5 border border-[#05080A] rounded-full ${cargandoChat ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`}></span>
-
-                {/* 🔥 Fuego y Humo de Propulsión / Aterrizaje (Azul Cian + Naranja) */}
+                {/* 🔥 Fuego y propulsión cómica en la tobera */}
                 <motion.div
                   animate={{
-                    scale: [0.9, 1.3, 0.9],
-                    opacity: [0.8, 1, 0.8]
+                    scale: [0.85, 1.25, 0.85],
+                    opacity: [0.85, 1, 0.85]
                   }}
-                  transition={{ repeat: Infinity, duration: 0.15, ease: "linear" }}
-                  className="absolute -bottom-6 w-12 h-10 pointer-events-none flex items-center justify-center"
+                  transition={{ repeat: Infinity, duration: 0.14, ease: "linear" }}
+                  className="absolute -bottom-7 w-10 h-10 pointer-events-none flex items-center justify-center"
                 >
-                  <svg viewBox="0 0 100 80" className="w-full h-full overflow-visible drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">
-                    <path d="M40 0 C30 30, 20 50, 50 80 C80 50, 70 30, 60 0 Z" fill="url(#plasmaOrange)" opacity="0.9" />
-                    <path d="M45 0 C38 20, 32 35, 50 60 C68 35, 62 20, 55 0 Z" fill="url(#plasmaCyan)" opacity="0.95" />
-                    <ellipse cx="50" cy="72" rx="35" ry="8" fill="rgba(56, 189, 248, 0.3)" />
-                    <ellipse cx="50" cy="68" rx="22" ry="5" fill="rgba(249, 115, 22, 0.4)" />
-
-                    <defs>
-                      <linearGradient id="plasmaOrange" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#F97316" stopOpacity="0.9" />
-                        <stop offset="100%" stopColor="#CF9D7B" stopOpacity="0.2" />
-                      </linearGradient>
-                      <linearGradient id="plasmaCyan" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-                        <stop offset="40%" stopColor="#38BDF8" stopOpacity="0.9" />
-                        <stop offset="100%" stopColor="#0284C7" stopOpacity="0.1" />
-                      </linearGradient>
-                    </defs>
+                  <svg viewBox="0 0 80 80" className="w-full h-full overflow-visible drop-shadow-[0_0_12px_rgba(249,115,22,0.9)]">
+                    <path d="M25 0 Q10 40 40 75 Q70 40 55 0 Z" fill="#F97316" />
+                    <path d="M32 0 Q20 28 40 55 Q60 28 48 0 Z" fill="#FACC15" />
+                    <path d="M37 0 Q30 18 40 38 Q50 18 43 0 Z" fill="#38BDF8" />
                   </svg>
                 </motion.div>
-
               </div>
             </motion.div>
 
