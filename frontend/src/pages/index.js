@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
+import DeepSeaCreatures from '../components/DeepSeaCreatures';
 import { 
   BarChart3, 
   ArrowUpRight, 
@@ -619,8 +620,13 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#05080A] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] selection:text-[#05080A] overflow-hidden">
-      
+    <div className="relative min-h-screen bg-[#05080A] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] select-none">
+    
+
+     {/* 🌊 Fondo de Criaturas Abisales de Datos */}
+     <DeepSeaCreatures />
+
+      {/* ... Resto de la app: Navbar, Lobby, Mini-TARS, etc. ... */} 
       {/* CANVAS DINÁMICO */}
       <canvas 
         ref={canvasRef} 
