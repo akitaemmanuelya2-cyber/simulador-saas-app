@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Bucle de Enlace Suave hacia el Carril Derecho + Descenso Vertical Lento con Humo */}
+        {/* 🚀 Cinemática: Curva en 'S' Orgánica y Continua sin Saltos de Coordenadas */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,37 +1522,38 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // 1. Entrada -> 2. Sobre Modo Asistido -> 3. Detective CSV -> 4. Simulador SaaS -> 5. Rizo de giro hacia la derecha -> 6. Incorporación al carril -> 7. Bajada lenta 1 -> 8. Bajada lenta 2 -> 9. Base final
+                // Interpolación matemática limpia y sin discordancia de unidades:
+                // Entrada -> Centro -> Curva fluida sobre Simulador -> Bucle continuo hacia el borde -> Descenso vertical
                 x: [
                   '-10vw', 
-                  '22vw', 
-                  '50vw', 
-                  '75vw', 
+                  '25vw', 
+                  '52vw', 
+                  '74vw', 
                   '86vw', 
-                  'calc(100vw - 5.5rem)', 
-                  'calc(100vw - 5.5rem)', 
-                  'calc(100vw - 5.5rem)', 
+                  '91vw', 
+                  '91vw', 
+                  '91vw', 
                   'calc(100vw - 5.5rem)'
                 ],
                 y: [
                   '10vh', 
                   '18vh', 
                   '32vh', 
-                  '26vh', 
-                  '35vh', 
-                  '48vh', 
-                  '68vh', 
-                  '85vh', 
+                  '22vh', 
+                  '28vh', 
+                  '42vh', 
+                  '62vh', 
+                  '82vh', 
                   'calc(100vh - 5.5rem)'
                 ],
-                // Giros continuos: Vuelo inicial -> Inclinación -> Bucle 1 (360°) -> Rizo de enlace al carril (720° -> 1080°) -> Enderezado vertical a 0° para descender
-                rotate: [15, 35, 60, 360, 720, 1080, 0, 0, 0],
+                // Rotaciones sincronizadas con la trayectoria física:
+                rotate: [15, 30, 50, 20, 360, 720, 0, 0, 0],
                 scale: [0.6, 1.05, 1.15, 1.1, 1.05, 1, 1, 1, 1],
                 opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1]
               }}
               transition={{
-                duration: 8.2, // Tiempo amplio para que cada giro y la bajada se sientan suaves y orgánicos
-                times: [0, 0.15, 0.30, 0.44, 0.58, 0.70, 0.80, 0.92, 1],
+                duration: 8.4,
+                times: [0, 0.16, 0.32, 0.46, 0.58, 0.70, 0.80, 0.92, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
@@ -1612,13 +1613,13 @@ export default function Home() {
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{
-                    scale: [0, 0, 0, 0.3, 0.7, 1.2, 1.6, 1.8, 0.9],
-                    opacity: [0, 0, 0, 0.25, 0.5, 0.8, 0.9, 0.7, 0],
-                    y: [0, 0, 0, 3, 8, 14, 22, 28, 32]
+                    scale: [0, 0, 0, 0, 0.3, 0.7, 1.2, 1.6, 0.9],
+                    opacity: [0, 0, 0, 0, 0.25, 0.5, 0.8, 0.9, 0],
+                    y: [0, 0, 0, 0, 3, 8, 14, 22, 28]
                   }}
                   transition={{
-                    duration: 8.2,
-                    times: [0, 0.35, 0.48, 0.60, 0.70, 0.80, 0.90, 0.96, 1],
+                    duration: 8.4,
+                    times: [0, 0.30, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95, 1],
                     ease: "easeOut"
                   }}
                   className="absolute -bottom-10 w-36 h-24 pointer-events-none flex items-center justify-center"
