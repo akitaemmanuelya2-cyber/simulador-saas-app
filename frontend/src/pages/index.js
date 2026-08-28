@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Cohete Espacial Retro Caricatura (Referencia Pixabay) */}
+        {/* 🚀 Cinemática: Cohete Retro con Frenado Suave y Nube Expansiva de Aterrizaje */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,45 +1522,42 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                x: ['-10vw', '25vw', '55vw', '35vw', 'calc(100vw - 6rem)', 'calc(100vw - 5.5rem)'],
-                y: ['10vh', '15vh', '30vh', '55vh', 'calc(100vh - 8rem)', 'calc(100vh - 5.5rem)'],
-                rotate: [15, 45, 390, 740, 360, 0],
-                scale: [0.6, 1.1, 1.25, 1.1, 0.95, 1],
-                opacity: [0, 1, 1, 1, 1, 1]
+                // Curva de aproximación continua: Vuelo -> Acrobacia 360 -> Desaceleración suave en picada -> Asentamiento vertical
+                x: ['-10vw', '28vw', '60vw', '40vw', 'calc(100vw - 8rem)', 'calc(100vw - 5.5rem)', 'calc(100vw - 5.5rem)'],
+                y: ['10vh', '18vh', '32vh', '55vh', 'calc(100vh - 12rem)', 'calc(100vh - 5.5rem)', 'calc(100vh - 5.5rem)'],
+                rotate: [15, 45, 390, 720, 360, 0, 0],
+                scale: [0.6, 1.1, 1.25, 1.1, 1, 1, 1],
+                opacity: [0, 1, 1, 1, 1, 1, 1]
               }}
               transition={{
-                duration: 4.2,
-                times: [0, 0.25, 0.5, 0.75, 0.92, 1],
+                duration: 4.8,
+                times: [0, 0.22, 0.45, 0.65, 0.82, 0.94, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
               className="absolute flex items-center justify-center pointer-events-auto cursor-pointer"
               onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
-              {/* Cohete Retro Vectorial */}
+              {/* Contenedor del Cohete Retro */}
               <div className="relative w-16 h-24 flex items-center justify-center">
                 <svg viewBox="0 0 100 150" className="w-full h-full overflow-visible drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">
-                  {/* Aletas traseras curvas estilo cómic */}
+                  {/* Aletas traseras */}
                   <path d="M22 95 Q5 115 10 135 Q28 128 32 110 Z" fill="#CF9D7B" stroke="#05080A" strokeWidth="2" />
                   <path d="M78 95 Q95 115 90 135 Q72 128 68 110 Z" fill="#CF9D7B" stroke="#05080A" strokeWidth="2" />
                   <path d="M44 98 L56 98 L53 125 L47 125 Z" fill="#B38160" stroke="#05080A" strokeWidth="1.5" />
 
-                  {/* Cuerpo cilíndrico / fuselaje blanco curvado */}
+                  {/* Fuselaje */}
                   <path d="M50 15 C75 40 78 85 70 115 L30 115 C22 85 25 40 50 15 Z" fill="#E2E8F0" stroke="#05080A" strokeWidth="2.5" />
-                  
-                  {/* Punta cónica / Ojiva superior */}
                   <path d="M50 15 C60 27 67 42 68 50 L32 50 C33 42 40 27 50 15 Z" fill="#F97316" stroke="#05080A" strokeWidth="2" />
-
-                  {/* Franjas aerodinámicas de detalle */}
                   <path d="M30 102 L70 102 L69 110 L31 110 Z" fill="#CF9D7B" />
                   <ellipse cx="50" cy="115" rx="18" ry="5" fill="#1E293B" />
 
-                  {/* Ventanilla circular (Ojo de buey con marco) */}
+                  {/* Ventanilla circular */}
                   <circle cx="50" cy="72" r="15" fill="#0E171E" stroke="#CF9D7B" strokeWidth="3" />
                   <circle cx="50" cy="72" r="12" fill="#04070A" stroke="#38BDF8" strokeWidth="1" />
                 </svg>
 
-                {/* 👁️ Ojitos luminosos de Mini-TARS mirando por la escotilla */}
+                {/* 👁️ Ojitos luminosos de Mini-TARS */}
                 <div className="absolute top-[40px] flex items-center gap-1.5 pointer-events-none">
                   <motion.div 
                     animate={{ scaleY: [1, 1, 0.1, 1] }} 
@@ -1574,7 +1571,7 @@ export default function Home() {
                   />
                 </div>
 
-                {/* 🔥 Fuego y propulsión cómica en la tobera */}
+                {/* 🔥 Fuego de combustión durante el vuelo */}
                 <motion.div
                   animate={{
                     scale: [0.85, 1.25, 0.85],
@@ -1589,6 +1586,35 @@ export default function Home() {
                     <path d="M37 0 Q30 18 40 38 Q50 18 43 0 Z" fill="#38BDF8" />
                   </svg>
                 </motion.div>
+
+                {/* 💨 Nube de Humo Vectorial al Aterrizar (Estilo Lanzadera / Bocanadas) */}
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{
+                    scale: [0, 0, 0.4, 1.4, 1.8],
+                    opacity: [0, 0, 0.3, 0.9, 0],
+                    y: [0, 0, 5, 15, 25]
+                  }}
+                  transition={{
+                    duration: 4.8,
+                    times: [0, 0.78, 0.84, 0.93, 1],
+                    ease: "easeOut"
+                  }}
+                  className="absolute -bottom-10 w-36 h-24 pointer-events-none flex items-center justify-center"
+                >
+                  <svg viewBox="0 0 160 100" className="w-full h-full overflow-visible">
+                    {/* Nubes infladas de humo en capas */}
+                    <circle cx="80" cy="50" r="32" fill="#F8FAFC" opacity="0.8" />
+                    <circle cx="50" cy="60" r="26" fill="#E2E8F0" opacity="0.9" />
+                    <circle cx="110" cy="60" r="26" fill="#E2E8F0" opacity="0.9" />
+                    <circle cx="30" cy="72" r="20" fill="#CBD5E1" opacity="0.75" />
+                    <circle cx="130" cy="72" r="20" fill="#CBD5E1" opacity="0.75" />
+                    {/* Resplandor cálido de postcombustión en el núcleo del humo */}
+                    <circle cx="80" cy="45" r="18" fill="#F97316" opacity="0.4" />
+                    <circle cx="80" cy="42" r="10" fill="#FACC15" opacity="0.5" />
+                  </svg>
+                </motion.div>
+
               </div>
             </motion.div>
 
