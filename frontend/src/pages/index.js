@@ -619,23 +619,18 @@ export default function Home() {
     }
   };
 
-  return (
+return (
     <div className="relative min-h-screen bg-[#05080A] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] select-none">
-    
-
-     {/* 🌊 Fondo de Criaturas Abisales de Datos */}
-     <DeepSeaCreatures />
-
-      {/* ... Resto de la app: Navbar, Lobby, Mini-TARS, etc. ... */} 
-      {/* CANVAS DINÁMICO */}
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 pointer-events-none z-0 opacity-80" 
+      
+      {/* 🌊 Olas del Mar de Datos FIJAS en toda la pantalla (sin cortes en scroll largo) */}
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none z-0 opacity-80"
       />
 
-      {/* VÓRTICE GRAVITACIONAL */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#CF9D7B]/20 via-[#133040]/30 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
-      <div className="absolute -bottom-32 right-10 w-[600px] h-[600px] bg-cyan-950/20 rounded-full blur-[160px] pointer-events-none z-0" />
+      {/* VÓRTICE GRAVITACIONAL FIJO */}
+      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#CF9D7B]/20 via-[#133040]/30 to-transparent blur-[140px] pointer-events-none z-0" />
+      <div className="fixed -bottom-32 right-10 w-[600px] h-[600px] bg-cyan-950/20 rounded-full blur-[160px] pointer-events-none z-0" />
 
       {/* HEADER / NAVBAR */}
       <header className="relative z-20 flex justify-between items-center max-w-6xl mx-auto w-full pb-8 border-b border-[#141E26]/80">
