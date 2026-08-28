@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Bucle en Detective CSV + Descenso Suave en Línea Recta por el Costado Derecho */}
+        {/* 🚀 Cinemática: Curva Fluida por Simulador SaaS + Descenso Progresivo Lento con Retrocohetes */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,31 +1522,35 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // 1. Entra -> 2. Sobrevuela tarjetas -> 3. Pasa por Detective CSV (65vw, 38vh) -> 4. Giro 360 -> 5. Se alinea al costado derecho -> 6. Descenso vertical directo
+                // 1. Entra -> 2. Asistido -> 3. Detective CSV -> 4. Curva sobre Simulador SaaS -> 5. Enfila margen derecho -> 6. Descenso lento 1 -> 7. Frenado con retrocohetes -> 8. Asentamiento en base
                 x: [
                   '-10vw', 
-                  '30vw', 
-                  '65vw', 
-                  '72vw', 
-                  'calc(100vw - 6rem)', 
+                  '25vw', 
+                  '52vw', 
+                  '78vw', 
+                  'calc(100vw - 5.5rem)', 
+                  'calc(100vw - 5.5rem)', 
+                  'calc(100vw - 5.5rem)', 
                   'calc(100vw - 5.5rem)'
                 ],
                 y: [
-                  '12vh', 
+                  '10vh', 
                   '20vh', 
-                  '38vh', 
-                  '48vh', 
-                  '58vh', 
+                  '36vh', 
+                  '28vh', 
+                  '45vh', 
+                  '65vh', 
+                  '82vh', 
                   'calc(100vh - 5.5rem)'
                 ],
-                // Giros: Entrada -> Inclinación -> Bucle completo (720°) -> Alineación recta a 0° para descender
-                rotate: [15, 45, 360, 720, 0, 0],
-                scale: [0.6, 1.1, 1.2, 1.05, 1, 1],
-                opacity: [0, 1, 1, 1, 1, 1]
+                // Giros: Entrada suave -> Inclinación en vuelo -> Pirueta 360° en la 3ra tarjeta -> Alineación vertical perfecta a 0° para bajar
+                rotate: [15, 35, 60, 390, 720, 0, 0, 0],
+                scale: [0.6, 1.05, 1.15, 1.1, 1.02, 1, 1, 1],
+                opacity: [0, 1, 1, 1, 1, 1, 1, 1]
               }}
               transition={{
-                duration: 5.8,
-                times: [0, 0.22, 0.48, 0.68, 0.82, 1],
+                duration: 7.2, // Tiempo extendido para permitir el descenso lento y realista
+                times: [0, 0.18, 0.35, 0.52, 0.68, 0.80, 0.92, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
@@ -1586,7 +1590,7 @@ export default function Home() {
                   />
                 </div>
 
-                {/* 🔥 Fuego de combustión durante el vuelo */}
+                {/* 🔥 Fuego de combustión continuo */}
                 <motion.div
                   animate={{
                     scale: [0.85, 1.25, 0.85],
@@ -1602,29 +1606,29 @@ export default function Home() {
                   </svg>
                 </motion.div>
 
-                {/* 💨 Nube de Humo Vectorial Continua durante el Descenso */}
+                {/* 💨 Nube de Humo Vectorial Continua y Expansiva durante el Descenso Lento */}
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{
-                    scale: [0, 0, 0, 0.3, 1.3, 1.7],
-                    opacity: [0, 0, 0, 0.5, 0.85, 0],
-                    y: [0, 0, 0, 8, 16, 28]
+                    scale: [0, 0, 0, 0.4, 0.8, 1.3, 1.7, 0.9],
+                    opacity: [0, 0, 0, 0.3, 0.6, 0.85, 0.7, 0],
+                    y: [0, 0, 0, 4, 10, 18, 26, 30]
                   }}
                   transition={{
-                    duration: 5.8,
-                    times: [0, 0.65, 0.75, 0.82, 0.92, 1],
+                    duration: 7.2,
+                    times: [0, 0.4, 0.55, 0.68, 0.80, 0.90, 0.97, 1],
                     ease: "easeOut"
                   }}
                   className="absolute -bottom-10 w-36 h-24 pointer-events-none flex items-center justify-center"
                 >
                   <svg viewBox="0 0 160 100" className="w-full h-full overflow-visible">
-                    <circle cx="80" cy="50" r="32" fill="#F8FAFC" opacity="0.8" />
+                    <circle cx="80" cy="50" r="32" fill="#F8FAFC" opacity="0.85" />
                     <circle cx="50" cy="60" r="26" fill="#E2E8F0" opacity="0.9" />
                     <circle cx="110" cy="60" r="26" fill="#E2E8F0" opacity="0.9" />
-                    <circle cx="30" cy="72" r="20" fill="#CBD5E1" opacity="0.75" />
-                    <circle cx="130" cy="72" r="20" fill="#CBD5E1" opacity="0.75" />
-                    <circle cx="80" cy="45" r="18" fill="#F97316" opacity="0.4" />
-                    <circle cx="80" cy="42" r="10" fill="#FACC15" opacity="0.5" />
+                    <circle cx="30" cy="72" r="20" fill="#CBD5E1" opacity="0.8" />
+                    <circle cx="130" cy="72" r="20" fill="#CBD5E1" opacity="0.8" />
+                    <circle cx="80" cy="45" r="18" fill="#F97316" opacity="0.45" />
+                    <circle cx="80" cy="42" r="10" fill="#FACC15" opacity="0.55" />
                   </svg>
                 </motion.div>
 
