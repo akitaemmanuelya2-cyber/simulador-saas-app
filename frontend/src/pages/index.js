@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Cohete Retro con Frenado Suave y Nube Expansiva de Aterrizaje */}
+        {/* 🚀 Cinemática: Cohete Retro con Giro Extra en Detective CSV + Bajada Recta */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,16 +1522,31 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // Curva de aproximación continua: Vuelo -> Acrobacia 360 -> Desaceleración suave en picada -> Asentamiento vertical
-                x: ['-10vw', '28vw', '60vw', '40vw', 'calc(100vw - 8rem)', 'calc(100vw - 5.5rem)', 'calc(100vw - 5.5rem)'],
-                y: ['10vh', '18vh', '32vh', '55vh', 'calc(100vh - 12rem)', 'calc(100vh - 5.5rem)', 'calc(100vh - 5.5rem)'],
-                rotate: [15, 45, 390, 720, 360, 0, 0],
-                scale: [0.6, 1.1, 1.25, 1.1, 1, 1, 1],
-                opacity: [0, 1, 1, 1, 1, 1, 1]
+                // 1. Entra -> 2. Tarjetas altas -> 3. Pasa por Detective CSV (65vw, 45vh) -> 4. Bucle 360 extra (70vw, 55vh) -> 5. Baja en línea recta -> 6. Asienta en la estación
+                x: [
+                  '-10vw', 
+                  '30vw', 
+                  '65vw', 
+                  '72vw', 
+                  'calc(100vw - 5.5rem)', 
+                  'calc(100vw - 5.5rem)'
+                ],
+                y: [
+                  '12vh', 
+                  '20vh', 
+                  '45vh', 
+                  '58vh', 
+                  'calc(100vh - 5.5rem)', 
+                  'calc(100vh - 5.5rem)'
+                ],
+                // Giros: Vuelo -> Inclinación en Detective -> Bucle 360° extra (720°) -> Alineación vertical recta (0°)
+                rotate: [15, 45, 360, 720, 0, 0],
+                scale: [0.6, 1.1, 1.15, 1.05, 1, 1],
+                opacity: [0, 1, 1, 1, 1, 1]
               }}
               transition={{
-                duration: 4.8,
-                times: [0, 0.22, 0.45, 0.65, 0.82, 0.94, 1],
+                duration: 5.6,
+                times: [0, 0.25, 0.52, 0.72, 0.94, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
@@ -1587,29 +1602,27 @@ export default function Home() {
                   </svg>
                 </motion.div>
 
-                {/* 💨 Nube de Humo Vectorial al Aterrizar (Estilo Lanzadera / Bocanadas) */}
+                {/* 💨 Nube de Humo Vectorial de Aterrizaje al Descender Recto */}
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{
-                    scale: [0, 0, 0.4, 1.4, 1.8],
-                    opacity: [0, 0, 0.3, 0.9, 0],
-                    y: [0, 0, 5, 15, 25]
+                    scale: [0, 0, 0, 0.2, 1.4, 1.8],
+                    opacity: [0, 0, 0, 0.4, 0.9, 0],
+                    y: [0, 0, 0, 5, 15, 25]
                   }}
                   transition={{
-                    duration: 4.8,
-                    times: [0, 0.78, 0.84, 0.93, 1],
+                    duration: 5.6,
+                    times: [0, 0.65, 0.72, 0.82, 0.94, 1],
                     ease: "easeOut"
                   }}
                   className="absolute -bottom-10 w-36 h-24 pointer-events-none flex items-center justify-center"
                 >
                   <svg viewBox="0 0 160 100" className="w-full h-full overflow-visible">
-                    {/* Nubes infladas de humo en capas */}
                     <circle cx="80" cy="50" r="32" fill="#F8FAFC" opacity="0.8" />
                     <circle cx="50" cy="60" r="26" fill="#E2E8F0" opacity="0.9" />
                     <circle cx="110" cy="60" r="26" fill="#E2E8F0" opacity="0.9" />
                     <circle cx="30" cy="72" r="20" fill="#CBD5E1" opacity="0.75" />
                     <circle cx="130" cy="72" r="20" fill="#CBD5E1" opacity="0.75" />
-                    {/* Resplandor cálido de postcombustión en el núcleo del humo */}
                     <circle cx="80" cy="45" r="18" fill="#F97316" opacity="0.4" />
                     <circle cx="80" cy="42" r="10" fill="#FACC15" opacity="0.5" />
                   </svg>
