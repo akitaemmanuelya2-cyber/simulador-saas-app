@@ -627,74 +627,56 @@ return (
         className="fixed inset-0 pointer-events-none z-0 opacity-80"
       />
 
-      {/* 💫 PULSO EXPANSIVO DIGITAL (+40% claridad y centrado al foco del mar de datos) */}
+      {/* 💫 PULSO EXPANSIVO DIGITAL (Sutil al 30% y con ciclo pausado cada 40s) */}
       <div className="fixed top-[52%] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 flex items-center justify-center overflow-visible w-full h-[600px]">
         
-        {/* Onda 1: Pulso de Choque Principal Cian Cristalino / Blanco */}
+        {/* Onda 1: Halo Cian Suave */}
         <motion.div
           initial={{ scale: 0.1, opacity: 0 }}
           animate={{
-            scale: [0.1, 1.3, 2.5],
-            opacity: [0, 0.75, 0],
-            rotateX: 72, // Inclinación acoplada al plano del mar
-          }}
-          transition={{
-            duration: 8.5,
-            repeat: Infinity,
-            ease: "easeOut",
-            times: [0, 0.35, 1]
-          }}
-          className="absolute w-[700px] h-[700px] rounded-full border-2 border-[#38BDF8] shadow-[0_0_60px_rgba(56,189,248,0.7),inset_0_0_30px_rgba(224,242,254,0.5)]"
-        />
-
-        {/* Onda 2: Eco Ámbar Dorado Luminoso */}
-        <motion.div
-          initial={{ scale: 0.05, opacity: 0 }}
-          animate={{
-            scale: [0.05, 1.15, 2.2],
-            opacity: [0, 0.55, 0],
+            scale: [0.1, 1.4, 2.6, 2.6],
+            opacity: [0, 0.22, 0, 0],
             rotateX: 72,
           }}
           transition={{
-            duration: 8.5,
+            duration: 40,
             repeat: Infinity,
             ease: "easeOut",
-            delay: 1.4,
-            times: [0, 0.38, 1]
+            times: [0, 0.08, 0.20, 1] // La onda viaja en los primeros 8s y descansa el resto
           }}
-          className="absolute w-[600px] h-[600px] rounded-full border-2 border-[#CF9D7B] shadow-[0_0_50px_rgba(207,157,123,0.6)]"
+          className="absolute w-[700px] h-[700px] rounded-full border border-[#38BDF8]/40 shadow-[0_0_25px_rgba(56,189,248,0.2)]"
         />
 
-        {/* Onda 3: Anillo fino de alta velocidad blanco puro */}
+        {/* Onda 2: Eco Ámbar Tenue */}
         <motion.div
           initial={{ scale: 0.05, opacity: 0 }}
           animate={{
-            scale: [0.05, 1.0, 2.0],
-            opacity: [0, 0.7, 0],
+            scale: [0.05, 1.25, 2.3, 2.3],
+            opacity: [0, 0.16, 0, 0],
             rotateX: 72,
           }}
           transition={{
-            duration: 8.5,
+            duration: 40,
             repeat: Infinity,
             ease: "easeOut",
-            delay: 0.3,
-            times: [0, 0.25, 1]
+            delay: 1.5,
+            times: [0, 0.08, 0.20, 1]
           }}
-          className="absolute w-[500px] h-[500px] rounded-full border border-white/80 shadow-[0_0_35px_rgba(255,255,255,0.8)]"
+          className="absolute w-[600px] h-[600px] rounded-full border border-[#CF9D7B]/30 shadow-[0_0_20px_rgba(207,157,123,0.15)]"
         />
 
-        {/* Núcleo de luz central visible */}
+        {/* Núcleo de resplandor ambiental tenue */}
         <motion.div
           animate={{
-            scale: [0.85, 1.3, 0.85],
-            opacity: [0.35, 0.65, 0.35]
+            scale: [0.9, 1.15, 0.9],
+            opacity: [0.08, 0.18, 0.08]
           }}
           transition={{
-            duration: 4.2,
+            duration: 8,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute w-80 h-32 bg-gradient-to-r from-[#38BDF8]/40 via-[#E0F2FE]/30 to-[#CF9D7B]/40 rounded-full blur-[55px]"
+          className="absolute w-72 h-32 bg-gradient-to-r from-[#38BDF8]/15 to-[#CF9D7B]/15 rounded-full blur-[65px]"
         />
       </div>
 
