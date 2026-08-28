@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Bucle en Detective CSV + Descenso Suave en Línea Recta por el Costado Izquierdo */}
+        {/* 🚀 Cinemática: Bucle en Detective CSV + Descenso Suave en Línea Recta por el Costado Derecho */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,31 +1522,31 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // 1. Entra -> 2. Sobrevuela tarjetas -> 3. Pasa por Detective CSV (65vw, 40vh) -> 4. Giro acrobático -> 5. Se posiciona a la izquierda (3rem) -> 6. Descenso recto final
+                // 1. Entra -> 2. Sobrevuela tarjetas -> 3. Pasa por Detective CSV (65vw, 38vh) -> 4. Giro 360 -> 5. Se alinea al costado derecho -> 6. Descenso vertical directo
                 x: [
                   '-10vw', 
-                  '32vw', 
+                  '30vw', 
                   '65vw', 
-                  '60vw', 
-                  '3rem', 
-                  '3rem'
+                  '72vw', 
+                  'calc(100vw - 6rem)', 
+                  'calc(100vw - 5.5rem)'
                 ],
                 y: [
                   '12vh', 
                   '20vh', 
-                  '40vh', 
-                  '50vh', 
-                  '55vh', 
+                  '38vh', 
+                  '48vh', 
+                  '58vh', 
                   'calc(100vh - 5.5rem)'
                 ],
-                // Giros: Entrada -> Inclinación -> Bucle completo (720°) -> Alineación recta a 0° para bajar
+                // Giros: Entrada -> Inclinación -> Bucle completo (720°) -> Alineación recta a 0° para descender
                 rotate: [15, 45, 360, 720, 0, 0],
                 scale: [0.6, 1.1, 1.2, 1.05, 1, 1],
                 opacity: [0, 1, 1, 1, 1, 1]
               }}
               transition={{
                 duration: 5.8,
-                times: [0, 0.22, 0.48, 0.68, 0.8, 1],
+                times: [0, 0.22, 0.48, 0.68, 0.82, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
