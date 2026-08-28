@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Curva en 'S' Orgánica y Continua sin Saltos de Coordenadas */}
+        {/* 🚀 Cinemática: Mismos giros perfectos + Descenso alineado exactamente en la plataforma derecha */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,18 +1522,17 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // Interpolación matemática limpia y sin discordancia de unidades:
-                // Entrada -> Centro -> Curva fluida sobre Simulador -> Bucle continuo hacia el borde -> Descenso vertical
+                // Misma trayectoria y giros perfectos, con el carril de bajada exactamente sobre el botón flotante:
                 x: [
                   '-10vw', 
                   '25vw', 
                   '52vw', 
                   '74vw', 
-                  '86vw', 
-                  '91vw', 
-                  '91vw', 
-                  '91vw', 
-                  'calc(100vw - 5.5rem)'
+                  '88vw', 
+                  'calc(100vw - 4.5rem)', 
+                  'calc(100vw - 4.5rem)', 
+                  'calc(100vw - 4.5rem)', 
+                  'calc(100vw - 4.5rem)'
                 ],
                 y: [
                   '10vh', 
@@ -1544,9 +1543,9 @@ export default function Home() {
                   '42vh', 
                   '62vh', 
                   '82vh', 
-                  'calc(100vh - 5.5rem)'
+                  'calc(100vh - 4.5rem)'
                 ],
-                // Rotaciones sincronizadas con la trayectoria física:
+                // Mismos giros acrobáticos aprobados:
                 rotate: [15, 30, 50, 20, 360, 720, 0, 0, 0],
                 scale: [0.6, 1.05, 1.15, 1.1, 1.05, 1, 1, 1, 1],
                 opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -1560,6 +1559,7 @@ export default function Home() {
               className="absolute flex items-center justify-center pointer-events-auto cursor-pointer"
               onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
+              {/* ... Contenedor SVG del Cohete, Ojitos, Fuego y Nube de Humo exactamente como los tienes ... */}
               {/* Contenedor del Cohete Retro */}
               <div className="relative w-16 h-24 flex items-center justify-center">
                 <svg viewBox="0 0 100 150" className="w-full h-full overflow-visible drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">
