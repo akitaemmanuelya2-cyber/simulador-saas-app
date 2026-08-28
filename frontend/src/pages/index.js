@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
-import DeepSeaCreatures from '../components/DeepSeaCreatures';
 import { 
   BarChart3, 
   ArrowUpRight, 
@@ -622,11 +621,63 @@ export default function Home() {
 return (
     <div className="relative min-h-screen bg-[#05080A] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] select-none">
       
-      {/* 🌊 Olas del Mar de Datos FIJAS en toda la pantalla (sin cortes en scroll largo) */}
+      {/* 🌊 Olas del Mar de Datos FIJAS en toda la pantalla */}
       <canvas
         ref={canvasRef}
         className="fixed inset-0 pointer-events-none z-0 opacity-80"
       />
+
+      {/* 💫 PULSO EXPANSIVO DIGITAL (Digital Shockwave en el Centro del Mar) */}
+      <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
+        {/* Onda 1: Pulso Principal Cian Claro */}
+        <motion.div
+          initial={{ scale: 0.2, opacity: 0 }}
+          animate={{
+            scale: [0.2, 1.4, 2.6],
+            opacity: [0, 0.45, 0],
+            rotateX: 65, // Inclinación en perspectiva acoplada a la malla
+          }}
+          transition={{
+            duration: 8.5,
+            repeat: Infinity,
+            ease: "easeOut",
+            times: [0, 0.35, 1]
+          }}
+          className="absolute w-[600px] h-[600px] rounded-full border border-[#38BDF8]/60 shadow-[0_0_50px_rgba(56,189,248,0.35)]"
+        />
+
+        {/* Onda 2: Eco Ámbar Suave con desfase */}
+        <motion.div
+          initial={{ scale: 0.1, opacity: 0 }}
+          animate={{
+            scale: [0.1, 1.2, 2.2],
+            opacity: [0, 0.3, 0],
+            rotateX: 65,
+          }}
+          transition={{
+            duration: 8.5,
+            repeat: Infinity,
+            ease: "easeOut",
+            delay: 1.2,
+            times: [0, 0.4, 1]
+          }}
+          className="absolute w-[500px] h-[500px] rounded-full border border-[#CF9D7B]/40 shadow-[0_0_40px_rgba(207,157,123,0.25)]"
+        />
+
+        {/* Núcleo de resplandor central difuso */}
+        <motion.div
+          animate={{
+            scale: [0.9, 1.25, 0.9],
+            opacity: [0.15, 0.35, 0.15]
+          }}
+          transition={{
+            duration: 4.2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute w-72 h-44 bg-gradient-to-r from-[#38BDF8]/20 to-[#CF9D7B]/20 rounded-full blur-[70px]"
+        />
+      </div>
 
       {/* VÓRTICE GRAVITACIONAL FIJO */}
       <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#CF9D7B]/20 via-[#133040]/30 to-transparent blur-[140px] pointer-events-none z-0" />
