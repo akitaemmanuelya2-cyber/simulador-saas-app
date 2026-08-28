@@ -1509,43 +1509,44 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Mismos giros perfectos + Descenso alineado exactamente en la plataforma derecha */}
+        {/* 🚀 Cinemática: Anclaje Nativo en la Esquina con Desplazamientos Numéricos Fluidos */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
             <motion.div
               initial={{ 
-                x: '-10vw', 
-                y: '10vh', 
+                x: '-105vw', 
+                y: '-80vh', 
                 scale: 0.6, 
                 rotate: 15, 
                 opacity: 0 
               }}
               animate={{
-                // Misma trayectoria y giros perfectos, con el carril de bajada exactamente sobre el botón flotante:
+                // Coordenadas relativas continuas respecto a la base de aterrizaje (0, 0 es el botón exacto):
+                // 1. Entra arriba izq -> 2. Sobre Asistido -> 3. Detective CSV -> 4. Curva Simulador SaaS -> 5. Rizo de aproximación -> 6. Carril vertical -> 7. Descenso 1 -> 8. Descenso 2 -> 9. Aterriza en 0
                 x: [
-                  '-10vw', 
-                  '25vw', 
-                  '52vw', 
-                  '74vw', 
-                  '88vw', 
-                  'calc(100vw - 4.5rem)', 
-                  'calc(100vw - 4.5rem)', 
-                  'calc(100vw - 4.5rem)', 
-                  'calc(100vw - 4.5rem)'
+                  '-105vw', 
+                  '-70vw', 
+                  '-45vw', 
+                  '-18vw', 
+                  '-4vw', 
+                  '0vw', 
+                  '0vw', 
+                  '0vw', 
+                  '0vw'
                 ],
                 y: [
-                  '10vh', 
-                  '18vh', 
-                  '32vh', 
-                  '22vh', 
-                  '28vh', 
-                  '42vh', 
-                  '62vh', 
-                  '82vh', 
-                  'calc(100vh - 4.5rem)'
+                  '-80vh', 
+                  '-72vh', 
+                  '-55vh', 
+                  '-65vh', 
+                  '-50vh', 
+                  '-42vh', 
+                  '-25vh', 
+                  '-10vh', 
+                  '0vh'
                 ],
-                // Mismos giros acrobáticos aprobados:
+                // Rotaciones continuas en grados:
                 rotate: [15, 30, 50, 20, 360, 720, 0, 0, 0],
                 scale: [0.6, 1.05, 1.15, 1.1, 1.05, 1, 1, 1, 1],
                 opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -1556,10 +1557,9 @@ export default function Home() {
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
-              className="absolute flex items-center justify-center pointer-events-auto cursor-pointer"
+              className="absolute right-6 bottom-6 flex items-center justify-center pointer-events-auto cursor-pointer"
               onClick={() => setAbrirChatIA(!abrirChatIA)}
             >
-              {/* ... Contenedor SVG del Cohete, Ojitos, Fuego y Nube de Humo exactamente como los tienes ... */}
               {/* Contenedor del Cohete Retro */}
               <div className="relative w-16 h-24 flex items-center justify-center">
                 <svg viewBox="0 0 100 150" className="w-full h-full overflow-visible drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">
