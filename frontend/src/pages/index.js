@@ -1509,7 +1509,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🚀 Cinemática: Cohete Retro con Giro Extra en Detective CSV + Bajada Recta */}
+        {/* 🚀 Cinemática: Bucle en Detective CSV + Descenso Suave en Línea Recta por el Costado Izquierdo */}
         {activeTab === 'lobby' && !animacionTarsCompletada ? (
           <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
             
@@ -1522,31 +1522,31 @@ export default function Home() {
                 opacity: 0 
               }}
               animate={{
-                // 1. Entra -> 2. Tarjetas altas -> 3. Pasa por Detective CSV (65vw, 45vh) -> 4. Bucle 360 extra (70vw, 55vh) -> 5. Baja en línea recta -> 6. Asienta en la estación
+                // 1. Entra -> 2. Sobrevuela tarjetas -> 3. Pasa por Detective CSV (65vw, 40vh) -> 4. Giro acrobático -> 5. Se posiciona a la izquierda (3rem) -> 6. Descenso recto final
                 x: [
                   '-10vw', 
-                  '30vw', 
+                  '32vw', 
                   '65vw', 
-                  '72vw', 
-                  'calc(100vw - 5.5rem)', 
-                  'calc(100vw - 5.5rem)'
+                  '60vw', 
+                  '3rem', 
+                  '3rem'
                 ],
                 y: [
                   '12vh', 
                   '20vh', 
-                  '45vh', 
-                  '58vh', 
-                  'calc(100vh - 5.5rem)', 
+                  '40vh', 
+                  '50vh', 
+                  '55vh', 
                   'calc(100vh - 5.5rem)'
                 ],
-                // Giros: Vuelo -> Inclinación en Detective -> Bucle 360° extra (720°) -> Alineación vertical recta (0°)
+                // Giros: Entrada -> Inclinación -> Bucle completo (720°) -> Alineación recta a 0° para bajar
                 rotate: [15, 45, 360, 720, 0, 0],
-                scale: [0.6, 1.1, 1.15, 1.05, 1, 1],
+                scale: [0.6, 1.1, 1.2, 1.05, 1, 1],
                 opacity: [0, 1, 1, 1, 1, 1]
               }}
               transition={{
-                duration: 5.6,
-                times: [0, 0.25, 0.52, 0.72, 0.94, 1],
+                duration: 5.8,
+                times: [0, 0.22, 0.48, 0.68, 0.8, 1],
                 ease: 'easeInOut'
               }}
               onAnimationComplete={() => setAnimacionTarsCompletada(true)}
@@ -1602,17 +1602,17 @@ export default function Home() {
                   </svg>
                 </motion.div>
 
-                {/* 💨 Nube de Humo Vectorial de Aterrizaje al Descender Recto */}
+                {/* 💨 Nube de Humo Vectorial Continua durante el Descenso */}
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{
-                    scale: [0, 0, 0, 0.2, 1.4, 1.8],
-                    opacity: [0, 0, 0, 0.4, 0.9, 0],
-                    y: [0, 0, 0, 5, 15, 25]
+                    scale: [0, 0, 0, 0.3, 1.3, 1.7],
+                    opacity: [0, 0, 0, 0.5, 0.85, 0],
+                    y: [0, 0, 0, 8, 16, 28]
                   }}
                   transition={{
-                    duration: 5.6,
-                    times: [0, 0.65, 0.72, 0.82, 0.94, 1],
+                    duration: 5.8,
+                    times: [0, 0.65, 0.75, 0.82, 0.92, 1],
                     ease: "easeOut"
                   }}
                   className="absolute -bottom-10 w-36 h-24 pointer-events-none flex items-center justify-center"
