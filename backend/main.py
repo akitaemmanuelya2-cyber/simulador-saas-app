@@ -190,11 +190,26 @@ async def auditar_csv(
         unidades_historicas = float(df["cantidad"].sum()) if "cantidad" in df.columns else float(total_registros)
         precio_promedio = float(df["precio"].mean()) if "precio" in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0.0)
 
-        resumen = df.groupby("producto")["ventas_calculadas"].sum().reset_index()
-        resumen = resumen.sort_values(by="ventas_calculadas", ascending=False)
+        # Agrupar ventas y unidades por producto
+        if 'cantidad' in df.columns:
+            resumen = df.groupby('producto').agg(
+                ventas_calculadas=('ventas_calculadas', 'sum'),
+                unidades=('cantidad', 'sum')
+            ).reset_index()
+        else:
+            resumen = df.groupby('producto').agg(
+                ventas_calculadas=('ventas_calculadas', 'sum'),
+                unidades=('ventas_calculadas', 'count')
+            ).reset_index()
+
+        resumen = resumen.sort_values(by='ventas_calculadas', ascending=False)
 
         top_5 = [
-            {"nombre": str(r["producto"]), "ventas": round(float(r["ventas_calculadas"]), 2)}
+            {
+                "nombre": str(r["producto"]),
+                "ventas": round(float(r["ventas_calculadas"]), 2),
+                "unidades": round(float(r["unidades"]), 2)
+            }
             for _, r in resumen.head(5).iterrows()
         ]
 
@@ -281,3 +296,4 @@ Pregunta del empresario:
 
     except Exception as e:
         return {"respuesta": f"Estimado(a) empresario(a), inconveniente de conexión: {str(e)}"}
+    
