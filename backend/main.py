@@ -4,7 +4,18 @@ import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-# Diccionario maestro de sinónimos para el mapeo
+app = FastAPI(title="Simulador SaaS API")
+
+# Configuración de CORS para permitir peticiones desde cualquier frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Diccionario maestro de mapeo
 DICCIONARIO_COLUMNAS = {
     "producto": [
         "producto", "item", "articulo", "descripcion", "concepto", "nombre_producto", 
@@ -27,74 +38,95 @@ DICCIONARIO_COLUMNAS = {
     ]
 }
 
-def limpiar_texto(texto: str) -> str:
+def normalizar_texto(texto: str) -> str:
     if not isinstance(texto, str):
         texto = str(texto)
-    texto_sin_tildes = "".join(
+    sin_tildes = "".join(
         c for c in unicodedata.normalize("NFD", texto)
         if unicodedata.category(c) != "Mn"
     )
-    return texto_sin_tildes.strip().lower().replace(" ", "_").replace("-", "_").replace(".", "")
+    return sin_tildes.strip().lower().replace(" ", "_").replace("-", "_").replace(".", "")
 
-def mapear_esquema(df: pd.DataFrame):
-    df_res = df.copy()
-    columnas_originales = list(df.columns)
-    columnas_limpias = {col: limpiar_texto(col) for col in columnas_originales}
+def mapear_dataframe(df_in: pd.DataFrame) -> pd.DataFrame:
+    df = df_in.copy()
+    
+    # Eliminar columnas duplicadas o vacías como 'Unnamed'
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed', na=False)]
+    
+    mapeo_destino = {}
+    usados = set()
 
-    columnas_mapeadas = {"producto": None, "precio": None, "cantidad": None, "total": None, "fecha": None}
-    columnas_renombradas = {}
+    # Prioridad 1: Mapear Total / Sales
+    for col in df.columns:
+        c_clean = normalizar_texto(col)
+        if "total" not in usados and c_clean in DICCIONARIO_COLUMNAS["total"]:
+            mapeo_destino[col] = "total"
+            usados.add("total")
+            break
 
-    # 1. Coincidencia exacta
-    for col_orig, col_clean in columnas_limpias.items():
-        for canonica, alias_lista in DICCIONARIO_COLUMNAS.items():
-            if columnas_mapeadas[canonica] is None and col_clean in alias_lista:
-                columnas_mapeadas[canonica] = col_orig
-                columnas_renombradas[col_orig] = canonica
-                break
+    # Prioridad 2: Mapear Producto / Product Name
+    for col in df.columns:
+        if col in mapeo_destino:
+            continue
+        c_clean = normalizar_texto(col)
+        if "producto" not in usados and c_clean in DICCIONARIO_COLUMNAS["producto"]:
+            mapeo_destino[col] = "producto"
+            usados.add("producto")
+            break
 
-    # 2. Coincidencia parcial
-    for col_orig, col_clean in columnas_limpias.items():
-        if col_orig not in columnas_renombradas:
-            for canonica, alias_lista in DICCIONARIO_COLUMNAS.items():
-                if columnas_mapeadas[canonica] is None:
-                    if any(alias in col_clean for alias in alias_lista if len(alias) >= 4):
-                        columnas_mapeadas[canonica] = col_orig
-                        columnas_renombradas[col_orig] = canonica
-                        break
+    # Prioridad 3: Mapear Cantidad
+    for col in df.columns:
+        if col in mapeo_destino:
+            continue
+        c_clean = normalizar_texto(col)
+        if "cantidad" not in usados and c_clean in DICCIONARIO_COLUMNAS["cantidad"]:
+            mapeo_destino[col] = "cantidad"
+            usados.add("cantidad")
+            break
 
-    df_res.rename(columns=columnas_renombradas, inplace=True)
+    # Prioridad 4: Mapear Precio
+    for col in df.columns:
+        if col in mapeo_destino:
+            continue
+        c_clean = normalizar_texto(col)
+        if "precio" not in usados and c_clean in DICCIONARIO_COLUMNAS["precio"]:
+            mapeo_destino[col] = "precio"
+            usados.add("precio")
+            break
+
+    df.rename(columns=mapeo_destino, inplace=True)
 
     # Si falta producto, tomar la primera columna de texto
-    if "producto" not in df_res.columns:
-        cols_texto = df_res.select_dtypes(include=['object', 'string']).columns
-        if len(cols_texto) > 0:
-            df_res.rename(columns={cols_texto[0]: "producto"}, inplace=True)
+    if "producto" not in df.columns:
+        cols_txt = df.select_dtypes(include=['object', 'string']).columns
+        if len(cols_txt) > 0:
+            df.rename(columns={cols_txt[0]: "producto"}, inplace=True)
 
-    # Normalizar columnas numéricas
-    for col_num in ["precio", "cantidad", "total"]:
-        if col_num in df_res.columns:
-            if df_res[col_num].dtype == object:
-                df_res[col_num] = (
-                    df_res[col_num]
-                    .astype(str)
+    # Limpieza de columnas numéricas
+    for c in ["precio", "cantidad", "total"]:
+        if c in df.columns:
+            if df[c].dtype == object:
+                df[c] = (
+                    df[c].astype(str)
                     .str.replace(r"[\$,\s€COPUSD]", "", regex=True)
                     .str.replace(",", ".")
                 )
-            df_res[col_num] = pd.to_numeric(df_res[col_num], errors="coerce").fillna(0)
+            df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0)
 
-    # Autocalcular total o precio si faltan
-    if "total" not in df_res.columns and "precio" in df_res.columns and "cantidad" in df_res.columns:
-        df_res["total"] = df_res["precio"] * df_res["cantidad"]
-    elif "precio" not in df_res.columns and "total" in df_res.columns and "cantidad" in df_res.columns:
-        df_res["precio"] = df_res.apply(
-            lambda r: r["total"] / r["cantidad"] if r["cantidad"] > 0 else 0, axis=1
-        )
+    # Autocálculo de total o precio si uno falta
+    if "total" not in df.columns and "precio" in df.columns and "cantidad" in df.columns:
+        df["total"] = df["precio"] * df["cantidad"]
+    elif "precio" not in df.columns and "total" in df.columns and "cantidad" in df.columns:
+        df["precio"] = df.apply(lambda r: r["total"] / r["cantidad"] if r["cantidad"] > 0 else 0, axis=1)
 
-    return df_res
+    return df
 
-# ==========================================
-# ENDPOINT DE AUDITORÍA FORENSE
-# ==========================================
+
+@app.get("/")
+def home():
+    return {"status": "ok", "message": "Motor analítico SaaS activo"}
+
+
 @app.post("/api/auditar-csv")
 async def auditar_csv(
     archivo: UploadFile = File(None),
@@ -108,34 +140,31 @@ async def auditar_csv(
         nombre = archivo_final.filename.lower()
         contenido = await archivo_final.read()
 
-        # 1. Lectura de Excel
+        # 1. Cargar archivo Excel o CSV
         if nombre.endswith(('.xlsx', '.xls')):
             excel_file = pd.ExcelFile(io.BytesIO(contenido))
-            hojas = excel_file.sheet_names
-            hoja_objetivo = hojas[0]
-            puntuacion_max = -1
-            
-            for h in hojas:
+            hoja_elegida = excel_file.sheet_names[0]
+            max_pts = -1
+
+            # Seleccionar la pestaña con mayor coincidencia comercial
+            for h in excel_file.sheet_names:
                 try:
-                    df_temp = pd.read_excel(excel_file, sheet_name=h, nrows=5)
-                    cols_clean = [limpiar_texto(c) for c in df_temp.columns]
-                    puntos = 0
-                    if any(k in cols_clean for k in ['producto', 'product', 'item', 'descripcion', 'nombre_producto', 'product_name']):
-                        puntos += 3
-                    if any(k in cols_clean for k in ['total', 'ventas', 'sales', 'precio', 'monto']):
-                        puntos += 2
-                    if any(k in cols_clean for k in ['cantidad', 'qty', 'quantity']):
-                        puntos += 1
-                    
-                    if puntos > puntuacion_max:
-                        puntuacion_max = puntos
-                        hoja_objetivo = h
+                    df_preview = pd.read_excel(excel_file, sheet_name=h, nrows=3)
+                    cols_limpias = [normalizar_texto(c) for c in df_preview.columns]
+                    pts = 0
+                    if any(k in cols_limpias for k in ['producto', 'product_name', 'item', 'descripcion', 'nombre_producto']):
+                        pts += 3
+                    if any(k in cols_limpias for k in ['total', 'sales', 'ventas', 'facturacion', 'precio']):
+                        pts += 2
+                    if any(k in cols_limpias for k in ['cantidad', 'quantity', 'qty']):
+                        pts += 1
+                    if pts > max_pts:
+                        max_pts = pts
+                        hoja_elegida = h
                 except Exception:
                     continue
 
-            df_crudo = pd.read_excel(excel_file, sheet_name=hoja_objetivo)
-
-        # 2. Lectura tolerante de CSV
+            df_crudo = pd.read_excel(excel_file, sheet_name=hoja_elegida)
         else:
             try:
                 df_crudo = pd.read_csv(io.BytesIO(contenido))
@@ -145,35 +174,34 @@ async def auditar_csv(
                 except Exception:
                     df_crudo = pd.read_csv(io.BytesIO(contenido), sep=None, engine='python', encoding="utf-8-sig")
 
-        # 3. Aplicar mapeo inteligente
-        df = mapear_esquema(df_crudo)
+        # 2. Normalizar esquema
+        df = mapear_dataframe(df_crudo)
 
         if "producto" not in df.columns or "total" not in df.columns:
             raise HTTPException(
                 status_code=400,
-                detail=f"No se pudieron identificar las columnas requeridas ('producto' y 'total'). Detectadas: {list(df_crudo.columns)}"
+                detail=f"No fue posible mapear 'producto' y 'total'. Columnas: {list(df_crudo.columns)}"
             )
 
-        df['ventas_calculadas'] = df['total']
-
-        # 4. Métricas cuantitativas
+        # 3. Métricas
+        df["ventas_calculadas"] = df["total"]
         total_registros = int(len(df))
-        ventas_historicas = float(df['ventas_calculadas'].sum())
-        unidades_historicas = float(df['cantidad'].sum()) if 'cantidad' in df.columns else float(total_registros)
-        precio_promedio = float(df['precio'].mean()) if 'precio' in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0.0)
+        ventas_historicas = float(df["ventas_calculadas"].sum())
+        unidades_historicas = float(df["cantidad"].sum()) if "cantidad" in df.columns else float(total_registros)
+        precio_promedio = float(df["precio"].mean()) if "precio" in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0.0)
 
-        resumen = df.groupby('producto')['ventas_calculadas'].sum().reset_index()
-        resumen = resumen.sort_values(by='ventas_calculadas', ascending=False)
+        resumen = df.groupby("producto")["ventas_calculadas"].sum().reset_index()
+        resumen = resumen.sort_values(by="ventas_calculadas", ascending=False)
 
         top_5 = [
-            {"nombre": str(row['producto']), "ventas": round(float(row['ventas_calculadas']), 2)}
-            for _, row in resumen.head(5).iterrows()
+            {"nombre": str(r["producto"]), "ventas": round(float(r["ventas_calculadas"]), 2)}
+            for _, r in resumen.head(5).iterrows()
         ]
 
-        rey = top_5[0] if top_5 else {"nombre": "N/A", "ventas": 0.0}
+        rey = top_5[0] if len(top_5) > 0 else {"nombre": "N/A", "ventas": 0.0}
         hueso = {
-            "nombre": str(resumen.iloc[-1]['producto']),
-            "ventas": round(float(resumen.iloc[-1]['ventas_calculadas']), 2)
+            "nombre": str(resumen.iloc[-1]["producto"]),
+            "ventas": round(float(resumen.iloc[-1]["ventas_calculadas"]), 2)
         } if not resumen.empty else {"nombre": "N/A", "ventas": 0.0}
 
         return {
@@ -191,7 +219,7 @@ async def auditar_csv(
     except HTTPException as he:
         raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al procesar archivo: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
 # ==========================================
 # 2. MINI-TARS REST API (SIN DEPENDENCIAS DE SDK)
