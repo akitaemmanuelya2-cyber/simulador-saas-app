@@ -1105,154 +1105,202 @@ return (
               </div>
 
 
-    {/* PANEL DE RESULTADOS Y METAS */}
-    <div className="lg:col-span-7 space-y-5">
-      
-      {/* Ritmo Diario vs Acumulado en Meses */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-xl">
-          <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia por Día</span>
-          <div className="text-2xl font-bold text-white tracking-tight font-mono">
-            {formatearDineroDirecto(gananciaDiariaSimulada)}
+{/* PANEL DERECHO: RESULTADOS CONSOLIDADOS Y RECOMENDACIÓN ESTRATÉGICA */}
+              <div className="lg:col-span-7 space-y-5">
+                
+                {/* 1. Tarjetas Superiores: Ritmo Diario y Ganancia Acumulada */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-xl">
+                    <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider">
+                      Ganancia Neta por Día
+                    </span>
+                    <div className="text-2xl font-bold text-white tracking-tight font-mono">
+                      {formatearDineroDirecto(gananciaDiariaSimulada)}
+                    </div>
+                    <p className="text-[11px] text-gray-400 font-mono">
+                      Facturación estimada: <span className="text-white font-semibold">{formatearDineroDirecto(ventasDiariasSimuladas)}/día</span>
+                    </p>
+                  </div>
+
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-5 rounded-2xl space-y-1.5 shadow-xl shadow-[#CF9D7B]/5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">
+                        Ganancia en {mesesValidos} {mesesValidos === 1 ? 'Mes' : 'Meses'}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-mono">({diasTotalesPeriodo} días)</span>
+                    </div>
+                    <div className="text-2xl font-bold text-[#CF9D7B] tracking-tight font-mono">
+                      {formatearDineroDirecto(gananciaTotalPeriodo)}
+                    </div>
+                    <span className={`text-[11px] font-mono font-semibold ${gananciaTotalPeriodo >= gananciaBasePeriodo ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {gananciaTotalPeriodo >= gananciaBasePeriodo ? '▲ +' : '▼ -'}
+                      {formatearDineroDirecto(Math.abs(gananciaTotalPeriodo - gananciaBasePeriodo))} vs precio base
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Resumen Operativo y Balance del Portafolio */}
+                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">
+                      Resumen Operativo del Portafolio ({mesesValidos} {mesesValidos === 1 ? 'mes' : 'meses'})
+                    </span>
+                    <span className="text-[11px] text-sky-400 font-mono font-bold">
+                      {rotacionTotalDia} uds/día en total
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 text-center font-mono">
+                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">Unidades a Vender</span>
+                      <p className="text-base font-bold text-white mt-1">{unidadesTotalesPeriodo.toLocaleString()} uds</p>
+                    </div>
+                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">Facturación Total</span>
+                      <p className="text-base font-bold text-white mt-1">{formatearDineroDirecto(facturacionTotalPeriodo)}</p>
+                    </div>
+                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">Margen Unit. Prom.</span>
+                      <p className="text-base font-bold text-emerald-400 mt-1">{formatearDineroDirecto(margenUnitarioPromedio)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Desglose Estratégico por Producto Añadido */}
+                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
+                  <span className="text-xs text-gray-300 font-mono uppercase font-semibold block">
+                    📊 Aporte Individual al Margen Diario ({productosSimulacion.length} productos)
+                  </span>
+                  
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {productosSimulacion.map((p) => {
+                      const margenUnit = (p.nuevo_precio || p.precio_base) - p.costo_unitario;
+                      const gananciaDiaProd = margenUnit * (Number(p.ventas_dia) || 0);
+                      const participacion = gananciaDiariaSimulada > 0 
+                        ? ((gananciaDiaProd / gananciaDiariaSimulada) * 100).toFixed(1) 
+                        : 0;
+
+                      return (
+                        <div key={p.producto} className="bg-[#0D151B] p-2.5 rounded-xl border border-[#18232B] flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-bold text-white block">{p.producto}</span>
+                            <span className="text-[10px] text-gray-400 font-mono">
+                              {p.ventas_dia} uds/día × {formatearDineroDirecto(margenUnit)} margen
+                            </span>
+                          </div>
+                          <div className="text-right font-mono">
+                            <span className="text-emerald-400 font-bold block">
+                              +{formatearDineroDirecto(gananciaDiaProd)}/día
+                            </span>
+                            <span className="text-[10px] text-[#CF9D7B]">
+                              {participacion}% del margen total
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* SECCIÓN INFERIOR: GRÁFICO (5 Cols) + DIAGNÓSTICO EJECUTIVO Y META (7 Cols) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              
+              {/* Gráfico Comparativo Acumulado */}
+              <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Evolución Acumulada</span>
+                      <h4 className="text-base font-bold text-white mt-0.5">Precio Base vs. Simulado</h4>
+                    </div>
+                    <div className="flex items-center gap-2.5 text-[10px] font-mono">
+                      <span className="flex items-center gap-1 text-gray-400"><span className="w-2 h-2 rounded-full bg-[#1E2E39]"></span> Base</span>
+                      <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2 h-2 rounded-full bg-[#CF9D7B]"></span> Simulado</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-1">Comparativa de ganancia neta acumulada mes a mes.</p>
+                </div>
+
+                <div className="h-64 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={datosGraficoSimulacion} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+                      <XAxis dataKey="periodo" stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
+                      <YAxis stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '10px' }}
+                        formatter={(val) => [formatearDineroDirecto(val), 'Ganancia Acumulada']}
+                      />
+                      <Bar dataKey="actual" fill="#1E2E39" radius={[4, 4, 0, 0]} name="Precio Actual" />
+                      <Bar dataKey="simulado" fill="#CF9D7B" radius={[4, 4, 0, 0]} name="Precio Simulado" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Panel de Diagnóstico Ejecutivo y Plan de Meta Financiera (Ocupa todo el espacio) */}
+              <div className="lg:col-span-7 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl space-y-4 shadow-2xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between border-b border-[#141F28] pb-2.5">
+                    <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
+                      🎯 Diagnóstico Ejecutivo // Plan de Meta Financiera
+                    </span>
+                    <span className="text-xs font-mono font-bold text-white bg-[#0D151B] px-3 py-1 rounded-lg border border-[#18232B]">
+                      Objetivo: {formatearDineroDirecto(metaIngreso)}
+                    </span>
+                  </div>
+
+                  <h4 className="text-lg font-bold text-white tracking-tight mt-3">
+                    {cumpleMetaEnPeriodo 
+                      ? '✅ Meta Financiera Totalmente Viable' 
+                      : '⚠️ Ajuste de Estrategia Requerido para la Meta'}
+                  </h4>
+
+                  <p className="text-xs text-gray-300 mt-1.5 leading-relaxed">
+                    Con los <span className="text-white font-bold">{productosSimulacion.length} productos</span> ajustados, generas una rentabilidad neta combinada de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span> vendiendo un ritmo de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} uds/día</span>.
+                  </p>
+                </div>
+
+                {/* Métricas clave de alcance y aceleración */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
+                    <span className="font-bold text-[#CF9D7B] font-mono block">1. Tiempo de Alcance:</span>
+                    <p className="text-gray-400 leading-relaxed">
+                      Necesitas comercializar un total de <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
+                    </p>
+                    <div className="pt-1 text-emerald-400 font-mono font-bold text-sm">
+                      ⏱️ Tiempo estimado: {diasParaMeta} días
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
+                    <span className="font-bold text-[#CF9D7B] font-mono block">2. Aceleración Comercial:</span>
+                    <p className="text-gray-400 leading-relaxed">
+                      {cumpleMetaEnPeriodo 
+                        ? `Alcanzarás el objetivo con holgura dentro de los ${mesesValidos} meses proyectados, dejando un saldo a favor de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
+                        : `Para cumplir el objetivo en los ${mesesValidos} meses (${diasTotalesPeriodo} días), debes aumentar la rotación combinada a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día (actual: ${rotacionTotalDia} uds/día).`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Resumen de Viabilidad */}
+                <div className="p-3 bg-[#081015] border border-[#18232B] rounded-xl flex items-center justify-between text-xs font-mono">
+                  <span className="text-gray-400">Proyección a {mesesValidos} meses:</span>
+                  <span className="text-white font-bold">{formatearDineroDirecto(gananciaTotalPeriodo)} acumulados</span>
+                  <span className={cumpleMetaEnPeriodo ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
+                    {cumpleMetaEnPeriodo ? "Meta Cumplida (+100%)" : `${((gananciaTotalPeriodo / (metaIngreso || 1)) * 100).toFixed(0)}% del Objetivo`}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
           </div>
-          <span className="text-[11px] text-gray-400 font-mono">
-            Facturación diaria: <span className="text-white">{formatearDineroDirecto(ventasDiariasSimuladas)}</span>
-          </span>
-        </div>
-
-        <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-5 rounded-2xl space-y-1.5 shadow-xl shadow-[#CF9D7B]/5">
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">
-              Ganancia en {mesesProyeccion} {mesesProyeccion === 1 ? 'Mes' : 'Meses'}
-            </span>
-            <span className="text-[10px] text-gray-400 font-mono">({diasTotalesPeriodo} días)</span>
-          </div>
-          <div className="text-2xl font-bold text-[#CF9D7B] tracking-tight font-mono">
-            {formatearDineroDirecto(gananciaTotalPeriodo)}
-          </div>
-          <span className="text-[11px] font-mono text-emerald-400">
-            ▲ +{formatearDineroDirecto(deltaPeriodo)} extra vs precio base
-          </span>
-        </div>
-      </div>
-
-      {/* Balance General del Periodo */}
-      <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
-        <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Resumen Operativo ({mesesProyeccion} {mesesProyeccion === 1 ? 'mes' : 'meses'})</span>
-        <div className="grid grid-cols-3 gap-3 pt-1 text-center font-mono">
-          <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-            <span className="text-[10px] text-gray-400 uppercase">Unidades a Vender</span>
-            <p className="text-base font-bold text-white mt-1">{unidadesTotalesPeriodo.toLocaleString()} uds</p>
-          </div>
-          <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-            <span className="text-[10px] text-gray-400 uppercase">Facturación Total</span>
-            <p className="text-base font-bold text-white mt-1">{formatearDineroDirecto(facturacionTotalPeriodo)}</p>
-          </div>
-          <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-            <span className="text-[10px] text-gray-400 uppercase">Margen Unitario</span>
-            <p className="text-base font-bold text-emerald-400 mt-1">{formatearDineroDirecto(margenUnitarioSimulado)}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* CALCULADORA DE META DE ADQUISICIÓN */}
-      <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-5 rounded-2xl space-y-2.5 shadow-xl">
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-emerald-400 font-mono uppercase font-semibold">Plan de Meta Financiera</span>
-          <span className="text-xs text-gray-300 font-mono font-bold">Objetivo: {formatearDineroDirecto(metaIngreso)}</span>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 pt-1 font-mono">
-          <div className="p-3.5 bg-[#0D151B] rounded-xl border border-emerald-900/30">
-            <span className="text-[10px] text-gray-400 uppercase">Unidades Necesarias</span>
-            <p className="text-xl font-bold text-white mt-0.5">{unidadesParaMeta.toLocaleString()} unidades</p>
-            <span className="text-[10px] text-gray-500">Ganando {formatearDineroDirecto(margenUnitarioSimulado)} por unidad</span>
-          </div>
-          <div className="p-3.5 bg-[#0D151B] rounded-xl border border-emerald-900/30">
-            <span className="text-[10px] text-gray-400 uppercase">Tiempo Requerido</span>
-            <p className="text-xl font-bold text-emerald-400 mt-0.5">{diasParaMeta} días</p>
-            <span className="text-[10px] text-gray-500">A {ventasPorDia} unidades por día</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  {/* SECCIÓN VISUAL: GRÁFICO COMPARATIVO Y RECOMENDACIÓN ESTRATÉGICA */}
-  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-    
-    {/* Gráfico Comparativo Acumulado */}
-    <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl">
-      <div className="flex justify-between items-center">
-        <div>
-          <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Evolución Acumulada</span>
-          <h4 className="text-base font-bold text-white">Precio Base vs. Precio Simulado</h4>
-        </div>
-        <div className="flex items-center gap-3 text-[11px] font-mono">
-          <span className="flex items-center gap-1 text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-[#1E2E39]"></span> Actual</span>
-          <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B]"></span> Simulado</span>
-        </div>
-      </div>
-
-      <div className="h-64 w-full pt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={datosGraficoSimulacion} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-            <XAxis dataKey="periodo" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-            <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '10px' }}
-              formatter={(val) => [formatearDineroDirecto(val), 'Ganancia Acumulada']}
-            />
-            <Bar dataKey="actual" fill="#1E2E39" radius={[4, 4, 0, 0]} name="Precio Actual" />
-            <Bar dataKey="simulado" fill="#CF9D7B" radius={[4, 4, 0, 0]} name="Precio Simulado" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-
-    {/* Panel de Resumen Ejecutivo y Recomendaciones para la Meta */}
-    <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/30 p-6 md:p-7 rounded-2xl space-y-4 shadow-2xl flex flex-col justify-between">
-      <div>
-        <div className="flex items-center gap-2 text-[#CF9D7B] mb-2">
-          <span className="text-xs uppercase font-mono tracking-wider font-bold">Diagnóstico Ejecutivo // Hoja de Ruta</span>
-        </div>
-        <h4 className="text-lg font-bold text-white tracking-tight">
-          {cumpleMetaEnPeriodo 
-            ? 'Meta Financiera Totalmente Viable' 
-            : 'Ajuste de Estrategia Requerido para la Meta'}
-        </h4>
-        <p className="text-xs text-gray-300 mt-2 leading-relaxed">
-          Al pasar de <span className="text-white font-mono">{formatearDineroDirecto(precioOriginal)}</span> a <span className="text-[#CF9D7B] font-mono">{formatearDineroDirecto(nuevoPrecio)}</span>, tu margen unitario aumenta a <span className="text-emerald-400 font-mono">{formatearDineroDirecto(margenUnitarioSimulado)}</span> ({((margenUnitarioSimulado / nuevoPrecio) * 100).toFixed(1)}% de rentabilidad neta).
-        </p>
-      </div>
-
-      {/* Cuadro de recomendaciones accionables */}
-      <div className="space-y-2.5 pt-2 border-t border-[#141F28]">
-        <div className="p-3 bg-[#0D151B] border border-[#1A2834] rounded-xl text-xs space-y-1">
-          <span className="font-bold text-[#CF9D7B] font-mono">1. Tiempo de Alcance:</span>
-          <p className="text-gray-400">
-            Necesitas vender <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}. Al ritmo de {ventasPorDia} unidades/día, te tomará exactamente <span className="text-emerald-400 font-mono font-semibold">{diasParaMeta} días</span>.
-          </p>
-        </div>
-
-        <div className="p-3 bg-[#0D151B] border border-[#1A2834] rounded-xl text-xs space-y-1">
-          <span className="font-bold text-[#CF9D7B] font-mono">2. Aceleración Comercial:</span>
-          <p className="text-gray-400">
-            {cumpleMetaEnPeriodo 
-              ? `Alcanzarás tu objetivo dentro de los ${mesesProyeccion} meses proyectados, dejando un remanente positivo de ${formatearDineroDirecto(Math.max(0, gananciaTotalPeriodo - metaIngreso))}.`
-              : `Para lograr la meta dentro del periodo de ${mesesProyeccion} meses (${diasTotalesPeriodo} días), debes elevar el ritmo diario de ${ventasPorDia} a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} unidades/día.`}
-          </p>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-</div>
-)}
+        )}
 
         {/* VISTA DEL DETECTIVE CSV */}
         {activeTab === 'auditoria' && (
