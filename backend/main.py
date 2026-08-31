@@ -1,42 +1,100 @@
-import os
 import io
+import unicodedata
 import pandas as pd
-import requests
-from Services.schema_mapper import mapear_esquema_inteligente
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
-try:
-    from Services.schema_mapper import mapear_esquema_inteligente
-except ModuleNotFoundError:
-    from Services.schema_mapper import mapear_esquema_inteligente
+# Diccionario maestro de sinónimos para el mapeo
+DICCIONARIO_COLUMNAS = {
+    "producto": [
+        "producto", "item", "articulo", "descripcion", "concepto", "nombre_producto", 
+        "servicio", "detalle", "product", "product_name", "item_name", "description", "sku"
+    ],
+    "precio": [
+        "precio", "precio_unitario", "valor_unitario", "pvp", "unit_price", "price", 
+        "costo_unitario", "tarifa", "valor", "precio_venta"
+    ],
+    "cantidad": [
+        "cantidad", "unidades", "qty", "quantity", "cant", "volumen", "piezas", 
+        "numero_unidades", "ventas_unidades", "count"
+    ],
+    "total": [
+        "total", "facturacion", "ingreso", "ventas", "revenue", "monto", 
+        "total_venta", "importe", "total_facturado", "subtotal", "monto_total", "sales"
+    ],
+    "fecha": [
+        "fecha", "date", "periodo", "mes", "timestamp", "dia", "created_at", "order_date"
+    ]
+}
 
-app = FastAPI(title="SaaS Simulator API")
+def limpiar_texto(texto: str) -> str:
+    if not isinstance(texto, str):
+        texto = str(texto)
+    texto_sin_tildes = "".join(
+        c for c in unicodedata.normalize("NFD", texto)
+        if unicodedata.category(c) != "Mn"
+    )
+    return texto_sin_tildes.strip().lower().replace(" ", "_").replace("-", "_").replace(".", "")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def mapear_esquema(df: pd.DataFrame):
+    df_res = df.copy()
+    columnas_originales = list(df.columns)
+    columnas_limpias = {col: limpiar_texto(col) for col in columnas_originales}
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    columnas_mapeadas = {"producto": None, "precio": None, "cantidad": None, "total": None, "fecha": None}
+    columnas_renombradas = {}
 
-class ChatRequest(BaseModel):
-    mensaje: str
-    contexto: dict | None = None
+    # 1. Coincidencia exacta
+    for col_orig, col_clean in columnas_limpias.items():
+        for canonica, alias_lista in DICCIONARIO_COLUMNAS.items():
+            if columnas_mapeadas[canonica] is None and col_clean in alias_lista:
+                columnas_mapeadas[canonica] = col_orig
+                columnas_renombradas[col_orig] = canonica
+                break
 
-@app.get("/")
-def home():
-    return {"status": "ok", "mensaje": "Motor analítico SaaS y Mini-TARS activos"}
+    # 2. Coincidencia parcial
+    for col_orig, col_clean in columnas_limpias.items():
+        if col_orig not in columnas_renombradas:
+            for canonica, alias_lista in DICCIONARIO_COLUMNAS.items():
+                if columnas_mapeadas[canonica] is None:
+                    if any(alias in col_clean for alias in alias_lista if len(alias) >= 4):
+                        columnas_mapeadas[canonica] = col_orig
+                        columnas_renombradas[col_orig] = canonica
+                        break
+
+    df_res.rename(columns=columnas_renombradas, inplace=True)
+
+    # Si falta producto, tomar la primera columna de texto
+    if "producto" not in df_res.columns:
+        cols_texto = df_res.select_dtypes(include=['object', 'string']).columns
+        if len(cols_texto) > 0:
+            df_res.rename(columns={cols_texto[0]: "producto"}, inplace=True)
+
+    # Normalizar columnas numéricas
+    for col_num in ["precio", "cantidad", "total"]:
+        if col_num in df_res.columns:
+            if df_res[col_num].dtype == object:
+                df_res[col_num] = (
+                    df_res[col_num]
+                    .astype(str)
+                    .str.replace(r"[\$,\s€COPUSD]", "", regex=True)
+                    .str.replace(",", ".")
+                )
+            df_res[col_num] = pd.to_numeric(df_res[col_num], errors="coerce").fillna(0)
+
+    # Autocalcular total o precio si faltan
+    if "total" not in df_res.columns and "precio" in df_res.columns and "cantidad" in df_res.columns:
+        df_res["total"] = df_res["precio"] * df_res["cantidad"]
+    elif "precio" not in df_res.columns and "total" in df_res.columns and "cantidad" in df_res.columns:
+        df_res["precio"] = df_res.apply(
+            lambda r: r["total"] / r["cantidad"] if r["cantidad"] > 0 else 0, axis=1
+        )
+
+    return df_res
 
 # ==========================================
-# 1. AUDITORÍA FORENSE CSV / EXCEL
+# ENDPOINT DE AUDITORÍA FORENSE
 # ==========================================
-from fastapi import UploadFile, File, Form
-
 @app.post("/api/auditar-csv")
 async def auditar_csv(
     archivo: UploadFile = File(None),
@@ -47,35 +105,37 @@ async def auditar_csv(
         if not archivo_final:
             raise HTTPException(status_code=400, detail="No se recibió ningún archivo.")
 
+        nombre = archivo_final.filename.lower()
         contenido = await archivo_final.read()
 
-        # 1. Lectura tolerante de Excel o CSV
-        # 1. Lectura tolerante de Excel con selección inteligente de hoja
-        if archivo_final.filename.endswith(('.xlsx', '.xls', '.csv.xlsx')):
+        # 1. Lectura de Excel
+        if nombre.endswith(('.xlsx', '.xls')):
             excel_file = pd.ExcelFile(io.BytesIO(contenido))
             hojas = excel_file.sheet_names
-            
             hoja_objetivo = hojas[0]
-            
-            # Priorizar hojas que tengan tanto productos como métricas numéricas
             puntuacion_max = -1
+            
             for h in hojas:
-                df_temp = pd.read_excel(excel_file, sheet_name=h, nrows=5)
-                cols_clean = [str(c).lower() for c in df_temp.columns]
-                
-                puntos = 0
-                if any(k in cols_clean for k in ['producto', 'product', 'item', 'descripcion', 'nombre producto', 'nombre_producto']):
-                    puntos += 3
-                if any(k in cols_clean for k in ['total', 'ventas', 'sales', 'precio', 'monto']):
-                    puntos += 2
-                if any(k in cols_clean for k in ['cantidad', 'qty', 'quantity']):
-                    puntos += 1
-                
-                if puntos > puntuacion_max:
-                    puntuacion_max = puntos
-                    hoja_objetivo = h
+                try:
+                    df_temp = pd.read_excel(excel_file, sheet_name=h, nrows=5)
+                    cols_clean = [limpiar_texto(c) for c in df_temp.columns]
+                    puntos = 0
+                    if any(k in cols_clean for k in ['producto', 'product', 'item', 'descripcion', 'nombre_producto', 'product_name']):
+                        puntos += 3
+                    if any(k in cols_clean for k in ['total', 'ventas', 'sales', 'precio', 'monto']):
+                        puntos += 2
+                    if any(k in cols_clean for k in ['cantidad', 'qty', 'quantity']):
+                        puntos += 1
                     
+                    if puntos > puntuacion_max:
+                        puntuacion_max = puntos
+                        hoja_objetivo = h
+                except Exception:
+                    continue
+
             df_crudo = pd.read_excel(excel_file, sheet_name=hoja_objetivo)
+
+        # 2. Lectura tolerante de CSV
         else:
             try:
                 df_crudo = pd.read_csv(io.BytesIO(contenido))
@@ -85,19 +145,19 @@ async def auditar_csv(
                 except Exception:
                     df_crudo = pd.read_csv(io.BytesIO(contenido), sep=None, engine='python', encoding="utf-8-sig")
 
-        # 2. Mapeador inteligente
-        df, mapeo_detectado, advertencias = mapear_esquema_inteligente(df_crudo)
+        # 3. Aplicar mapeo inteligente
+        df = mapear_esquema(df_crudo)
 
         if "producto" not in df.columns or "total" not in df.columns:
             raise HTTPException(
                 status_code=400,
-                detail=f"Columnas no reconocidas en la hoja seleccionada. Detectadas: {list(df_crudo.columns)}"
+                detail=f"No se pudieron identificar las columnas requeridas ('producto' y 'total'). Detectadas: {list(df_crudo.columns)}"
             )
 
         df['ventas_calculadas'] = df['total']
 
-        # 3. Métricas cuantitativas
-        total_registros = len(df)
+        # 4. Métricas cuantitativas
+        total_registros = int(len(df))
         ventas_historicas = float(df['ventas_calculadas'].sum())
         unidades_historicas = float(df['cantidad'].sum()) if 'cantidad' in df.columns else float(total_registros)
         precio_promedio = float(df['precio'].mean()) if 'precio' in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0.0)
@@ -131,7 +191,7 @@ async def auditar_csv(
     except HTTPException as he:
         raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al auditar archivo: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al procesar archivo: {str(e)}")
 
 # ==========================================
 # 2. MINI-TARS REST API (SIN DEPENDENCIAS DE SDK)
