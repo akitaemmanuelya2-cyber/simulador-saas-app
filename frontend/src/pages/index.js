@@ -1206,26 +1206,26 @@ return (
 
             </div>
 
-            {/* SECCIÓN INFERIOR: GRÁFICO (5 Cols) + DIAGNÓSTICO EJECUTIVO Y META (7 Cols) */}
+{/* SECCIÓN INFERIOR: GRÁFICO (4 Cols) + DIAGNÓSTICO EJECUTIVO AMPLIO (8 Cols) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               
               {/* Gráfico Comparativo Acumulado */}
-              <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
+              <div className="lg:col-span-4 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Evolución Acumulada</span>
                       <h4 className="text-base font-bold text-white mt-0.5">Precio Base vs. Simulado</h4>
                     </div>
-                    <div className="flex items-center gap-2.5 text-[10px] font-mono">
+                    <div className="flex items-center gap-2 text-[10px] font-mono">
                       <span className="flex items-center gap-1 text-gray-400"><span className="w-2 h-2 rounded-full bg-[#1E2E39]"></span> Base</span>
                       <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2 h-2 rounded-full bg-[#CF9D7B]"></span> Simulado</span>
                     </div>
                   </div>
-                  <p className="text-[11px] text-gray-400 mt-1">Comparativa de ganancia neta acumulada mes a mes.</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Comparativa de ganancia neta mes a mes.</p>
                 </div>
 
-                <div className="h-64 w-full pt-2">
+                <div className="h-72 w-full pt-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={datosGraficoSimulacion} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
@@ -1240,60 +1240,117 @@ return (
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+
+                <div className="pt-2 border-t border-[#141F28] text-center font-mono text-[11px] text-gray-400">
+                  Impacto total: <span className="text-emerald-400 font-bold">+{formatearDineroDirecto(deltaPeriodo)}</span> extra en {mesesValidos} meses
+                </div>
               </div>
 
-              {/* Panel de Diagnóstico Ejecutivo y Plan de Meta Financiera (Ocupa todo el espacio) */}
-              <div className="lg:col-span-7 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 rounded-2xl space-y-4 shadow-2xl flex flex-col justify-between">
+              {/* Panel de Diagnóstico Ejecutivo y Hoja de Ruta Amplia */}
+              <div className="lg:col-span-8 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 md:p-7 rounded-2xl space-y-5 shadow-2xl flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between border-b border-[#141F28] pb-2.5">
-                    <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
-                      🎯 Diagnóstico Ejecutivo // Plan de Meta Financiera
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#141F28] pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B] animate-pulse"></span>
+                      <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
+                        Diagnóstico Ejecutivo // Hoja de Ruta Comercial
+                      </span>
+                    </div>
                     <span className="text-xs font-mono font-bold text-white bg-[#0D151B] px-3 py-1 rounded-lg border border-[#18232B]">
-                      Objetivo: {formatearDineroDirecto(metaIngreso)}
+                      Meta: {formatearDineroDirecto(metaIngreso)}
                     </span>
                   </div>
 
-                  <h4 className="text-lg font-bold text-white tracking-tight mt-3">
-                    {cumpleMetaEnPeriodo 
-                      ? '✅ Meta Financiera Totalmente Viable' 
-                      : '⚠️ Ajuste de Estrategia Requerido para la Meta'}
-                  </h4>
-
-                  <p className="text-xs text-gray-300 mt-1.5 leading-relaxed">
-                    Con los <span className="text-white font-bold">{productosSimulacion.length} productos</span> ajustados, generas una rentabilidad neta combinada de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span> vendiendo un ritmo de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} uds/día</span>.
-                  </p>
+                  <div className="mt-3.5">
+                    <h4 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                      {cumpleMetaEnPeriodo ? '🚀 Escenario Altamente Rentable y Viable' : '⚠️ Brecha Detectada: Requiere Ajuste de Estrategia'}
+                    </h4>
+                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed">
+                      Con los <span className="text-white font-bold">{productosSimulacion.length} productos</span> en análisis, tu portafolio genera un flujo de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span> respaldado por una venta constante de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} unidades/día</span>.
+                    </p>
+                  </div>
                 </div>
 
-                {/* Métricas clave de alcance y aceleración */}
+                {/* Grid de 4 Pilares Tácticos de Decisión */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Pilar 1: Tiempo de Alcance */}
                   <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
                     <span className="font-bold text-[#CF9D7B] font-mono block">1. Tiempo de Alcance:</span>
                     <p className="text-gray-400 leading-relaxed">
-                      Necesitas comercializar un total de <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
+                      Necesitas vender <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades totales</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
                     </p>
-                    <div className="pt-1 text-emerald-400 font-mono font-bold text-sm">
-                      ⏱️ Tiempo estimado: {diasParaMeta} días
+                    <div className="text-emerald-400 font-mono font-bold text-xs pt-0.5">
+                      ⏱️ Meta lograda en: <span className="text-sm">{diasParaMeta} días</span>
                     </div>
                   </div>
 
+                  {/* Pilar 2: Aceleración Comercial */}
                   <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
                     <span className="font-bold text-[#CF9D7B] font-mono block">2. Aceleración Comercial:</span>
                     <p className="text-gray-400 leading-relaxed">
                       {cumpleMetaEnPeriodo 
-                        ? `Alcanzarás el objetivo con holgura dentro de los ${mesesValidos} meses proyectados, dejando un saldo a favor de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
-                        : `Para cumplir el objetivo en los ${mesesValidos} meses (${diasTotalesPeriodo} días), debes aumentar la rotación combinada a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día (actual: ${rotacionTotalDia} uds/día).`}
+                        ? `Alcanzas el objetivo dentro de los ${mesesValidos} meses proyectados, acumulando un excedente neto de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
+                        : `Para lograr la meta dentro del plazo de ${mesesValidos} meses (${diasTotalesPeriodo} días), debes elevar la rotación diaria de ${rotacionTotalDia} a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} unidades/día.`}
+                    </p>
+                  </div>
+
+                  {/* Pilar 3: Producto Motor */}
+                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
+                    <span className="font-bold text-sky-400 font-mono block">3. Producto Motor del Margen:</span>
+                    {(() => {
+                      const mejorProducto = [...productosSimulacion].sort((a, b) => {
+                        const margenA = ((a.nuevo_precio || a.precio_base) - a.costo_unitario) * (Number(a.ventas_dia) || 0);
+                        const margenB = ((b.nuevo_precio || b.precio_base) - b.costo_unitario) * (Number(b.ventas_dia) || 0);
+                        return margenB - margenA;
+                      })[0];
+
+                      if (!mejorProducto) return <p className="text-gray-400">Sin productos seleccionados.</p>;
+
+                      const margenUnit = (mejorProducto.nuevo_precio || mejorProducto.precio_base) - mejorProducto.costo_unitario;
+                      const aporteDiario = margenUnit * (Number(mejorProducto.ventas_dia) || 0);
+
+                      return (
+                        <p className="text-gray-400 leading-relaxed">
+                          <span className="text-white font-bold">{mejorProducto.producto}</span> lidera el aporte financiero generando <span className="text-emerald-400 font-mono font-bold">+{formatearDineroDirecto(aporteDiario)}/día</span> al margen total.
+                        </p>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Pilar 4: Recomendación Estratégica */}
+                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
+                    <span className="font-bold text-amber-400 font-mono block">4. Recomendación Táctica:</span>
+                    <p className="text-gray-400 leading-relaxed">
+                      {cumpleMetaEnPeriodo
+                        ? 'Mantén la rotación estable y evalúa reinvertir parte del remanente en inventario de alta rotación.'
+                        : 'Ajusta ligeramente el precio de los productos de mayor volumen o implementa combos para subir el ticket promedio.'}
                     </p>
                   </div>
                 </div>
 
-                {/* Resumen de Viabilidad */}
-                <div className="p-3 bg-[#081015] border border-[#18232B] rounded-xl flex items-center justify-between text-xs font-mono">
-                  <span className="text-gray-400">Proyección a {mesesValidos} meses:</span>
-                  <span className="text-white font-bold">{formatearDineroDirecto(gananciaTotalPeriodo)} acumulados</span>
-                  <span className={cumpleMetaEnPeriodo ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
-                    {cumpleMetaEnPeriodo ? "Meta Cumplida (+100%)" : `${((gananciaTotalPeriodo / (metaIngreso || 1)) * 100).toFixed(0)}% del Objetivo`}
-                  </span>
+                {/* Barra de Progreso y Balance Financiero */}
+                <div className="bg-[#0D151B] p-3.5 rounded-xl border border-[#18232B] space-y-2">
+                  <div className="flex justify-between items-center text-xs font-mono">
+                    <span className="text-gray-400">Progreso hacia el Objetivo ({mesesValidos} meses):</span>
+                    <span className="text-white font-bold">
+                      {formatearDineroDirecto(gananciaTotalPeriodo)} / {formatearDineroDirecto(metaIngreso)}
+                    </span>
+                    <span className={cumpleMetaEnPeriodo ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
+                      {((gananciaTotalPeriodo / (metaIngreso || 1)) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+
+                  {/* Barra visual de porcentaje */}
+                  <div className="w-full bg-[#081015] h-2.5 rounded-full overflow-hidden border border-[#18232B]">
+                    <div
+                      className={`h-full transition-all duration-500 rounded-full ${
+                        cumpleMetaEnPeriodo 
+                          ? 'bg-gradient-to-r from-emerald-500 to-[#38BDF8]' 
+                          : 'bg-gradient-to-r from-amber-500 to-[#CF9D7B]'
+                      }`}
+                      style={{ width: `${Math.min(100, Math.max(5, (gananciaTotalPeriodo / (metaIngreso || 1)) * 100))}%` }}
+                    />
+                  </div>
                 </div>
               </div>
 
