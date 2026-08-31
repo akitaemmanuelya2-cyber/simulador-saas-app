@@ -252,37 +252,49 @@ const top10Clientes = React.useMemo(() => {
 
   const tieneClientes = top10Clientes.length > 0;
 
-  // --- MATEMÁTICAS DEL SIMULADOR TEMPORAL, METAS Y GRÁFICOS ---
-  const margenUnitarioActual = Math.max(0, precioOriginal - costoUnitario);
-  const margenUnitarioSimulado = Math.max(0, nuevoPrecio - costoUnitario);
-
-  // 1. Ritmo Diario
-  const gananciaDiariaActual = ventasPorDia * margenUnitarioActual;
-  const gananciaDiariaSimulada = ventasPorDia * margenUnitarioSimulado;
-  const ventasDiariasSimuladas = ventasPorDia * nuevoPrecio;
-
-  // 2. Proyección por Meses (30 días por mes comercial)
-  const mesesValidos = Math.max(1, mesesProyeccion);
+// --- CÁLCULOS DINÁMICOS CONSOLIDADOS DEL SIMULADOR MULTI-PRODUCTO ---
+  const mesesValidos = Math.max(1, Number(mesesProyeccion) || 1);
   const diasTotalesPeriodo = mesesValidos * 30;
-  const unidadesTotalesPeriodo = ventasPorDia * diasTotalesPeriodo;
-  const facturacionTotalPeriodo = unidadesTotalesPeriodo * nuevoPrecio;
-  const gananciaTotalPeriodo = unidadesTotalesPeriodo * margenUnitarioSimulado;
-  const gananciaBasePeriodo = unidadesTotalesPeriodo * margenUnitarioActual;
-  const deltaPeriodo = gananciaTotalPeriodo - gananciaBasePeriodo;
 
-  // 3. Calculadora de Meta
-  const unidadesParaMeta = margenUnitarioSimulado > 0 ? Math.ceil(metaIngreso / margenUnitarioSimulado) : 0;
-  const diasParaMeta = ventasPorDia > 0 ? (unidadesParaMeta / ventasPorDia).toFixed(1) : 0;
-  const cumpleMetaEnPeriodo = diasParaMeta <= diasTotalesPeriodo;
+  // 1. Métricas diarias del portafolio simulado
+  const rotacionTotalDia = productosSimulacion.reduce((acc, p) => acc + (Number(p.ventas_dia) || 0), 0);
+  
+  const ventasDiariasBase = productosSimulacion.reduce((acc, p) => 
+    acc + (p.precio_base * (Number(p.ventas_dia) || 0)), 0);
 
-  // 4. Datos para el Gráfico Comparativo Mes a Mes
-  const datosGraficoSimulacion = Array.from({ length: mesesValidos }, (_, i) => {
-    const mesNum = i + 1;
-    const unidadesMes = ventasPorDia * (mesNum * 30);
+  const ventasDiariasSimuladas = productosSimulacion.reduce((acc, p) => 
+    acc + ((p.nuevo_precio || p.precio_base) * (Number(p.ventas_dia) || 0)), 0);
+
+  const gananciaDiariaBase = productosSimulacion.reduce((acc, p) => 
+    acc + ((p.precio_base - p.costo_unitario) * (Number(p.ventas_dia) || 0)), 0);
+
+  const gananciaDiariaSimulada = productosSimulacion.reduce((acc, p) => 
+    acc + (((p.nuevo_precio || p.precio_base) - p.costo_unitario) * (Number(p.ventas_dia) || 0)), 0);
+
+  // 2. Acumulado en el horizonte de tiempo (Meses)
+  const facturacionTotalPeriodo = ventasDiariasSimuladas * diasTotalesPeriodo;
+  const gananciaTotalPeriodo = gananciaDiariaSimulada * diasTotalesPeriodo;
+  const gananciaBasePeriodo = gananciaDiariaBase * diasTotalesPeriodo;
+  const deltaPeriodo = Math.max(0, gananciaTotalPeriodo - gananciaBasePeriodo);
+  const unidadesTotalesPeriodo = rotacionTotalDia * diasTotalesPeriodo;
+
+  const margenUnitarioPromedio = rotacionTotalDia > 0 ? (gananciaDiariaSimulada / rotacionTotalDia) : 0;
+  const margenUnitarioSimulado = margenUnitarioPromedio; // Compatibilidad visual
+
+  // 3. Plan de Meta Financiera
+  const cumpleMetaEnPeriodo = gananciaTotalPeriodo >= metaIngreso;
+  const diasParaMeta = gananciaDiariaSimulada > 0 ? Math.ceil(metaIngreso / gananciaDiariaSimulada) : 0;
+  const unidadesParaMeta = margenUnitarioPromedio > 0 ? Math.ceil(metaIngreso / margenUnitarioPromedio) : 0;
+  const ventasPorDiaConsolidadas = rotacionTotalDia; // Compatibilidad visual con badges
+
+  // 4. Datos del Gráfico Comparativo Mes a Mes
+  const datosGraficoSimulacion = Array.from({ length: Math.min(12, mesesValidos) }, (_, i) => {
+    const mes = i + 1;
+    const dias = mes * 30;
     return {
-      periodo: `Mes ${mesNum}`,
-      actual: unidadesMes * margenUnitarioActual,
-      simulado: unidadesMes * margenUnitarioSimulado
+      periodo: `Mes ${mes}`,
+      actual: Math.round(gananciaDiariaBase * dias),
+      simulado: Math.round(gananciaDiariaSimulada * dias),
     };
   });
 
