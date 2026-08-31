@@ -35,23 +35,31 @@ def home():
 # ==========================================
 # 1. AUDITORÍA FORENSE CSV / EXCEL
 # ==========================================
-@app.post("/api/auditar-csv")
-async def auditar_csv(archivo: UploadFile = File(...)):
-    try:
-        contenido = await archivo.read()
+from fastapi import UploadFile, File, Form
 
-        # 1. Lectura tolerante de CSV o Excel multi-pestaña
-        if archivo.filename.endswith(('.xlsx', '.xls', '.csv.xlsx')):
+@app.post("/api/auditar-csv")
+async def auditar_csv(
+    archivo: UploadFile = File(None),
+    file: UploadFile = File(None)
+):
+    try:
+        archivo_final = archivo or file
+        if not archivo_final:
+            raise HTTPException(status_code=400, detail="No se recibió ningún archivo.")
+
+        contenido = await archivo_final.read()
+
+        # 1. Lectura tolerante de Excel o CSV
+        if archivo_final.filename.endswith(('.xlsx', '.xls', '.csv.xlsx')):
             excel_file = pd.ExcelFile(io.BytesIO(contenido))
             hojas = excel_file.sheet_names
-            
-            # Buscar prioritariamente una hoja con ventas o tomar la primera
+
+            # Seleccionar hoja prioritaria o tomar la primera
             hoja_objetivo = hojas[0]
             for h in hojas:
-                if any(k in h.lower() for k in ['venta', 'sales', 'facturacion', 'transaccion', 'detalle', 'ejemplo']):
+                if any(k in h.lower() for k in ['venta', 'sales', 'facturacion', 'ejemplo', 'transaccion', 'detalle']):
                     hoja_objetivo = h
                     break
-                    
             df_crudo = pd.read_excel(excel_file, sheet_name=hoja_objetivo)
         else:
             try:
@@ -68,7 +76,7 @@ async def auditar_csv(archivo: UploadFile = File(...)):
         if "producto" not in df.columns or "total" not in df.columns:
             raise HTTPException(
                 status_code=400,
-                detail=f"No se pudieron identificar las columnas requeridas ('producto' y 'total'). Detectadas: {list(df_crudo.columns)}"
+                detail=f"Columnas no reconocidas en la hoja seleccionada. Detectadas: {list(df_crudo.columns)}"
             )
 
         df['ventas_calculadas'] = df['total']
@@ -76,8 +84,8 @@ async def auditar_csv(archivo: UploadFile = File(...)):
         # 3. Métricas cuantitativas
         total_registros = len(df)
         ventas_historicas = float(df['ventas_calculadas'].sum())
-        unidades_historicas = float(df['cantidad'].sum()) if 'cantidad' in df.columns else total_registros
-        precio_promedio = float(df['precio'].mean()) if 'precio' in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0)
+        unidades_historicas = float(df['cantidad'].sum()) if 'cantidad' in df.columns else float(total_registros)
+        precio_promedio = float(df['precio'].mean()) if 'precio' in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0.0)
 
         resumen = df.groupby('producto')['ventas_calculadas'].sum().reset_index()
         resumen = resumen.sort_values(by='ventas_calculadas', ascending=False)

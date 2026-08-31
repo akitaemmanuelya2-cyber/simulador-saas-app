@@ -394,18 +394,20 @@ export default function Home() {
     formData.append('archivo', file);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://simulador-saas-app.onrender.com';
-      const response = await fetch(`${apiUrl}/api/auditar-csv`, {
-        method: 'POST',
+      const response = await fetch("https://simulador-saas-app.onrender.com/api/auditar-csv", {
+        method: "POST",
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Error al procesar el archivo');
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Error al procesar el archivo");
+      }
+
       setDatosAuditoria(data);
     } catch (err) {
-      setErrorCSV('No se pudo conectar con el motor analítico. Verifica que FastAPI esté encendido.');
+      setErrorCSV(err.message || "Error al conectar con el servidor.");
     } finally {
       setCargandoCSV(false);
     }
