@@ -45,6 +45,9 @@ export default function Home() {
   const [mensajeInput, setMensajeInput] = useState('');
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
+  // Estado para guardar el catálogo enviado por el backend
+const [catalogoSimulacion, setCatalogoSimulacion] = useState([]);
+const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
   // Tasas de cambio (Base: 1 USD)
   const TASAS_CAMBIO = {
@@ -415,15 +418,29 @@ const top10Clientes = React.useMemo(() => {
   };
 
   // Transferir datos al Simulador (Actualizado a ventas por día)
-  const transferirAlSimulador = () => {
+const transferirAlSimulador = () => {
     if (!datosAuditoria) return;
-    const precio = Math.round(datosAuditoria.precio_promedio) || 50000;
-    const unidades = Math.round(datosAuditoria.unidades_historicas) || 100;
 
-    setPrecioOriginal(precio);
-    setNuevoPrecio(Math.round(precio * 1.10));
-    setCostoUnitario(Math.round(precio * 0.50));
-    setVentasPorDia(Math.max(1, Math.round(unidades / 30)));
+    // Si viene el catálogo detallado de productos desde el backend
+    if (datosAuditoria.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0) {
+      const catalogo = datosAuditoria.catalogo_simulacion;
+      const productoBase = catalogo[0]; // Selecciona el primer producto por defecto
+
+      setPrecioOriginal(productoBase.precio_actual);
+      setNuevoPrecio(Math.round(productoBase.precio_actual * 1.10));
+      setCostoUnitario(productoBase.costo_unitario);
+      setVentasPorDia(productoBase.ventas_dia);
+    } else {
+      // Fallback con métricas globales si no hubiera catálogo
+      const precio = Math.round(datosAuditoria.precio_promedio) || 50000;
+      const unidades = Math.round(datosAuditoria.unidades_historicas) || 100;
+
+      setPrecioOriginal(precio);
+      setNuevoPrecio(Math.round(precio * 1.10));
+      setCostoUnitario(Math.round(precio * 0.50));
+      setVentasPorDia(Math.max(1, Math.round(unidades / 30)));
+    }
+
     setMesesProyeccion(2);
     setActiveTab('simulador');
   };
@@ -876,6 +893,32 @@ return (
                 </div>
 
                 <div className="space-y-3.5">
+                  {/* Selector de Producto Auditado */}
+        {datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0 && (
+          <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] space-y-1.5">
+            <label className="text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
+              📦 Producto Auditado a Simular
+            </label>
+            <select
+              onChange={(e) => {
+                const prod = datosAuditoria.catalogo_simulacion.find(p => p.producto === e.target.value);
+                if (prod) {
+                  setPrecioOriginal(prod.precio_actual);
+                  setNuevoPrecio(Math.round(prod.precio_actual * 1.10));
+                  setCostoUnitario(prod.costo_unitario);
+                  setVentasPorDia(prod.ventas_dia);
+                }
+              }}
+              className="w-full bg-[#081015] border border-[#1E2D3D] text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#CF9D7B] transition-colors"
+            >
+              {datosAuditoria.catalogo_simulacion.map((item) => (
+                <option key={item.producto} value={item.producto}>
+                  {item.producto} — Base: {formatearDinero(item.precio_actual)} ({item.unidades_totales} uds vendidas)
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-gray-400">Precio Actual ({moneda})</label>

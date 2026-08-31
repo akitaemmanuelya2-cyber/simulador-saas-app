@@ -223,12 +223,40 @@ async def auditar_csv(
             "ventas": round(float(resumen.iloc[-1]["ventas_calculadas"]), 2)
         } if not resumen.empty else {"nombre": "N/A", "ventas": 0.0}
 
+# Catálogo detallado para el simulador interactivo
+        catalogo_simulacion = []
+        for prod_nombre, grupo in df.groupby("producto"):
+            total_v = float(grupo["ventas_calculadas"].sum())
+            total_u = float(grupo["cantidad"].sum()) if "cantidad" in grupo.columns else float(len(grupo))
+            
+            # Cálculo de precio unitario
+            if "precio" in grupo.columns and pd.notna(grupo["precio"].mean()) and float(grupo["precio"].mean()) > 0:
+                precio_u = float(grupo["precio"].mean())
+            else:
+                precio_u = (total_v / total_u) if total_u > 0 else 0.0
+            
+            # Cálculo de costo unitario
+            if "costo" in grupo.columns and pd.notna(grupo["costo"].mean()) and float(grupo["costo"].mean()) > 0:
+                costo_u = float(grupo["costo"].mean())
+            else:
+                costo_u = round(precio_u * 0.5, 2)
+
+            catalogo_simulacion.append({
+                "producto": str(prod_nombre),
+                "precio_actual": round(precio_u, 2),
+                "costo_unitario": round(costo_u, 2),
+                "unidades_totales": round(total_u, 2),
+                "ventas_totales": round(total_v, 2),
+                "ventas_dia": max(1, round(total_u / 30, 1))
+            })
+
         return {
             "total_registros": total_registros,
             "ventas_historicas": round(ventas_historicas, 2),
             "unidades_historicas": round(unidades_historicas, 2),
             "precio_promedio": round(precio_promedio, 2),
             "ranking_productos": top_5,
+            "catalogo_simulacion": catalogo_simulacion,
             "diagnostico": {
                 "rey": rey,
                 "hueso": hueso
