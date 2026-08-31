@@ -26,6 +26,8 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
   XAxis,
   YAxis,
   Tooltip,
@@ -297,6 +299,18 @@ const top10Clientes = React.useMemo(() => {
       simulado: Math.round(gananciaDiariaSimulada * dias),
     };
   });
+
+  // 5. Paleta y Datos para el Gráfico de Dona / Torta (Participación del Margen)
+  const COLORES_DONA = ['#CF9D7B', '#38BDF8', '#34D399', '#FBBF24', '#A78BFA', '#F472B6'];
+
+  const datosTortaGanancia = productosSimulacion.map((p) => {
+    const margenUnit = (p.nuevo_precio || p.precio_base) - p.costo_unitario;
+    const gananciaDiaProd = margenUnit * (Number(p.ventas_dia) || 0);
+    return {
+      name: p.producto,
+      value: Math.max(0, Math.round(gananciaDiaProd)),
+    };
+  }).filter(d => d.value > 0);
 
   // Auto-scroll del chat al agregar mensajes
   useEffect(() => {
@@ -1105,24 +1119,24 @@ return (
               </div>
 
 
-{/* PANEL DERECHO: RESULTADOS CONSOLIDADOS Y RECOMENDACIÓN ESTRATÉGICA */}
-              <div className="lg:col-span-7 space-y-5">
+{/* PANEL DERECHO: MÉTRICAS, DOBLE GRÁFICO (TORTA + BARRAS) Y EXPORTACIÓN */}
+              <div className="lg:col-span-7 space-y-4">
                 
                 {/* 1. Tarjetas Superiores: Ritmo Diario y Ganancia Acumulada */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4.5 rounded-2xl space-y-1 shadow-xl">
                     <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider">
                       Ganancia Neta por Día
                     </span>
                     <div className="text-2xl font-bold text-white tracking-tight font-mono">
                       {formatearDineroDirecto(gananciaDiariaSimulada)}
                     </div>
-                    <p className="text-[11px] text-gray-400 font-mono">
-                      Facturación estimada: <span className="text-white font-semibold">{formatearDineroDirecto(ventasDiariasSimuladas)}/día</span>
+                    <p className="text-[10px] text-gray-400 font-mono">
+                      Facturación: <span className="text-white font-semibold">{formatearDineroDirecto(ventasDiariasSimuladas)}/día</span>
                     </p>
                   </div>
 
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-5 rounded-2xl space-y-1.5 shadow-xl shadow-[#CF9D7B]/5">
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-4.5 rounded-2xl space-y-1 shadow-xl shadow-[#CF9D7B]/5">
                     <div className="flex justify-between items-center">
                       <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">
                         Ganancia en {mesesValidos} {mesesValidos === 1 ? 'Mes' : 'Meses'}
@@ -1132,76 +1146,238 @@ return (
                     <div className="text-2xl font-bold text-[#CF9D7B] tracking-tight font-mono">
                       {formatearDineroDirecto(gananciaTotalPeriodo)}
                     </div>
-                    <span className={`text-[11px] font-mono font-semibold ${gananciaTotalPeriodo >= gananciaBasePeriodo ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <span className={`text-[10px] font-mono font-semibold ${gananciaTotalPeriodo >= gananciaBasePeriodo ? 'text-emerald-400' : 'text-rose-400'}`}>
                       {gananciaTotalPeriodo >= gananciaBasePeriodo ? '▲ +' : '▼ -'}
-                      {formatearDineroDirecto(Math.abs(gananciaTotalPeriodo - gananciaBasePeriodo))} vs precio base
+                      {formatearDineroDirecto(Math.abs(gananciaTotalPeriodo - gananciaBasePeriodo))} vs base
                     </span>
                   </div>
                 </div>
 
-                {/* 2. Resumen Operativo y Balance del Portafolio */}
-                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">
-                      Resumen Operativo del Portafolio ({mesesValidos} {mesesValidos === 1 ? 'mes' : 'meses'})
-                    </span>
-                    <span className="text-[11px] text-sky-400 font-mono font-bold">
-                      {rotacionTotalDia} uds/día en total
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 text-center font-mono">
-                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-                      <span className="text-[10px] text-gray-400 uppercase block">Unidades a Vender</span>
-                      <p className="text-base font-bold text-white mt-1">{unidadesTotalesPeriodo.toLocaleString()} uds</p>
-                    </div>
-                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-                      <span className="text-[10px] text-gray-400 uppercase block">Facturación Total</span>
-                      <p className="text-base font-bold text-white mt-1">{formatearDineroDirecto(facturacionTotalPeriodo)}</p>
-                    </div>
-                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-                      <span className="text-[10px] text-gray-400 uppercase block">Margen Unit. Prom.</span>
-                      <p className="text-base font-bold text-emerald-400 mt-1">{formatearDineroDirecto(margenUnitarioPromedio)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Desglose Estratégico por Producto Añadido */}
-                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
-                  <span className="text-xs text-gray-300 font-mono uppercase font-semibold block">
-                    📊 Aporte Individual al Margen Diario ({productosSimulacion.length} productos)
-                  </span>
+                {/* 2. Doble Gráfico en Paralelo: Torta de Participación + Barras Acumuladas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {productosSimulacion.map((p) => {
-                      const margenUnit = (p.nuevo_precio || p.precio_base) - p.costo_unitario;
-                      const gananciaDiaProd = margenUnit * (Number(p.ventas_dia) || 0);
-                      const participacion = gananciaDiariaSimulada > 0 
-                        ? ((gananciaDiaProd / gananciaDiariaSimulada) * 100).toFixed(1) 
-                        : 0;
+                  {/* Gráfico de Torta / Dona */}
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4 rounded-2xl space-y-2 shadow-xl flex flex-col justify-between">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] text-[#CF9D7B] font-mono uppercase font-semibold">
+                        Concentración del Margen
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-mono">Diario</span>
+                    </div>
+
+                    <div className="h-44 w-full flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={datosTortaGanancia}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={38}
+                            outerRadius={62}
+                            paddingAngle={4}
+                            dataKey="value"
+                          >
+                            {datosTortaGanancia.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORES_DONA[index % COLORES_DONA.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '8px', fontSize: '11px' }}
+                            formatter={(val, name) => [formatearDineroDirecto(val), name]}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Leyenda compacta */}
+                    <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-center text-[10px] font-mono">
+                      {datosTortaGanancia.slice(0, 4).map((d, i) => (
+                        <div key={d.name} className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORES_DONA[i % COLORES_DONA.length] }}></span>
+                          <span className="text-gray-300 truncate max-w-[80px]">{d.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Gráfico Comparativo de Barras */}
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4 rounded-2xl space-y-2 shadow-xl flex flex-col justify-between">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] text-[#CF9D7B] font-mono uppercase font-semibold">
+                        Base vs. Simulado
+                      </span>
+                      <div className="flex items-center gap-2 text-[10px] font-mono">
+                        <span className="flex items-center gap-1 text-gray-400"><span className="w-2 h-2 rounded-full bg-[#1E2E39]"></span> Base</span>
+                        <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2 h-2 rounded-full bg-[#CF9D7B]"></span> Sim.</span>
+                      </div>
+                    </div>
+
+                    <div className="h-44 w-full pt-1">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={datosGraficoSimulacion} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+                          <XAxis dataKey="periodo" stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
+                          <YAxis stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '8px', fontSize: '11px' }}
+                            formatter={(val) => [formatearDineroDirecto(val), 'Acumulado']}
+                          />
+                          <Bar dataKey="actual" fill="#1E2E39" radius={[3, 3, 0, 0]} />
+                          <Bar dataKey="simulado" fill="#CF9D7B" radius={[3, 3, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="text-center font-mono text-[10px] text-gray-400">
+                      Impacto: <span className="text-emerald-400 font-bold">+{formatearDineroDirecto(deltaPeriodo)}</span> en {mesesValidos}m
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* 3. Botón de Exportación Ejecutiva */}
+                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-3 rounded-2xl shadow-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2 pl-2">
+                    <span className="text-xs text-gray-300 font-medium">📄 Reporte Integral de Estrategia</span>
+                    <span className="text-[10px] text-gray-500 font-mono">(Incluye Simulación + Asesoría TARS)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={exportarPDF}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#CF9D7B] to-[#b38363] hover:brightness-110 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs font-mono transition-all shadow-lg shadow-[#CF9D7B]/20 cursor-pointer"
+                  >
+                    <span>Descargar PDF</span>
+                    <span>↓</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* SECCIÓN INFERIOR COMPLETA (12 Cols): DIAGNÓSTICO ESTRATÉGICO EXHAUSTIVO */}
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-7 rounded-2xl space-y-6 shadow-2xl">
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#141F28] pb-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-3 h-3 rounded-full bg-[#CF9D7B] animate-pulse"></span>
+                    <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
+                      Diagnóstico Ejecutivo // Hoja de Ruta Comercial & Dictamen Forense
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-white bg-[#0D151B] px-3.5 py-1.5 rounded-xl border border-[#18232B]">
+                    Meta Objetivo: {formatearDineroDirecto(metaIngreso)}
+                  </span>
+                </div>
+
+                <div className="mt-4">
+                  <h4 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                    {cumpleMetaEnPeriodo ? '🚀 Escenario Altamente Rentable y Viable' : '⚠️ Brecha Detectada: Requiere Ajuste de Estrategia'}
+                  </h4>
+                  <p className="text-xs text-gray-300 mt-2 leading-relaxed max-w-4xl">
+                    Analizando el portafolio combinado de <span className="text-white font-bold">{productosSimulacion.length} productos</span>. Tu ritmo de rentabilidad neta proyectada es de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span>, sustentado en una rotación comercial de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} unidades/día</span> ({unidadesTotalesPeriodo.toLocaleString()} unidades en el ciclo de {mesesValidos} meses).
+                  </p>
+                </div>
+              </div>
+
+              {/* Cuadrícula de 4 Pilares Analíticos Extensivos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* Pilar 1 */}
+                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
+                  <div>
+                    <span className="font-bold text-[#CF9D7B] font-mono block">1. Tiempo de Alcance</span>
+                    <p className="text-gray-400 mt-1 leading-relaxed">
+                      Necesitas comercializar un volumen total de <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
+                    </p>
+                  </div>
+                  <div className="text-emerald-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
+                    ⏱️ Consecución: <span className="text-sm">{diasParaMeta} días</span>
+                  </div>
+                </div>
+
+                {/* Pilar 2 */}
+                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
+                  <div>
+                    <span className="font-bold text-[#CF9D7B] font-mono block">2. Aceleración Comercial</span>
+                    <p className="text-gray-400 mt-1 leading-relaxed">
+                      {cumpleMetaEnPeriodo 
+                        ? `Alcanzarás el objetivo con holgura dentro de los ${mesesValidos} meses proyectados, dejando un saldo a favor de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
+                        : `Para cumplir el objetivo en los ${mesesValidos} meses (${diasTotalesPeriodo} días), debes aumentar la rotación combinada a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día (actual: ${rotacionTotalDia} uds/día).`}
+                    </p>
+                  </div>
+                  <div className="text-sky-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
+                    📈 Ritmo exigido: {Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día
+                  </div>
+                </div>
+
+                {/* Pilar 3 */}
+                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
+                  <div>
+                    <span className="font-bold text-amber-400 font-mono block">3. Producto Motor del Margen</span>
+                    {(() => {
+                      const mejorProducto = [...productosSimulacion].sort((a, b) => {
+                        const margenA = ((a.nuevo_precio || a.precio_base) - a.costo_unitario) * (Number(a.ventas_dia) || 0);
+                        const margenB = ((b.nuevo_precio || b.precio_base) - b.costo_unitario) * (Number(b.ventas_dia) || 0);
+                        return margenB - margenA;
+                      })[0];
+
+                      if (!mejorProducto) return <p className="text-gray-400 mt-1">Sin productos en simulación.</p>;
+
+                      const margenUnit = (mejorProducto.nuevo_precio || mejorProducto.precio_base) - mejorProducto.costo_unitario;
+                      const aporteDiario = margenUnit * (Number(mejorProducto.ventas_dia) || 0);
 
                       return (
-                        <div key={p.producto} className="bg-[#0D151B] p-2.5 rounded-xl border border-[#18232B] flex items-center justify-between text-xs">
-                          <div>
-                            <span className="font-bold text-white block">{p.producto}</span>
-                            <span className="text-[10px] text-gray-400 font-mono">
-                              {p.ventas_dia} uds/día × {formatearDineroDirecto(margenUnit)} margen
-                            </span>
-                          </div>
-                          <div className="text-right font-mono">
-                            <span className="text-emerald-400 font-bold block">
-                              +{formatearDineroDirecto(gananciaDiaProd)}/día
-                            </span>
-                            <span className="text-[10px] text-[#CF9D7B]">
-                              {participacion}% del margen total
-                            </span>
-                          </div>
-                        </div>
+                        <p className="text-gray-400 mt-1 leading-relaxed">
+                          <span className="text-white font-bold">{mejorProducto.producto}</span> lidera el flujo financiero aportando <span className="text-emerald-400 font-mono font-bold">+{formatearDineroDirecto(aporteDiario)}/día</span> a la ganancia total.
+                        </p>
                       );
-                    })}
+                    })()}
+                  </div>
+                  <div className="text-amber-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
+                    ⭐ Pilar de Rentabilidad
                   </div>
                 </div>
 
+                {/* Pilar 4 */}
+                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
+                  <div>
+                    <span className="font-bold text-purple-400 font-mono block">4. Directriz Estratégica TARS</span>
+                    <p className="text-gray-400 mt-1 leading-relaxed">
+                      {cumpleMetaEnPeriodo
+                        ? 'Modelo balanceado. Asegura suministro constante del producto líder y evalúa reinvertir el excedente proyectado.'
+                        : 'Ajusta precios en productos de volumen medio o implementa empaques combinados para elevar el margen promedio.'}
+                    </p>
+                  </div>
+                  <div className="text-purple-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
+                    🎯 Acción Táctica
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Barra de Progreso Integral de la Meta */}
+              <div className="bg-[#0D151B] p-4 rounded-xl border border-[#18232B] space-y-2.5">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-gray-400">Progreso Financiero del Portafolio ({mesesValidos} meses):</span>
+                  <span className="text-white font-bold">
+                    {formatearDineroDirecto(gananciaTotalPeriodo)} de {formatearDineroDirecto(metaIngreso)}
+                  </span>
+                  <span className={cumpleMetaEnPeriodo ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
+                    {((gananciaTotalPeriodo / (metaIngreso || 1)) * 100).toFixed(0)}% Alcanzado
+                  </span>
+                </div>
+
+                <div className="w-full bg-[#081015] h-3 rounded-full overflow-hidden border border-[#18232B]">
+                  <div
+                    className={`h-full transition-all duration-500 rounded-full ${
+                      cumpleMetaEnPeriodo 
+                        ? 'bg-gradient-to-r from-emerald-500 to-[#38BDF8]' 
+                        : 'bg-gradient-to-r from-amber-500 to-[#CF9D7B]'
+                    }`}
+                    style={{ width: `${Math.min(100, Math.max(5, (gananciaTotalPeriodo / (metaIngreso || 1)) * 100))}%` }}
+                  />
+                </div>
               </div>
 
             </div>
