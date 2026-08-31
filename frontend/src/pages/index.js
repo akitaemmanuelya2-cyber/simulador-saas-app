@@ -145,15 +145,17 @@ export default function Home() {
   // Factor de conversión monetaria reactiva
   const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
 
-  // 1. Datos para la Matriz BCG (Rentabilidad vs Rotación)
+// 1. Datos para la Matriz BCG (Rentabilidad vs Rotación)
   const datosMatrizBCG = React.useMemo(() => {
     const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
+    
+    // Si viene directamente el ranking agrupado del backend
     if (!Array.isArray(filas) || filas.length === 0) {
       if (datosAuditoria?.ranking_productos && Array.isArray(datosAuditoria.ranking_productos)) {
         return datosAuditoria.ranking_productos.map((p, idx) => ({
           nombre: p.nombre || p.producto,
-          unidades: p.unidades || p.cantidad || (idx + 2),
-          ventas: (parseFloat(p.ventas || p.total) || 0) * factorConversion,
+          unidades: Number(p.unidades || p.cantidad) || 0,
+          ventas: Number(p.ventas || p.total) || 0, // 👈 Valor directo sin * factorConversion
           color: PALETA_COLORES[idx % PALETA_COLORES.length]
         }));
       }
@@ -173,23 +175,20 @@ export default function Home() {
 
       if (claveProd && fila[claveProd]) {
         const nombre = String(fila[claveProd]).trim();
-        const venta = parseFloat(fila[claveVenta || 'Sales']) || 0;
+        const venta = parseFloat(fila[claveVenta] || '0') || 0; // 👈 Valor directo
         if (!mapaProductos[nombre]) {
           mapaProductos[nombre] = { nombre, unidades: 0, ventas: 0 };
         }
         mapaProductos[nombre].unidades += 1;
-        mapaProductos[nombre].ventas += (venta * factorConversion);
+        mapaProductos[nombre].ventas += venta;
       }
     });
 
-    return Object.values(mapaProductos)
-      .sort((a, b) => b.ventas - a.ventas)
-      .slice(0, 10)
-      .map((item, idx) => ({
-        ...item,
-        color: PALETA_COLORES[idx % PALETA_COLORES.length]
-      }));
-  }, [datosAuditoria, factorConversion]);
+    return Object.values(mapaProductos).map((p, idx) => ({
+      ...p,
+      color: PALETA_COLORES[idx % PALETA_COLORES.length]
+    }));
+  }, [datosAuditoria]);
 
   // 2. Colecciones dinámicas para Análisis Profundo (Top 10)
   const top10ProductosUnidades = React.useMemo(() => {
@@ -200,13 +199,13 @@ export default function Home() {
     return [...datosMatrizBCG].sort((a, b) => b.ventas - a.ventas).slice(0, 10);
   }, [datosMatrizBCG]);
 
-  const top10Clientes = React.useMemo(() => {
+const top10Clientes = React.useMemo(() => {
     const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
     if (!Array.isArray(filas) || filas.length === 0) {
       if (datosAuditoria?.ranking_clientes && Array.isArray(datosAuditoria.ranking_clientes)) {
         return datosAuditoria.ranking_clientes.map((c, idx) => ({
           nombre: c.nombre || c.cliente || c['Customer Name'] || 'Cliente',
-          ventas: (parseFloat(c.ventas || c.total || c.Sales) || 0) * factorConversion,
+          ventas: parseFloat(c.ventas || c.total || c.Sales) || 0, // 👈 Sin * factorConversion
           color: PALETA_COLORES[idx % PALETA_COLORES.length]
         })).slice(0, 10);
       }
