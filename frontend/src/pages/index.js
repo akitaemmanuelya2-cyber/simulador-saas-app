@@ -54,30 +54,32 @@ export default function Home() {
   };
 
   // 1. Formateador con conversión (Para Detective CSV y datos en USD)
+// Formateador visual profesional según la moneda seleccionada en el Navbar
   const formatearDinero = (valor) => {
     const num = Number(valor) || 0;
-    const valorConvertido = num * TASAS_CAMBIO[moneda];
 
     if (moneda === 'COP') {
       return new Intl.NumberFormat('es-CO', { 
         style: 'currency', 
         currency: 'COP', 
         maximumFractionDigits: 0 
-      }).format(valorConvertido);
+      }).format(num);
     } else if (moneda === 'USD') {
       return new Intl.NumberFormat('en-US', { 
         style: 'currency', 
         currency: 'USD', 
-        minimumFractionDigits: 2 
-      }).format(valorConvertido);
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(num);
     } else if (moneda === 'EUR') {
       return new Intl.NumberFormat('de-DE', { 
         style: 'currency', 
         currency: 'EUR', 
-        minimumFractionDigits: 2 
-      }).format(valorConvertido);
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(num);
     }
-    return `$ ${valorConvertido.toLocaleString()}`;
+    return `$ ${num.toLocaleString()}`;
   };
 
   // 2. Formateador directo sin conversión (Para el Simulador y entradas manuales)
