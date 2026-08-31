@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 try:
-    from services.schema_mapper import mapear_esquema_inteligente
+    from Services.schema_mapper import mapear_esquema_inteligente
 except ModuleNotFoundError:
     from Services.schema_mapper import mapear_esquema_inteligente
 
