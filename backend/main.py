@@ -50,16 +50,31 @@ async def auditar_csv(
         contenido = await archivo_final.read()
 
         # 1. Lectura tolerante de Excel o CSV
+        # 1. Lectura tolerante de Excel con selección inteligente de hoja
         if archivo_final.filename.endswith(('.xlsx', '.xls', '.csv.xlsx')):
             excel_file = pd.ExcelFile(io.BytesIO(contenido))
             hojas = excel_file.sheet_names
-
-            # Seleccionar hoja prioritaria o tomar la primera
+            
             hoja_objetivo = hojas[0]
+            
+            # Priorizar hojas que tengan tanto productos como métricas numéricas
+            puntuacion_max = -1
             for h in hojas:
-                if any(k in h.lower() for k in ['venta', 'sales', 'facturacion', 'ejemplo', 'transaccion', 'detalle']):
+                df_temp = pd.read_excel(excel_file, sheet_name=h, nrows=5)
+                cols_clean = [str(c).lower() for c in df_temp.columns]
+                
+                puntos = 0
+                if any(k in cols_clean for k in ['producto', 'product', 'item', 'descripcion', 'nombre producto', 'nombre_producto']):
+                    puntos += 3
+                if any(k in cols_clean for k in ['total', 'ventas', 'sales', 'precio', 'monto']):
+                    puntos += 2
+                if any(k in cols_clean for k in ['cantidad', 'qty', 'quantity']):
+                    puntos += 1
+                
+                if puntos > puntuacion_max:
+                    puntuacion_max = puntos
                     hoja_objetivo = h
-                    break
+                    
             df_crudo = pd.read_excel(excel_file, sheet_name=hoja_objetivo)
         else:
             try:
