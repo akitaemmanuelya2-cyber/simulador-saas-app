@@ -900,183 +900,210 @@ return (
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
-              {/* PANEL DE CONFIGURACIÓN */}
-              <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-7 rounded-2xl space-y-5 shadow-2xl">
+{/* PANEL DE CONFIGURACIÓN Y ESTRATEGIA */}
+              <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-2xl">
                 <div>
-                  <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Parámetros Operativos</span>
+                  <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Configuración del Escenario</span>
                   <h2 className="text-xl font-bold text-white tracking-tight mt-0.5">Variables del Negocio</h2>
                 </div>
 
-                <div className="space-y-3.5">
+                <div className="space-y-4">
+                  {/* 1. HORIZONTE Y METAS (EN LA PARTE SUPERIOR) */}
+                  <div className="bg-[#0D151B] p-4 rounded-xl border border-[#1E2D3D] space-y-3">
+                    <div>
+                      <span className="text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
+                        🎯 1. Define tu Meta y Plazo
+                      </span>
+                      <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                        Indica cuántos meses quieres evaluar y cuál es la ganancia limpia que deseas alcanzar.
+                      </p>
+                    </div>
 
-{/* Selector y Gestor Multi-Producto */}
-{datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0 && (
-  <div className="space-y-4">
-    {/* Añadir producto al escenario */}
-    <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between gap-3">
-      <span className="text-[11px] font-mono text-[#CF9D7B] uppercase font-semibold">
-        ➕ Agregar Producto al Análisis:
-      </span>
-      <select
-        onChange={(e) => {
-          const val = e.target.value;
-          if (!val) return;
-          const yaExiste = productosSimulacion.some(p => p.producto === val);
-          if (!yaExiste) {
-            const prod = datosAuditoria.catalogo_simulacion.find(p => p.producto === val);
-            if (prod) {
-              setProductosSimulacion(prev => [
-                ...prev,
-                {
-                  producto: prod.producto,
-                  precio_base: prod.precio_actual,
-                  costo_unitario: prod.costo_unitario,
-                  ventas_dia: prod.ventas_dia,
-                  porcentaje: 10,
-                  nuevo_precio: Math.round(prod.precio_actual * 1.10)
-                }
-              ]);
-            }
-          }
-          e.target.value = "";
-        }}
-        className="bg-[#081015] border border-[#1E2D3D] text-white rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#CF9D7B]"
-      >
-        <option value="">Seleccionar del catálogo...</option>
-        {datosAuditoria.catalogo_simulacion.map((item) => (
-          <option key={item.producto} value={item.producto}>
-            {item.producto} — {formatearDinero(item.precio_actual)}
-          </option>
-        ))}
-      </select>
-    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-gray-300 block mb-1">
+                          Meses a Proyectar:
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="12"
+                          value={mesesProyeccion}
+                          onChange={(e) => setMesesProyeccion(Math.max(1, Number(e.target.value) || 1))}
+                          className="w-full bg-[#081015] border border-[#18232B] rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#CF9D7B]"
+                        />
+                      </div>
 
-    {/* Tarjetas individuales por producto seleccionado */}
-    <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
-      {productosSimulacion.map((prod, idx) => {
-        const aumentoMoneda = Math.round(prod.precio_base * (prod.porcentaje / 100));
-        const nuevoPrecio = prod.precio_base + aumentoMoneda;
-        const margenUnitario = nuevoPrecio - prod.costo_unitario;
+                      <div>
+                        <label className="text-xs text-gray-300 block mb-1">
+                          Meta de Ganancia ({moneda}):
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={metaIngreso}
+                          onChange={(e) => setMetaIngreso(Number(e.target.value.replace(/\D/g, '')) || 0)}
+                          className="w-full bg-[#081015] border border-[#CF9D7B]/40 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#CF9D7B]"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-        return (
-          <div key={prod.producto} className="bg-[#0D151B] p-4 rounded-xl border border-[#1E2D3D] space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-white">{prod.producto}</h4>
-                <span className="text-[10px] text-gray-400 font-mono">
-                  Base: {formatearDinero(prod.precio_base)} | Costo: {formatearDinero(prod.costo_unitario)} | Rotación: {prod.ventas_dia} uds/día
-                </span>
-              </div>
-              {productosSimulacion.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setProductosSimulacion(prev => prev.filter((_, i) => i !== idx))}
-                  className="text-gray-500 hover:text-rose-400 text-xs px-2 py-1 rounded transition-colors"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+                  {/* 2. SELECTOR DE PRODUCTOS */}
+                  {datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0 && (
+                    <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between gap-3">
+                      <span className="text-[11px] font-mono text-[#CF9D7B] uppercase font-semibold">
+                        ➕ Agregar Producto:
+                      </span>
+                      <select
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (!val) return;
+                          const yaExiste = productosSimulacion.some(p => p.producto === val);
+                          if (!yaExiste) {
+                            const prod = datosAuditoria.catalogo_simulacion.find(p => p.producto === val);
+                            if (prod) {
+                              setProductosSimulacion(prev => [
+                                ...prev,
+                                {
+                                  producto: prod.producto,
+                                  precio_base: prod.precio_actual,
+                                  costo_unitario: prod.costo_unitario,
+                                  ventas_dia: Math.max(1, Math.round(prod.ventas_dia || 1)),
+                                  porcentaje: 10,
+                                  nuevo_precio: Math.round(prod.precio_actual * 1.10)
+                                }
+                              ]);
+                            }
+                          }
+                          e.target.value = "";
+                        }}
+                        className="bg-[#081015] border border-[#1E2D3D] text-white rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#CF9D7B]"
+                      >
+                        <option value="">Seleccionar del catálogo...</option>
+                        {datosAuditoria.catalogo_simulacion.map((item) => (
+                          <option key={item.producto} value={item.producto}>
+                            {item.producto} — {formatearDinero(item.precio_actual)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-            {/* Slider con Porcentaje y Valor Monetario */}
-            <div className="bg-[#081015] p-3 rounded-lg border border-[#16222C] space-y-2">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-gray-300">Variación de Precio:</span>
-                <div className="flex items-center gap-2 font-mono font-bold">
-                  <span className={prod.porcentaje >= 0 ? "text-emerald-400" : "text-rose-400"}>
-                    {prod.porcentaje > 0 ? `+${prod.porcentaje}%` : `${prod.porcentaje}%`}
-                  </span>
-                  <span className="text-gray-600">|</span>
-                  <span className="text-[#CF9D7B]">
-                    {prod.porcentaje >= 0 ? "+" : ""}{formatearDinero(aumentoMoneda)}
-                  </span>
+                  {/* 3. LISTA DE PRODUCTOS CON INPUTS DE UNIDADES Y SLIDERS */}
+                  <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+                    {productosSimulacion.map((prod, idx) => {
+                      const aumentoMoneda = Math.round(prod.precio_base * (prod.porcentaje / 100));
+                      const nuevoPrecio = prod.precio_base + aumentoMoneda;
+                      const margenUnitario = nuevoPrecio - prod.costo_unitario;
+
+                      return (
+                        <div key={prod.producto} className="bg-[#0D151B] p-3.5 rounded-xl border border-[#1E2D3D] space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-xs font-bold text-white tracking-wide">{prod.producto}</h4>
+                              <p className="text-[10px] text-gray-400 font-mono">
+                                Base: {formatearDinero(prod.precio_base)} | Costo: {formatearDinero(prod.costo_unitario)}
+                              </p>
+                            </div>
+                            {productosSimulacion.length > 1 && (
+                              <button
+                                type="button"
+                                title="Quitar producto"
+                                onClick={() => setProductosSimulacion(prev => prev.filter((_, i) => i !== idx))}
+                                className="text-gray-500 hover:text-rose-400 text-xs px-2 py-0.5 rounded bg-[#081015] border border-[#18232B] transition-colors"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Control Deslizante de Ajuste */}
+                          <div className="bg-[#081015] p-2.5 rounded-lg border border-[#16222C] space-y-1.5">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-gray-400 text-[11px]">Ajuste de Precio:</span>
+                              <div className="flex items-center gap-1.5 font-mono font-bold text-[11px]">
+                                <span className={prod.porcentaje >= 0 ? "text-emerald-400" : "text-rose-400"}>
+                                  {prod.porcentaje > 0 ? `+${prod.porcentaje}%` : `${prod.porcentaje}%`}
+                                </span>
+                                <span className="text-gray-600">|</span>
+                                <span className="text-[#CF9D7B]">
+                                  {prod.porcentaje >= 0 ? "+" : ""}{formatearDinero(aumentoMoneda)}
+                                </span>
+                              </div>
+                            </div>
+
+                            <input
+                              type="range"
+                              min="-50"
+                              max="100"
+                              step="1"
+                              value={prod.porcentaje}
+                              onChange={(e) => {
+                                const pct = Number(e.target.value);
+                                setProductosSimulacion(prev => prev.map((item, i) => {
+                                  if (i !== idx) return item;
+                                  return {
+                                    ...item,
+                                    porcentaje: pct,
+                                    nuevo_precio: Math.round(item.precio_base * (1 + pct / 100))
+                                  };
+                                }));
+                              }}
+                              className="w-full accent-[#CF9D7B] cursor-pointer h-1.5 bg-[#16222C] rounded-lg appearance-none"
+                            />
+                          </div>
+
+                          {/* Input para modificar unidades por día y resumen unitario */}
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="bg-[#081015] p-2 rounded-lg border border-[#18232B]">
+                              <label className="text-[10px] text-gray-400 block mb-1">
+                                Ventas / día (uds):
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                step="1"
+                                value={prod.ventas_dia}
+                                onChange={(e) => {
+                                  const val = Math.max(1, Math.round(Number(e.target.value) || 1));
+                                  setProductosSimulacion(prev => prev.map((item, i) => {
+                                    if (i !== idx) return item;
+                                    return { ...item, ventas_dia: val };
+                                  }));
+                                }}
+                                className="w-full bg-[#0D151B] border border-[#1E2D3D] rounded px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:border-[#CF9D7B]"
+                              />
+                            </div>
+
+                            <div className="bg-[#081015] p-2 rounded-lg border border-[#18232B] flex flex-col justify-center text-right">
+                              <span className="text-[10px] text-gray-400">Margen por unidad:</span>
+                              <span className="text-xs font-bold text-emerald-400 font-mono">
+                                {formatearDinero(margenUnitario)}
+                              </span>
+                              <span className="text-[9px] text-gray-500 font-mono">
+                                Precio: {formatearDinero(nuevoPrecio)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* 4. TOTALIZADOR Y CONSOLIDADO AL FINAL */}
+                  <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono text-gray-400 uppercase block">Rotación Total Portafolio:</span>
+                      <span className="text-xs text-gray-300 font-medium">Suma diaria de unidades</span>
+                    </div>
+                    <div className="text-right font-mono font-bold text-sm text-[#38BDF8] bg-[#081015] px-3 py-1.5 rounded-lg border border-[#18232B]">
+                      {productosSimulacion.reduce((acc, p) => acc + (Number(p.ventas_dia) || 0), 0)} uds / día
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <input
-                type="range"
-                min="-50"
-                max="100"
-                step="1"
-                value={prod.porcentaje}
-                onChange={(e) => {
-                  const pct = Number(e.target.value);
-                  setProductosSimulacion(prev => prev.map((item, i) => {
-                    if (i !== idx) return item;
-                    return {
-                      ...item,
-                      porcentaje: pct,
-                      nuevo_precio: Math.round(item.precio_base * (1 + pct / 100))
-                    };
-                  }));
-                }}
-                className="w-full accent-[#CF9D7B] cursor-pointer h-1.5 bg-[#16222C] rounded-lg appearance-none"
-              />
-
-              <div className="flex justify-between text-[10px] font-mono text-gray-500">
-                <span>-50%</span>
-                <span>0%</span>
-                <span>+50%</span>
-                <span>+100%</span>
-              </div>
-            </div>
-
-            {/* Resultado resumido del producto */}
-            <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-[#1E2D3D]">
-              <div className="text-gray-400">
-                Nuevo Precio: <span className="font-bold text-white font-mono">{formatearDinero(nuevoPrecio)}</span>
-              </div>
-              <div className="text-right text-gray-400">
-                Margen Unit.: <span className="font-bold text-[#34D399] font-mono">{formatearDinero(margenUnitario)}</span>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-)}
-{/* Sub-Panel: Metas y Horizonte Temporal */}
-        <div className="bg-[#0D151B] p-4 rounded-xl border border-[#1E2D3D] space-y-3.5 mt-4">
-          <span className="text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
-            🎯 Horizonte y Metas del Negocio
-          </span>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-gray-400 block mb-1">Meses a Proyectar</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={mesesProyeccion}
-                onChange={(e) => setMesesProyeccion(Number(e.target.value.replace(/\D/g, '')) || 1)}
-                className="w-full bg-[#081015] border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] font-mono transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-400 block mb-1">Rotación Total (uds/día)</label>
-              <div className="w-full bg-[#081015]/60 border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-[#38BDF8] font-mono font-bold flex items-center">
-                {productosSimulacion.reduce((acc, p) => acc + (p.ventas_dia || 0), 0)} uds/día
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-[#141F28]">
-            <label className="text-xs text-[#CF9D7B] font-medium block mb-1">
-              Meta de Ganancia Neta ({moneda})
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={metaIngreso}
-              onChange={(e) => setMetaIngreso(Number(e.target.value.replace(/\D/g, '')) || 0)}
-              className="w-full bg-[#081015] border border-[#CF9D7B]/40 rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#CF9D7B] transition-colors"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
 
     {/* PANEL DE RESULTADOS Y METAS */}
     <div className="lg:col-span-7 space-y-5">
