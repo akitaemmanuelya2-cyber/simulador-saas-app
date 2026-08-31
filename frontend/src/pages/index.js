@@ -1024,251 +1024,196 @@ return (
     </div>
   </div>
 )}
-                  {/* Selector de Producto Auditado */}
-        {datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0 && (
-          <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] space-y-1.5">
-            <label className="text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
-              📦 Producto Auditado a Simular
+{/* Sub-Panel: Metas y Horizonte Temporal */}
+        <div className="bg-[#0D151B] p-4 rounded-xl border border-[#1E2D3D] space-y-3.5 mt-4">
+          <span className="text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
+            🎯 Horizonte y Metas del Negocio
+          </span>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Meses a Proyectar</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={mesesProyeccion}
+                onChange={(e) => setMesesProyeccion(Number(e.target.value.replace(/\D/g, '')) || 1)}
+                className="w-full bg-[#081015] border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] font-mono transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Rotación Total (uds/día)</label>
+              <div className="w-full bg-[#081015]/60 border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-[#38BDF8] font-mono font-bold flex items-center">
+                {productosSimulacion.reduce((acc, p) => acc + (p.ventas_dia || 0), 0)} uds/día
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-[#141F28]">
+            <label className="text-xs text-[#CF9D7B] font-medium block mb-1">
+              Meta de Ganancia Neta ({moneda})
             </label>
-            <select
-              onChange={(e) => {
-                const prod = datosAuditoria.catalogo_simulacion.find(p => p.producto === e.target.value);
-                if (prod) {
-                  setPrecioOriginal(prod.precio_actual);
-                  setNuevoPrecio(Math.round(prod.precio_actual * 1.10));
-                  setCostoUnitario(prod.costo_unitario);
-                  setVentasPorDia(prod.ventas_dia);
-                }
-              }}
-              className="w-full bg-[#081015] border border-[#1E2D3D] text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#CF9D7B] transition-colors"
-            >
-              {datosAuditoria.catalogo_simulacion.map((item) => (
-                <option key={item.producto} value={item.producto}>
-                  {item.producto} — Base: {formatearDinero(item.precio_actual)} ({item.unidades_totales} uds vendidas)
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={metaIngreso}
+              onChange={(e) => setMetaIngreso(Number(e.target.value.replace(/\D/g, '')) || 0)}
+              className="w-full bg-[#081015] border border-[#CF9D7B]/40 rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#CF9D7B] transition-colors"
+            />
           </div>
-        )}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-400">Precio Actual ({moneda})</label>
-                      <input 
-                        type="text" 
-                        inputMode="numeric"
-                        value={precioOriginal} 
-                        onChange={(e) => setPrecioOriginal(Number(e.target.value.replace(/\D/g, '')) || 0)}
-                        className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 font-mono transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-[#CF9D7B] font-medium">Nuevo Precio ({moneda})</label>
-                      <input 
-                        type="text" 
-                        inputMode="numeric"
-                        value={nuevoPrecio} 
-                        onChange={(e) => setNuevoPrecio(Number(e.target.value.replace(/\D/g, '')) || 0)}
-                        className="w-full bg-[#0D151B] border border-[#CF9D7B]/40 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 font-mono transition-colors"
-                      />
-                    </div>
-                  </div>
+        </div>
+      </div>
+    </div>
 
-                  <div>
-                    <label className="text-xs text-gray-400">Costo Unitario Proveedor ({moneda})</label>
-                    <input 
-                      type="text" 
-                      inputMode="numeric"
-                      value={costoUnitario} 
-                      onChange={(e) => setCostoUnitario(Number(e.target.value.replace(/\D/g, '')) || 0)}
-                      className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 font-mono transition-colors"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-400">Ventas / Día</label>
-                      <input 
-                        type="text" 
-                        inputMode="numeric"
-                        value={ventasPorDia} 
-                        onChange={(e) => setVentasPorDia(Number(e.target.value.replace(/\D/g, '')) || 0)}
-                        className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 font-mono transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-400">Meses a Proyectar</label>
-                      <input 
-                        type="text" 
-                        inputMode="numeric"
-                        value={mesesProyeccion} 
-                        onChange={(e) => setMesesProyeccion(Number(e.target.value.replace(/\D/g, '')) || 1)}
-                        className="w-full bg-[#0D151B] border border-[#18232B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 font-mono transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-[#141F28]">
-                    <label className="text-xs text-[#CF9D7B] font-medium">Meta de Ganancia Neta ({moneda})</label>
-                    <input 
-                      type="text" 
-                      inputMode="numeric"
-                      value={metaIngreso} 
-                      onChange={(e) => setMetaIngreso(Number(e.target.value.replace(/\D/g, '')) || 0)}
-                      className="w-full bg-[#0D151B] border border-[#CF9D7B]/30 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#CF9D7B] mt-1 font-mono transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* PANEL DE RESULTADOS Y METAS */}
-              <div className="lg:col-span-7 space-y-5">
-                
-                {/* Ritmo Diario vs Acumulado en Meses */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-xl">
-                    <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia por Día</span>
-                    <div className="text-2xl font-bold text-white tracking-tight font-mono">
-                      {formatearDineroDirecto(gananciaDiariaSimulada)}
-                    </div>
-                    <span className="text-[11px] text-gray-400 font-mono">
-                      Facturación diaria: <span className="text-white">{formatearDineroDirecto(ventasDiariasSimuladas)}</span>
-                    </span>
-                  </div>
-
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-5 rounded-2xl space-y-1.5 shadow-xl shadow-[#CF9D7B]/5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">
-                        Ganancia en {mesesProyeccion} {mesesProyeccion === 1 ? 'Mes' : 'Meses'}
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-mono">({diasTotalesPeriodo} días)</span>
-                    </div>
-                    <div className="text-2xl font-bold text-[#CF9D7B] tracking-tight font-mono">
-                      {formatearDineroDirecto(gananciaTotalPeriodo)}
-                    </div>
-                    <span className="text-[11px] font-mono text-emerald-400">
-                      ▲ +{formatearDineroDirecto(deltaPeriodo)} extra vs precio base
-                    </span>
-                  </div>
-                </div>
-
-                {/* Balance General del Periodo */}
-                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
-                  <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Resumen Operativo ({mesesProyeccion} {mesesProyeccion === 1 ? 'mes' : 'meses'})</span>
-                  <div className="grid grid-cols-3 gap-3 pt-1 text-center font-mono">
-                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-                      <span className="text-[10px] text-gray-400 uppercase">Unidades a Vender</span>
-                      <p className="text-base font-bold text-white mt-1">{unidadesTotalesPeriodo.toLocaleString()} uds</p>
-                    </div>
-                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-                      <span className="text-[10px] text-gray-400 uppercase">Facturación Total</span>
-                      <p className="text-base font-bold text-white mt-1">{formatearDineroDirecto(facturacionTotalPeriodo)}</p>
-                    </div>
-                    <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
-                      <span className="text-[10px] text-gray-400 uppercase">Margen Unitario</span>
-                      <p className="text-base font-bold text-emerald-400 mt-1">{formatearDineroDirecto(margenUnitarioSimulado)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CALCULADORA DE META DE ADQUISICIÓN */}
-                <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-5 rounded-2xl space-y-2.5 shadow-xl">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-emerald-400 font-mono uppercase font-semibold">Plan de Meta Financiera</span>
-                    <span className="text-xs text-gray-300 font-mono font-bold">Objetivo: {formatearDineroDirecto(metaIngreso)}</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 pt-1 font-mono">
-                    <div className="p-3.5 bg-[#0D151B] rounded-xl border border-emerald-900/30">
-                      <span className="text-[10px] text-gray-400 uppercase">Unidades Necesarias</span>
-                      <p className="text-xl font-bold text-white mt-0.5">{unidadesParaMeta.toLocaleString()} unidades</p>
-                      <span className="text-[10px] text-gray-500">Ganando {formatearDineroDirecto(margenUnitarioSimulado)} por unidad</span>
-                    </div>
-                    <div className="p-3.5 bg-[#0D151B] rounded-xl border border-emerald-900/30">
-                      <span className="text-[10px] text-gray-400 uppercase">Tiempo Requerido</span>
-                      <p className="text-xl font-bold text-emerald-400 mt-0.5">{diasParaMeta} días</p>
-                      <span className="text-[10px] text-gray-500">A {ventasPorDia} unidades por día</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* SECCIÓN VISUAL: GRÁFICO COMPARATIVO Y RECOMENDACIÓN ESTRATÉGICA */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              {/* Gráfico Comparativo Acumulado */}
-              <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Evolución Acumulada</span>
-                    <h4 className="text-base font-bold text-white">Precio Base vs. Precio Simulado</h4>
-                  </div>
-                  <div className="flex items-center gap-3 text-[11px] font-mono">
-                    <span className="flex items-center gap-1 text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-[#1E2E39]"></span> Actual</span>
-                    <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B]"></span> Simulado</span>
-                  </div>
-                </div>
-
-                <div className="h-64 w-full pt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={datosGraficoSimulacion} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                      <XAxis dataKey="periodo" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-                      <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '10px' }}
-                        formatter={(val) => [formatearDineroDirecto(val), 'Ganancia Acumulada']}
-                      />
-                      <Bar dataKey="actual" fill="#1E2E39" radius={[4, 4, 0, 0]} name="Precio Actual" />
-                      <Bar dataKey="simulado" fill="#CF9D7B" radius={[4, 4, 0, 0]} name="Precio Simulado" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Panel de Resumen Ejecutivo y Recomendaciones para la Meta */}
-              <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/30 p-6 md:p-7 rounded-2xl space-y-4 shadow-2xl flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 text-[#CF9D7B] mb-2">
-                    <span className="text-xs uppercase font-mono tracking-wider font-bold">Diagnóstico Ejecutivo // Hoja de Ruta</span>
-                  </div>
-                  <h4 className="text-lg font-bold text-white tracking-tight">
-                    {cumpleMetaEnPeriodo 
-                      ? 'Meta Financiera Totalmente Viable' 
-                      : 'Ajuste de Estrategia Requerido para la Meta'}
-                  </h4>
-                  <p className="text-xs text-gray-300 mt-2 leading-relaxed">
-                    Al pasar de <span className="text-white font-mono">{formatearDineroDirecto(precioOriginal)}</span> a <span className="text-[#CF9D7B] font-mono">{formatearDineroDirecto(nuevoPrecio)}</span>, tu margen unitario aumenta a <span className="text-emerald-400 font-mono">{formatearDineroDirecto(margenUnitarioSimulado)}</span> ({((margenUnitarioSimulado / nuevoPrecio) * 100).toFixed(1)}% de rentabilidad neta).
-                  </p>
-                </div>
-
-                {/* Cuadro de recomendaciones accionables */}
-                <div className="space-y-2.5 pt-2 border-t border-[#141F28]">
-                  <div className="p-3 bg-[#0D151B] border border-[#1A2834] rounded-xl text-xs space-y-1">
-                    <span className="font-bold text-[#CF9D7B] font-mono">1. Tiempo de Alcance:</span>
-                    <p className="text-gray-400">
-                      Necesitas vender <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}. Al ritmo de {ventasPorDia} unidades/día, te tomará exactamente <span className="text-emerald-400 font-mono font-semibold">{diasParaMeta} días</span>.
-                    </p>
-                  </div>
-
-                  <div className="p-3 bg-[#0D151B] border border-[#1A2834] rounded-xl text-xs space-y-1">
-                    <span className="font-bold text-[#CF9D7B] font-mono">2. Aceleración Comercial:</span>
-                    <p className="text-gray-400">
-                      {cumpleMetaEnPeriodo 
-                        ? `Alcanzarás tu objetivo dentro de los ${mesesProyeccion} meses proyectados, dejando un remanente positivo de ${formatearDineroDirecto(Math.max(0, gananciaTotalPeriodo - metaIngreso))}.`
-                        : `Para lograr la meta dentro del periodo de ${mesesProyeccion} meses (${diasTotalesPeriodo} días), debes elevar el ritmo diario de ${ventasPorDia} a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} unidades/día.`}
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
+    {/* PANEL DE RESULTADOS Y METAS */}
+    <div className="lg:col-span-7 space-y-5">
+      
+      {/* Ritmo Diario vs Acumulado en Meses */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-xl">
+          <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">Ganancia por Día</span>
+          <div className="text-2xl font-bold text-white tracking-tight font-mono">
+            {formatearDineroDirecto(gananciaDiariaSimulada)}
           </div>
-        )}
+          <span className="text-[11px] text-gray-400 font-mono">
+            Facturación diaria: <span className="text-white">{formatearDineroDirecto(ventasDiariasSimuladas)}</span>
+          </span>
+        </div>
+
+        <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-5 rounded-2xl space-y-1.5 shadow-xl shadow-[#CF9D7B]/5">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">
+              Ganancia en {mesesProyeccion} {mesesProyeccion === 1 ? 'Mes' : 'Meses'}
+            </span>
+            <span className="text-[10px] text-gray-400 font-mono">({diasTotalesPeriodo} días)</span>
+          </div>
+          <div className="text-2xl font-bold text-[#CF9D7B] tracking-tight font-mono">
+            {formatearDineroDirecto(gananciaTotalPeriodo)}
+          </div>
+          <span className="text-[11px] font-mono text-emerald-400">
+            ▲ +{formatearDineroDirecto(deltaPeriodo)} extra vs precio base
+          </span>
+        </div>
+      </div>
+
+      {/* Balance General del Periodo */}
+      <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-3 shadow-xl">
+        <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Resumen Operativo ({mesesProyeccion} {mesesProyeccion === 1 ? 'mes' : 'meses'})</span>
+        <div className="grid grid-cols-3 gap-3 pt-1 text-center font-mono">
+          <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
+            <span className="text-[10px] text-gray-400 uppercase">Unidades a Vender</span>
+            <p className="text-base font-bold text-white mt-1">{unidadesTotalesPeriodo.toLocaleString()} uds</p>
+          </div>
+          <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
+            <span className="text-[10px] text-gray-400 uppercase">Facturación Total</span>
+            <p className="text-base font-bold text-white mt-1">{formatearDineroDirecto(facturacionTotalPeriodo)}</p>
+          </div>
+          <div className="p-3 bg-[#0D151B] rounded-xl border border-[#18232B]">
+            <span className="text-[10px] text-gray-400 uppercase">Margen Unitario</span>
+            <p className="text-base font-bold text-emerald-400 mt-1">{formatearDineroDirecto(margenUnitarioSimulado)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* CALCULADORA DE META DE ADQUISICIÓN */}
+      <div className="bg-[#081015]/90 backdrop-blur-xl border border-emerald-900/40 p-5 rounded-2xl space-y-2.5 shadow-xl">
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-emerald-400 font-mono uppercase font-semibold">Plan de Meta Financiera</span>
+          <span className="text-xs text-gray-300 font-mono font-bold">Objetivo: {formatearDineroDirecto(metaIngreso)}</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 pt-1 font-mono">
+          <div className="p-3.5 bg-[#0D151B] rounded-xl border border-emerald-900/30">
+            <span className="text-[10px] text-gray-400 uppercase">Unidades Necesarias</span>
+            <p className="text-xl font-bold text-white mt-0.5">{unidadesParaMeta.toLocaleString()} unidades</p>
+            <span className="text-[10px] text-gray-500">Ganando {formatearDineroDirecto(margenUnitarioSimulado)} por unidad</span>
+          </div>
+          <div className="p-3.5 bg-[#0D151B] rounded-xl border border-emerald-900/30">
+            <span className="text-[10px] text-gray-400 uppercase">Tiempo Requerido</span>
+            <p className="text-xl font-bold text-emerald-400 mt-0.5">{diasParaMeta} días</p>
+            <span className="text-[10px] text-gray-500">A {ventasPorDia} unidades por día</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* SECCIÓN VISUAL: GRÁFICO COMPARATIVO Y RECOMENDACIÓN ESTRATÉGICA */}
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    {/* Gráfico Comparativo Acumulado */}
+    <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl">
+      <div className="flex justify-between items-center">
+        <div>
+          <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Evolución Acumulada</span>
+          <h4 className="text-base font-bold text-white">Precio Base vs. Precio Simulado</h4>
+        </div>
+        <div className="flex items-center gap-3 text-[11px] font-mono">
+          <span className="flex items-center gap-1 text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-[#1E2E39]"></span> Actual</span>
+          <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B]"></span> Simulado</span>
+        </div>
+      </div>
+
+      <div className="h-64 w-full pt-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={datosGraficoSimulacion} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
+            <XAxis dataKey="periodo" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
+            <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '10px' }}
+              formatter={(val) => [formatearDineroDirecto(val), 'Ganancia Acumulada']}
+            />
+            <Bar dataKey="actual" fill="#1E2E39" radius={[4, 4, 0, 0]} name="Precio Actual" />
+            <Bar dataKey="simulado" fill="#CF9D7B" radius={[4, 4, 0, 0]} name="Precio Simulado" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+
+    {/* Panel de Resumen Ejecutivo y Recomendaciones para la Meta */}
+    <div className="lg:col-span-6 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/30 p-6 md:p-7 rounded-2xl space-y-4 shadow-2xl flex flex-col justify-between">
+      <div>
+        <div className="flex items-center gap-2 text-[#CF9D7B] mb-2">
+          <span className="text-xs uppercase font-mono tracking-wider font-bold">Diagnóstico Ejecutivo // Hoja de Ruta</span>
+        </div>
+        <h4 className="text-lg font-bold text-white tracking-tight">
+          {cumpleMetaEnPeriodo 
+            ? 'Meta Financiera Totalmente Viable' 
+            : 'Ajuste de Estrategia Requerido para la Meta'}
+        </h4>
+        <p className="text-xs text-gray-300 mt-2 leading-relaxed">
+          Al pasar de <span className="text-white font-mono">{formatearDineroDirecto(precioOriginal)}</span> a <span className="text-[#CF9D7B] font-mono">{formatearDineroDirecto(nuevoPrecio)}</span>, tu margen unitario aumenta a <span className="text-emerald-400 font-mono">{formatearDineroDirecto(margenUnitarioSimulado)}</span> ({((margenUnitarioSimulado / nuevoPrecio) * 100).toFixed(1)}% de rentabilidad neta).
+        </p>
+      </div>
+
+      {/* Cuadro de recomendaciones accionables */}
+      <div className="space-y-2.5 pt-2 border-t border-[#141F28]">
+        <div className="p-3 bg-[#0D151B] border border-[#1A2834] rounded-xl text-xs space-y-1">
+          <span className="font-bold text-[#CF9D7B] font-mono">1. Tiempo de Alcance:</span>
+          <p className="text-gray-400">
+            Necesitas vender <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}. Al ritmo de {ventasPorDia} unidades/día, te tomará exactamente <span className="text-emerald-400 font-mono font-semibold">{diasParaMeta} días</span>.
+          </p>
+        </div>
+
+        <div className="p-3 bg-[#0D151B] border border-[#1A2834] rounded-xl text-xs space-y-1">
+          <span className="font-bold text-[#CF9D7B] font-mono">2. Aceleración Comercial:</span>
+          <p className="text-gray-400">
+            {cumpleMetaEnPeriodo 
+              ? `Alcanzarás tu objetivo dentro de los ${mesesProyeccion} meses proyectados, dejando un remanente positivo de ${formatearDineroDirecto(Math.max(0, gananciaTotalPeriodo - metaIngreso))}.`
+              : `Para lograr la meta dentro del periodo de ${mesesProyeccion} meses (${diasTotalesPeriodo} días), debes elevar el ritmo diario de ${ventasPorDia} a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} unidades/día.`}
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+)}
 
         {/* VISTA DEL DETECTIVE CSV */}
         {activeTab === 'auditoria' && (
