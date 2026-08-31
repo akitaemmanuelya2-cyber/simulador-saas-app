@@ -1110,10 +1110,15 @@ return (
                 </p>
               </div>
 
-              <label className={`inline-flex items-center gap-2 px-7 py-3 bg-[#CF9D7B] text-[#05080A] text-xs font-bold uppercase tracking-wider rounded-full hover:shadow-[0_0_20px_rgba(207,157,123,0.4)] transition-all cursor-pointer ${cargandoCSV ? 'opacity-50 pointer-events-none' : ''}`}>
-                {cargandoCSV ? 'Analizando registros...' : 'Seleccionar Archivo CSV'}
-                <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
-              </label>
+              <label className={`inline-flex items-center gap-2 px-7 py-3 bg-[#CF9D7B] text-[#05080A] text-xs font-bold uppercase tracking-wider rounded-full cursor-pointer hover:bg-[#b88565] transition-all duration-300 shadow-lg ${cargandoCSV ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              {cargandoCSV ? 'Analizando registros...' : 'Seleccionar Archivo'}
+              <input
+                type="file"
+                accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv, *.*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
 
               {errorCSV && (
                 <div className="flex items-center justify-center gap-2 text-rose-400 text-xs mt-2">
