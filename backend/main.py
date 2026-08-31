@@ -177,6 +177,10 @@ async def auditar_csv(
         # 2. Normalizar esquema
         df = mapear_dataframe(df_crudo)
 
+        # 🧹 LIMPIEZA FORENSE: Eliminar filas vacías o filas de 'Totales' al final del Excel
+        df = df.dropna(subset=['producto'])
+        df = df[~df['producto'].astype(str).str.lower().str.contains('total|subtotal|resumen|promedio|^nan$', regex=True)]
+
         if "producto" not in df.columns or "total" not in df.columns:
             raise HTTPException(
                 status_code=400,
