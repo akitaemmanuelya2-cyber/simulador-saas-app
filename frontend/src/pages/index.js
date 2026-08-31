@@ -1119,27 +1119,27 @@ return (
               </div>
 
 
-{/* PANEL DERECHO: MÉTRICAS, DOBLE GRÁFICO (TORTA + BARRAS) Y EXPORTACIÓN */}
+{/* PANEL DERECHO: TODAS LAS TARJETAS ORIGINALES + GRÁFICOS + DESCARGA */}
               <div className="lg:col-span-7 space-y-4">
                 
-                {/* 1. Tarjetas Superiores: Ritmo Diario y Ganancia Acumulada */}
+                {/* 1. Tarjetas Superiores de Ganancia */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4.5 rounded-2xl space-y-1 shadow-xl">
                     <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider">
-                      Ganancia Neta por Día
+                      GANANCIA POR DÍA
                     </span>
                     <div className="text-2xl font-bold text-white tracking-tight font-mono">
                       {formatearDineroDirecto(gananciaDiariaSimulada)}
                     </div>
                     <p className="text-[10px] text-gray-400 font-mono">
-                      Facturación: <span className="text-white font-semibold">{formatearDineroDirecto(ventasDiariasSimuladas)}/día</span>
+                      Facturación diaria: <span className="text-white font-semibold">{formatearDineroDirecto(ventasDiariasSimuladas)}</span>
                     </p>
                   </div>
 
-                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-4.5 rounded-2xl space-y-1 shadow-xl shadow-[#CF9D7B]/5">
+                  <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4.5 rounded-2xl space-y-1 shadow-xl">
                     <div className="flex justify-between items-center">
                       <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">
-                        Ganancia en {mesesValidos} {mesesValidos === 1 ? 'Mes' : 'Meses'}
+                        GANANCIA EN {mesesValidos} {mesesValidos === 1 ? 'MES' : 'MESES'}
                       </span>
                       <span className="text-[10px] text-gray-400 font-mono">({diasTotalesPeriodo} días)</span>
                     </div>
@@ -1148,15 +1148,60 @@ return (
                     </div>
                     <span className={`text-[10px] font-mono font-semibold ${gananciaTotalPeriodo >= gananciaBasePeriodo ? 'text-emerald-400' : 'text-rose-400'}`}>
                       {gananciaTotalPeriodo >= gananciaBasePeriodo ? '▲ +' : '▼ -'}
-                      {formatearDineroDirecto(Math.abs(gananciaTotalPeriodo - gananciaBasePeriodo))} vs base
+                      {formatearDineroDirecto(Math.abs(gananciaTotalPeriodo - gananciaBasePeriodo))} extra vs precio base
                     </span>
                   </div>
                 </div>
 
-                {/* 2. Doble Gráfico en Paralelo: Torta de Participación + Barras Acumuladas */}
+                {/* 2. Resumen Operativo */}
+                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4.5 rounded-2xl space-y-2.5 shadow-xl">
+                  <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider block font-semibold">
+                    RESUMEN OPERATIVO ({mesesValidos} {mesesValidos === 1 ? 'MES' : 'MESES'})
+                  </span>
+                  <div className="grid grid-cols-3 gap-3 text-center font-mono">
+                    <div className="p-2.5 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">UNIDADES A VENDER</span>
+                      <p className="text-sm font-bold text-white mt-1">{unidadesTotalesPeriodo.toLocaleString()} uds</p>
+                    </div>
+                    <div className="p-2.5 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">FACTURACIÓN TOTAL</span>
+                      <p className="text-sm font-bold text-white mt-1">{formatearDineroDirecto(facturacionTotalPeriodo)}</p>
+                    </div>
+                    <div className="p-2.5 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">MARGEN UNITARIO</span>
+                      <p className="text-sm font-bold text-emerald-400 mt-1">{formatearDineroDirecto(margenUnitarioPromedio)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Plan de Meta Financiera */}
+                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4.5 rounded-2xl space-y-2.5 shadow-xl">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-[#34D399] font-mono uppercase tracking-wider font-semibold">
+                      PLAN DE META FINANCIERA
+                    </span>
+                    <span className="text-[11px] font-mono text-gray-300">
+                      Objetivo: <span className="text-white font-bold">{formatearDineroDirecto(metaIngreso)}</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 font-mono">
+                    <div className="p-2.5 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">UNIDADES NECESARIAS</span>
+                      <p className="text-base font-bold text-white mt-0.5">{unidadesParaMeta.toLocaleString()} unidades</p>
+                      <span className="text-[9px] text-gray-500">Basado en {formatearDineroDirecto(margenUnitarioPromedio)} por unidad</span>
+                    </div>
+                    <div className="p-2.5 bg-[#0D151B] rounded-xl border border-[#18232B]">
+                      <span className="text-[10px] text-gray-400 uppercase block">TIEMPO REQUERIDO</span>
+                      <p className="text-base font-bold text-emerald-400 mt-0.5">{diasParaMeta} días</p>
+                      <span className="text-[9px] text-gray-500">A {rotacionTotalDia} unidades por día</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Doble Gráfico en Paralelo: Torta + Barras */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   
-                  {/* Gráfico de Torta / Dona */}
+                  {/* Torta de Concentración */}
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4 rounded-2xl space-y-2 shadow-xl flex flex-col justify-between">
                     <div className="flex justify-between items-center">
                       <span className="text-[11px] text-[#CF9D7B] font-mono uppercase font-semibold">
@@ -1165,15 +1210,15 @@ return (
                       <span className="text-[10px] text-gray-500 font-mono">Diario</span>
                     </div>
 
-                    <div className="h-44 w-full flex items-center justify-center">
+                    <div className="h-40 w-full flex items-center justify-center">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={datosTortaGanancia}
                             cx="50%"
                             cy="50%"
-                            innerRadius={38}
-                            outerRadius={62}
+                            innerRadius={32}
+                            outerRadius={56}
                             paddingAngle={4}
                             dataKey="value"
                           >
@@ -1189,7 +1234,6 @@ return (
                       </ResponsiveContainer>
                     </div>
 
-                    {/* Leyenda compacta */}
                     <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-center text-[10px] font-mono">
                       {datosTortaGanancia.slice(0, 4).map((d, i) => (
                         <div key={d.name} className="flex items-center gap-1">
@@ -1200,7 +1244,7 @@ return (
                     </div>
                   </div>
 
-                  {/* Gráfico Comparativo de Barras */}
+                  {/* Barras Comparativas */}
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-4 rounded-2xl space-y-2 shadow-xl flex flex-col justify-between">
                     <div className="flex justify-between items-center">
                       <span className="text-[11px] text-[#CF9D7B] font-mono uppercase font-semibold">
@@ -1212,7 +1256,7 @@ return (
                       </div>
                     </div>
 
-                    <div className="h-44 w-full pt-1">
+                    <div className="h-40 w-full pt-1">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={datosGraficoSimulacion} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
@@ -1235,11 +1279,11 @@ return (
 
                 </div>
 
-                {/* 3. Botón de Exportación Ejecutiva */}
+                {/* 5. Botón de Exportación */}
                 <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-3 rounded-2xl shadow-xl flex items-center justify-between">
                   <div className="flex items-center gap-2 pl-2">
                     <span className="text-xs text-gray-300 font-medium">📄 Reporte Integral de Estrategia</span>
-                    <span className="text-[10px] text-gray-500 font-mono">(Incluye Simulación + Asesoría TARS)</span>
+                    <span className="text-[10px] text-gray-500 font-mono">(Simulación + Diagnóstico TARS)</span>
                   </div>
                   <button
                     type="button"
@@ -1255,14 +1299,14 @@ return (
 
             </div>
 
-            {/* SECCIÓN INFERIOR COMPLETA (12 Cols): DIAGNÓSTICO ESTRATÉGICO EXHAUSTIVO */}
+            {/* SECCIÓN INFERIOR ÚNICA (12 Cols): DIAGNÓSTICO EJECUTIVO Y HOJA DE RUTA */}
             <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-7 rounded-2xl space-y-6 shadow-2xl">
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#141F28] pb-3.5">
                   <div className="flex items-center gap-2.5">
                     <span className="w-3 h-3 rounded-full bg-[#CF9D7B] animate-pulse"></span>
                     <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
-                      Diagnóstico Ejecutivo // Hoja de Ruta Comercial & Dictamen Forense
+                      DIAGNÓSTICO EJECUTIVO // HOJA DE RUTA COMERCIAL & DICTAMEN
                     </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-white bg-[#0D151B] px-3.5 py-1.5 rounded-xl border border-[#18232B]">
@@ -1275,20 +1319,19 @@ return (
                     {cumpleMetaEnPeriodo ? '🚀 Escenario Altamente Rentable y Viable' : '⚠️ Brecha Detectada: Requiere Ajuste de Estrategia'}
                   </h4>
                   <p className="text-xs text-gray-300 mt-2 leading-relaxed max-w-4xl">
-                    Analizando el portafolio combinado de <span className="text-white font-bold">{productosSimulacion.length} productos</span>. Tu ritmo de rentabilidad neta proyectada es de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span>, sustentado en una rotación comercial de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} unidades/día</span> ({unidadesTotalesPeriodo.toLocaleString()} unidades en el ciclo de {mesesValidos} meses).
+                    Analizando el portafolio de <span className="text-white font-bold">{productosSimulacion.length} productos</span>. Tu ritmo de ganancia neta proyectada es de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span>, con una rotación de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} unidades/día</span> ({unidadesTotalesPeriodo.toLocaleString()} unidades en {mesesValidos} meses).
                   </p>
                 </div>
               </div>
 
-              {/* Cuadrícula de 4 Pilares Analíticos Extensivos */}
+              {/* Cuadrícula de 4 Pilares Analíticos */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 
-                {/* Pilar 1 */}
                 <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
                   <div>
                     <span className="font-bold text-[#CF9D7B] font-mono block">1. Tiempo de Alcance</span>
                     <p className="text-gray-400 mt-1 leading-relaxed">
-                      Necesitas comercializar un volumen total de <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
+                      Necesitas comercializar <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
                     </p>
                   </div>
                   <div className="text-emerald-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
@@ -1296,14 +1339,13 @@ return (
                   </div>
                 </div>
 
-                {/* Pilar 2 */}
                 <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
                   <div>
                     <span className="font-bold text-[#CF9D7B] font-mono block">2. Aceleración Comercial</span>
                     <p className="text-gray-400 mt-1 leading-relaxed">
                       {cumpleMetaEnPeriodo 
-                        ? `Alcanzarás el objetivo con holgura dentro de los ${mesesValidos} meses proyectados, dejando un saldo a favor de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
-                        : `Para cumplir el objetivo en los ${mesesValidos} meses (${diasTotalesPeriodo} días), debes aumentar la rotación combinada a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día (actual: ${rotacionTotalDia} uds/día).`}
+                        ? `Cumples la meta en los ${mesesValidos} meses con un saldo a favor de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
+                        : `Para cumplir la meta en ${mesesValidos} meses (${diasTotalesPeriodo} días), debes vender ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día (actual: ${rotacionTotalDia} uds/día).`}
                     </p>
                   </div>
                   <div className="text-sky-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
@@ -1311,10 +1353,9 @@ return (
                   </div>
                 </div>
 
-                {/* Pilar 3 */}
                 <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
                   <div>
-                    <span className="font-bold text-amber-400 font-mono block">3. Producto Motor del Margen</span>
+                    <span className="font-bold text-amber-400 font-mono block">3. Producto Motor</span>
                     {(() => {
                       const mejorProducto = [...productosSimulacion].sort((a, b) => {
                         const margenA = ((a.nuevo_precio || a.precio_base) - a.costo_unitario) * (Number(a.ventas_dia) || 0);
@@ -1322,14 +1363,14 @@ return (
                         return margenB - margenA;
                       })[0];
 
-                      if (!mejorProducto) return <p className="text-gray-400 mt-1">Sin productos en simulación.</p>;
+                      if (!mejorProducto) return <p className="text-gray-400 mt-1">Sin productos.</p>;
 
                       const margenUnit = (mejorProducto.nuevo_precio || mejorProducto.precio_base) - mejorProducto.costo_unitario;
                       const aporteDiario = margenUnit * (Number(mejorProducto.ventas_dia) || 0);
 
                       return (
                         <p className="text-gray-400 mt-1 leading-relaxed">
-                          <span className="text-white font-bold">{mejorProducto.producto}</span> lidera el flujo financiero aportando <span className="text-emerald-400 font-mono font-bold">+{formatearDineroDirecto(aporteDiario)}/día</span> a la ganancia total.
+                          <span className="text-white font-bold">{mejorProducto.producto}</span> aporta <span className="text-emerald-400 font-mono font-bold">+{formatearDineroDirecto(aporteDiario)}/día</span> al margen total.
                         </p>
                       );
                     })()}
@@ -1339,14 +1380,13 @@ return (
                   </div>
                 </div>
 
-                {/* Pilar 4 */}
                 <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
                   <div>
-                    <span className="font-bold text-purple-400 font-mono block">4. Directriz Estratégica TARS</span>
+                    <span className="font-bold text-purple-400 font-mono block">4. Directriz TARS</span>
                     <p className="text-gray-400 mt-1 leading-relaxed">
                       {cumpleMetaEnPeriodo
-                        ? 'Modelo balanceado. Asegura suministro constante del producto líder y evalúa reinvertir el excedente proyectado.'
-                        : 'Ajusta precios en productos de volumen medio o implementa empaques combinados para elevar el margen promedio.'}
+                        ? 'Escenario sólido. Asegura insumos para la rotación y planifica la reinversión del excedente.'
+                        : 'Ajusta precios en productos de rotación media o arma combos para elevar el ticket promedio.'}
                     </p>
                   </div>
                   <div className="text-purple-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
@@ -1356,10 +1396,10 @@ return (
 
               </div>
 
-              {/* Barra de Progreso Integral de la Meta */}
+              {/* Barra de Progreso */}
               <div className="bg-[#0D151B] p-4 rounded-xl border border-[#18232B] space-y-2.5">
                 <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="text-gray-400">Progreso Financiero del Portafolio ({mesesValidos} meses):</span>
+                  <span className="text-gray-400">Progreso Financiero ({mesesValidos} meses):</span>
                   <span className="text-white font-bold">
                     {formatearDineroDirecto(gananciaTotalPeriodo)} de {formatearDineroDirecto(metaIngreso)}
                   </span>
