@@ -7,6 +7,11 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+try:
+    from services.schema_mapper import mapear_esquema_inteligente
+except ModuleNotFoundError:
+    from Services.schema_mapper import mapear_esquema_inteligente
+
 app = FastAPI(title="SaaS Simulator API")
 
 app.add_middleware(
@@ -35,9 +40,19 @@ async def auditar_csv(archivo: UploadFile = File(...)):
     try:
         contenido = await archivo.read()
 
-        # 1. Lectura tolerante de CSV o Excel
-        if archivo.filename.endswith(('.xlsx', '.xls')):
-            df_crudo = pd.read_excel(io.BytesIO(contenido))
+        # 1. Lectura tolerante de CSV o Excel multi-pestaña
+        if archivo.filename.endswith(('.xlsx', '.xls', '.csv.xlsx')):
+            excel_file = pd.ExcelFile(io.BytesIO(contenido))
+            hojas = excel_file.sheet_names
+            
+            # Buscar prioritariamente una hoja con ventas o tomar la primera
+            hoja_objetivo = hojas[0]
+            for h in hojas:
+                if any(k in h.lower() for k in ['venta', 'sales', 'facturacion', 'transaccion', 'detalle', 'ejemplo']):
+                    hoja_objetivo = h
+                    break
+                    
+            df_crudo = pd.read_excel(excel_file, sheet_name=hoja_objetivo)
         else:
             try:
                 df_crudo = pd.read_csv(io.BytesIO(contenido))
@@ -47,24 +62,23 @@ async def auditar_csv(archivo: UploadFile = File(...)):
                 except Exception:
                     df_crudo = pd.read_csv(io.BytesIO(contenido), sep=None, engine='python', encoding="utf-8-sig")
 
-        # 🚀 2. Mapeador inteligente y limpieza automática
+        # 2. Mapeador inteligente
         df, mapeo_detectado, advertencias = mapear_esquema_inteligente(df_crudo)
 
         if "producto" not in df.columns or "total" not in df.columns:
             raise HTTPException(
                 status_code=400,
-                detail=f"No se pudieron identificar las columnas indispensables ('producto' y 'total'). Detectadas: {list(df_crudo.columns)}"
+                detail=f"No se pudieron identificar las columnas requeridas ('producto' y 'total'). Detectadas: {list(df_crudo.columns)}"
             )
 
         df['ventas_calculadas'] = df['total']
 
-        # 3. Cálculos analíticos cuantitativos
+        # 3. Métricas cuantitativas
         total_registros = len(df)
         ventas_historicas = float(df['ventas_calculadas'].sum())
         unidades_historicas = float(df['cantidad'].sum()) if 'cantidad' in df.columns else total_registros
         precio_promedio = float(df['precio'].mean()) if 'precio' in df.columns else (ventas_historicas / unidades_historicas if unidades_historicas > 0 else 0)
 
-        # Agrupación por producto
         resumen = df.groupby('producto')['ventas_calculadas'].sum().reset_index()
         resumen = resumen.sort_values(by='ventas_calculadas', ascending=False)
 
@@ -91,6 +105,8 @@ async def auditar_csv(archivo: UploadFile = File(...)):
             }
         }
 
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al auditar archivo: {str(e)}")
 
