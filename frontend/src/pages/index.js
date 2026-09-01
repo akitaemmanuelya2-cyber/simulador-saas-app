@@ -763,15 +763,6 @@ export default function Home() {
           </button>
           
           <button 
-            onClick={() => setActiveTab('simulador')}
-            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
-              activeTab === 'simulador' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Simulador
-          </button>
-          
-          <button 
             onClick={() => setActiveTab('asistido')}
             className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
               activeTab === 'asistido' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
@@ -787,6 +778,15 @@ export default function Home() {
             }`}
           >
             Detective CSV
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('simulador')}
+            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
+              activeTab === 'simulador' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Simulador
           </button>
 
           {/* SELECTOR DE DIVISA */}
@@ -834,6 +834,7 @@ export default function Home() {
             {/* MÓDULOS DE ACCESO */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
+              {/* MOD-01: MODO ASISTIDO */}
               <div 
                 onClick={() => setActiveTab('asistido')}
                 className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.12)]"
@@ -857,6 +858,7 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* MOD-02: DETECTIVE CSV */}
               <div 
                 onClick={() => setActiveTab('auditoria')}
                 className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.12)]"
@@ -880,6 +882,7 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* MOD-03: SIMULADOR SAAS */}
               <div 
                 onClick={() => setActiveTab('simulador')}
                 className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.12)]"
