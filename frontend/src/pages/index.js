@@ -1315,10 +1315,75 @@ export default function Home() {
                     <span>↓</span>
                   </button>
                 </div>
+
+              </div> {/* Cierre lg:col-span-7 */}
+            </div>   {/* Cierre grid-cols-12 superior */}
+
+            {/* ============================================================ */}
+            {/* 📊 PANEL INFERIOR AMPLIO: DIAGNÓSTICO EJECUTIVO (12 COLS)     */}
+            {/* ============================================================ */}
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#16222C] pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B] animate-pulse" />
+                    <h3 className="text-lg font-bold text-white tracking-tight">
+                      Diagnóstico Estratégico y Proyección Ejecutiva
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Evaluación de viabilidad sobre el portafolio activo frente a la meta proyectada a {mesesValidos} {mesesValidos === 1 ? 'mes' : 'meses'}.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 bg-[#0D151B] px-3.5 py-1.5 rounded-xl border border-[#1E2D3D]">
+                  <span className="text-[11px] font-mono text-gray-400">Estado de Meta:</span>
+                  <span className={`text-xs font-mono font-bold ${cumpleMetaEnPeriodo ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    {cumpleMetaEnPeriodo ? '✓ Meta Alcanzable en Plazo' : '⚠ Requiere Ajuste Operativo'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono">
+                <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B] space-y-1.5">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-sans">
+                    Incremento Neto Proyectado
+                  </span>
+                  <div className="text-xl font-bold text-emerald-400">
+                    +{formatearDineroDirecto(deltaPeriodo)}
+                  </div>
+                  <p className="text-[10px] text-gray-500 leading-relaxed font-sans">
+                    Ganancia adicional generada exclusivamente por la optimización de precios en {diasTotalesPeriodo} días.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B] space-y-1.5">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-sans">
+                    Ritmo de Rotación Requerido
+                  </span>
+                  <div className="text-xl font-bold text-[#38BDF8]">
+                    {diasParaMeta > 0 ? `${Math.ceil(unidadesParaMeta / (diasTotalesPeriodo || 1))} uds/día` : '0 uds/día'}
+                  </div>
+                  <p className="text-[10px] text-gray-500 leading-relaxed font-sans">
+                    Velocidad mínima de colocación diaria para cumplir el 100% del objetivo financiero.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-[#0D151B] rounded-xl border border-[#18232B] space-y-1.5">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-sans">
+                    Eficiencia de Margen Promedio
+                  </span>
+                  <div className="text-xl font-bold text-[#CF9D7B]">
+                    {ventasDiariasSimuladas > 0 ? `${((gananciaDiariaSimulada / ventasDiariasSimuladas) * 100).toFixed(1)}%` : '0.0%'}
+                  </div>
+                  <p className="text-[10px] text-gray-500 leading-relaxed font-sans">
+                    Margen operativo neto consolidado sobre la facturación bruta total del portafolio.
+                  </p>
               </div>
             </div>
           </div>
-        )}
+
+        </div>
+      )}
 
         {/* VISTA DEL DETECTIVE CSV */}
         {activeTab === 'auditoria' && (
