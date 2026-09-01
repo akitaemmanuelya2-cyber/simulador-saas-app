@@ -283,12 +283,19 @@ export default function Home() {
   const margenUnitarioPromedio = rotacionTotalDia > 0 ? (gananciaDiariaSimulada / rotacionTotalDia) : 0;
   const margenUnitarioSimulado = margenUnitarioPromedio;
 
-  // 3. Plan de Meta Financiera
+// 3. Plan de Meta Financiera
   const cumpleMetaEnPeriodo = gananciaTotalPeriodo >= metaIngreso;
   const diasParaMeta = gananciaDiariaSimulada > 0 ? Math.ceil(metaIngreso / gananciaDiariaSimulada) : 0;
   const unidadesParaMeta = margenUnitarioPromedio > 0 ? Math.ceil(metaIngreso / margenUnitarioPromedio) : 0;
   const ventasPorDiaConsolidadas = rotacionTotalDia;
 
+  // Variables para la Hoja de Ruta Comercial 👇
+  const porcentajeMeta = metaIngreso > 0 ? Math.min(100, Math.round((gananciaTotalPeriodo / metaIngreso) * 100)) : 0;
+  const rotacionRequerida = Math.ceil(unidadesParaMeta / (diasTotalesPeriodo || 1));
+  const productoLider = productosSimulacion.reduce((max, p) => {
+    const ganancia = ((p.nuevo_precio || p.precio_base) - p.costo_unitario) * (Number(p.ventas_dia) || 0);
+    return ganancia > (max?.ganancia || 0) ? { nombre: p.producto, ganancia } : max;
+  }, null);
   // 4. Datos del Gráfico Comparativo Mes a Mes
   const datosGraficoSimulacion = Array.from({ length: Math.min(12, mesesValidos) }, (_, i) => {
     const mes = i + 1;
