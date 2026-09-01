@@ -48,10 +48,10 @@ export default function Home() {
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
   // Estado para guardar el catálogo enviado por el backend
-const [catalogoSimulacion, setCatalogoSimulacion] = useState([]);
-const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-// Lista de productos que el usuario está simulando activamente
-const [productosSimulacion, setProductosSimulacion] = useState([]);
+  const [catalogoSimulacion, setCatalogoSimulacion] = useState([]);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  // Lista de productos que el usuario está simulando activamente
+  const [productosSimulacion, setProductosSimulacion] = useState([]);
 
   // Tasas de cambio (Base: 1 USD)
   const TASAS_CAMBIO = {
@@ -61,7 +61,7 @@ const [productosSimulacion, setProductosSimulacion] = useState([]);
   };
 
   // 1. Formateador con conversión (Para Detective CSV y datos en USD)
-// Formateador visual profesional según la moneda seleccionada en el Navbar
+  // Formateador visual profesional según la moneda seleccionada en el Navbar
   const formatearDinero = (valor) => {
     const num = Number(valor) || 0;
 
@@ -152,7 +152,7 @@ const [productosSimulacion, setProductosSimulacion] = useState([]);
   // Factor de conversión monetaria reactiva
   const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
 
-// 1. Datos para la Matriz BCG (Rentabilidad vs Rotación)
+  // 1. Datos para la Matriz BCG (Rentabilidad vs Rotación)
   const datosMatrizBCG = React.useMemo(() => {
     const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
     
@@ -162,7 +162,7 @@ const [productosSimulacion, setProductosSimulacion] = useState([]);
         return datosAuditoria.ranking_productos.map((p, idx) => ({
           nombre: p.nombre || p.producto,
           unidades: Number(p.unidades || p.cantidad) || 0,
-          ventas: Number(p.ventas || p.total) || 0, // 👈 Valor directo sin * factorConversion
+          ventas: Number(p.ventas || p.total) || 0,
           color: PALETA_COLORES[idx % PALETA_COLORES.length]
         }));
       }
@@ -182,7 +182,7 @@ const [productosSimulacion, setProductosSimulacion] = useState([]);
 
       if (claveProd && fila[claveProd]) {
         const nombre = String(fila[claveProd]).trim();
-        const venta = parseFloat(fila[claveVenta] || '0') || 0; // 👈 Valor directo
+        const venta = parseFloat(fila[claveVenta] || '0') || 0;
         if (!mapaProductos[nombre]) {
           mapaProductos[nombre] = { nombre, unidades: 0, ventas: 0 };
         }
@@ -206,13 +206,13 @@ const [productosSimulacion, setProductosSimulacion] = useState([]);
     return [...datosMatrizBCG].sort((a, b) => b.ventas - a.ventas).slice(0, 10);
   }, [datosMatrizBCG]);
 
-const top10Clientes = React.useMemo(() => {
+  const top10Clientes = React.useMemo(() => {
     const filas = datosAuditoria?.filas || datosAuditoria?.raw_data || datosAuditoria?.data || [];
     if (!Array.isArray(filas) || filas.length === 0) {
       if (datosAuditoria?.ranking_clientes && Array.isArray(datosAuditoria.ranking_clientes)) {
         return datosAuditoria.ranking_clientes.map((c, idx) => ({
           nombre: c.nombre || c.cliente || c['Customer Name'] || 'Cliente',
-          ventas: parseFloat(c.ventas || c.total || c.Sales) || 0, // 👈 Sin * factorConversion
+          ventas: parseFloat(c.ventas || c.total || c.Sales) || 0,
           color: PALETA_COLORES[idx % PALETA_COLORES.length]
         })).slice(0, 10);
       }
@@ -254,7 +254,7 @@ const top10Clientes = React.useMemo(() => {
 
   const tieneClientes = top10Clientes.length > 0;
 
-// --- CÁLCULOS DINÁMICOS CONSOLIDADOS DEL SIMULADOR MULTI-PRODUCTO ---
+  // --- CÁLCULOS DINÁMICOS CONSOLIDADOS DEL SIMULADOR MULTI-PRODUCTO ---
   const mesesValidos = Math.max(1, Number(mesesProyeccion) || 1);
   const diasTotalesPeriodo = mesesValidos * 30;
 
@@ -281,13 +281,13 @@ const top10Clientes = React.useMemo(() => {
   const unidadesTotalesPeriodo = rotacionTotalDia * diasTotalesPeriodo;
 
   const margenUnitarioPromedio = rotacionTotalDia > 0 ? (gananciaDiariaSimulada / rotacionTotalDia) : 0;
-  const margenUnitarioSimulado = margenUnitarioPromedio; // Compatibilidad visual
+  const margenUnitarioSimulado = margenUnitarioPromedio;
 
   // 3. Plan de Meta Financiera
   const cumpleMetaEnPeriodo = gananciaTotalPeriodo >= metaIngreso;
   const diasParaMeta = gananciaDiariaSimulada > 0 ? Math.ceil(metaIngreso / gananciaDiariaSimulada) : 0;
   const unidadesParaMeta = margenUnitarioPromedio > 0 ? Math.ceil(metaIngreso / margenUnitarioPromedio) : 0;
-  const ventasPorDiaConsolidadas = rotacionTotalDia; // Compatibilidad visual con badges
+  const ventasPorDiaConsolidadas = rotacionTotalDia;
 
   // 4. Datos del Gráfico Comparativo Mes a Mes
   const datosGraficoSimulacion = Array.from({ length: Math.min(12, mesesValidos) }, (_, i) => {
@@ -445,7 +445,7 @@ const top10Clientes = React.useMemo(() => {
     }
   };
 
-const transferirAlSimulador = () => {
+  const transferirAlSimulador = () => {
     if (!datosAuditoria) return;
 
     if (datosAuditoria.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0) {
@@ -667,7 +667,7 @@ const transferirAlSimulador = () => {
     }
   };
 
-return (
+  return (
     <div className="relative min-h-screen bg-[#05080A] text-[#ECEFF1] font-sans px-6 py-10 md:px-16 flex flex-col justify-between selection:bg-[#CF9D7B] select-none">
       
       {/* 🌊 Olas del Mar de Datos FIJAS en toda la pantalla */}
@@ -910,11 +910,10 @@ return (
 
         {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
         {activeTab === 'simulador' && (
-          <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto">
-            
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-{/* PANEL DE CONFIGURACIÓN Y ESTRATEGIA */}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+              {/* PANEL IZQUIERDO: CONFIGURACIÓN OPERATIVA */}
               <div className="lg:col-span-5 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-2xl">
                 <div>
                   <span className="text-[11px] text-[#CF9D7B] font-mono uppercase tracking-wider font-semibold">Configuración del Escenario</span>
@@ -922,7 +921,7 @@ return (
                 </div>
 
                 <div className="space-y-4">
-                  {/* 1. HORIZONTE Y METAS (EN LA PARTE SUPERIOR) */}
+                  {/* 1. HORIZONTE Y METAS */}
                   <div className="bg-[#0D151B] p-4 rounded-xl border border-[#1E2D3D] space-y-3">
                     <div>
                       <span className="text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
@@ -1004,7 +1003,7 @@ return (
                     </div>
                   )}
 
-                  {/* 3. LISTA DE PRODUCTOS CON INPUTS DE UNIDADES Y SLIDERS */}
+                  {/* 3. LISTA DE PRODUCTOS CON SLIDERS E INPUTS */}
                   <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
                     {productosSimulacion.map((prod, idx) => {
                       const aumentoMoneda = Math.round(prod.precio_base * (prod.porcentaje / 100));
@@ -1032,7 +1031,6 @@ return (
                             )}
                           </div>
 
-                          {/* Control Deslizante de Ajuste */}
                           <div className="bg-[#081015] p-2.5 rounded-lg border border-[#16222C] space-y-1.5">
                             <div className="flex justify-between items-center text-xs">
                               <span className="text-gray-400 text-[11px]">Ajuste de Precio:</span>
@@ -1068,7 +1066,6 @@ return (
                             />
                           </div>
 
-                          {/* Input para modificar unidades por día y resumen unitario */}
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div className="bg-[#081015] p-2 rounded-lg border border-[#18232B]">
                               <label className="text-[10px] text-gray-400 block mb-1">
@@ -1105,21 +1102,20 @@ return (
                     })}
                   </div>
 
-                  {/* 4. TOTALIZADOR Y CONSOLIDADO AL FINAL */}
+                  {/* 4. TOTALIZADOR DE ROTACIÓN */}
                   <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between">
                     <div>
                       <span className="text-[10px] font-mono text-gray-400 uppercase block">Rotación Total Portafolio:</span>
                       <span className="text-xs text-gray-300 font-medium">Suma diaria de unidades</span>
                     </div>
                     <div className="text-right font-mono font-bold text-sm text-[#38BDF8] bg-[#081015] px-3 py-1.5 rounded-lg border border-[#18232B]">
-                      {productosSimulacion.reduce((acc, p) => acc + (Number(p.ventas_dia) || 0), 0)} uds / día
+                      {rotacionTotalDia} uds / día
                     </div>
                   </div>
                 </div>
               </div>
 
-
-{/* PANEL DERECHO: TODAS LAS TARJETAS ORIGINALES + GRÁFICOS + DESCARGA */}
+              {/* PANEL DERECHO: CONSOLIDADO COMPLETO + DOBLE GRÁFICO + EXPORTACIÓN */}
               <div className="lg:col-span-7 space-y-4">
                 
                 {/* 1. Tarjetas Superiores de Ganancia */}
@@ -1198,7 +1194,7 @@ return (
                   </div>
                 </div>
 
-                {/* 4. Doble Gráfico en Paralelo: Torta + Barras */}
+                {/* 4. Doble Gráfico (Torta + Barras) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   
                   {/* Torta de Concentración */}
@@ -1251,29 +1247,54 @@ return (
                         Base vs. Simulado
                       </span>
                       <div className="flex items-center gap-2 text-[10px] font-mono">
-                        <span className="flex items-center gap-1 text-gray-400"><span className="w-2 h-2 rounded-full bg-[#1E2E39]"></span> Base</span>
-                        <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2 h-2 rounded-full bg-[#CF9D7B]"></span> Sim.</span>
+                        <span className="flex items-center gap-1 text-gray-400">
+                          <span className="w-2 h-2 rounded-full bg-[#1E293B] border border-gray-600"></span> Base
+                        </span>
+                        <span className="flex items-center gap-1 text-[#CF9D7B] font-bold">
+                          <span className="w-2 h-2 rounded-full bg-[#CF9D7B]"></span> Simulado
+                        </span>
                       </div>
                     </div>
 
                     <div className="h-40 w-full pt-1">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={datosGraficoSimulacion} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                        <BarChart data={datosGraficoSimulacion} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                          <XAxis dataKey="periodo" stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-                          <YAxis stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '8px', fontSize: '11px' }}
-                            formatter={(val) => [formatearDineroDirecto(val), 'Acumulado']}
+                          <XAxis 
+                            dataKey="periodo" 
+                            stroke="#9CA3AF" 
+                            fontSize={10} 
+                            tickLine={false} 
+                            axisLine={{ stroke: '#1E2E39' }} 
                           />
-                          <Bar dataKey="actual" fill="#1E2E39" radius={[3, 3, 0, 0]} />
-                          <Bar dataKey="simulado" fill="#CF9D7B" radius={[3, 3, 0, 0]} />
+                          <YAxis 
+                            stroke="#9CA3AF" 
+                            fontSize={10} 
+                            tickLine={false} 
+                            axisLine={{ stroke: '#1E2E39' }} 
+                            tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} 
+                          />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: '#0D161C', 
+                              border: '1px solid rgba(207, 157, 123, 0.6)', 
+                              borderRadius: '8px', 
+                              fontSize: '11px', 
+                              color: '#FFFFFF' 
+                            }}
+                            formatter={(val, name) => [
+                              formatearDineroDirecto(val), 
+                              name === 'actual' ? 'Precio Base' : 'Precio Simulado'
+                            ]}
+                          />
+                          <Bar dataKey="actual" fill="#1E293B" stroke="#334155" radius={[3, 3, 0, 0]} name="actual" />
+                          <Bar dataKey="simulado" fill="#CF9D7B" radius={[3, 3, 0, 0]} name="simulado" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
 
                     <div className="text-center font-mono text-[10px] text-gray-400">
-                      Impacto: <span className="text-emerald-400 font-bold">+{formatearDineroDirecto(deltaPeriodo)}</span> en {mesesValidos}m
+                      Impacto estimado: <span className="text-emerald-400 font-bold">+{formatearDineroDirecto(deltaPeriodo)}</span> en {mesesValidos} meses
                     </div>
                   </div>
 
@@ -1294,284 +1315,8 @@ return (
                     <span>↓</span>
                   </button>
                 </div>
-
               </div>
-
             </div>
-
-            {/* SECCIÓN INFERIOR ÚNICA (12 Cols): DIAGNÓSTICO EJECUTIVO Y HOJA DE RUTA */}
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-7 rounded-2xl space-y-6 shadow-2xl">
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#141F28] pb-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[#CF9D7B] animate-pulse"></span>
-                    <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
-                      DIAGNÓSTICO EJECUTIVO // HOJA DE RUTA COMERCIAL & DICTAMEN
-                    </span>
-                  </div>
-                  <span className="text-xs font-mono font-bold text-white bg-[#0D151B] px-3.5 py-1.5 rounded-xl border border-[#18232B]">
-                    Meta Objetivo: {formatearDineroDirecto(metaIngreso)}
-                  </span>
-                </div>
-
-                <div className="mt-4">
-                  <h4 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                    {cumpleMetaEnPeriodo ? '🚀 Escenario Altamente Rentable y Viable' : '⚠️ Brecha Detectada: Requiere Ajuste de Estrategia'}
-                  </h4>
-                  <p className="text-xs text-gray-300 mt-2 leading-relaxed max-w-4xl">
-                    Analizando el portafolio de <span className="text-white font-bold">{productosSimulacion.length} productos</span>. Tu ritmo de ganancia neta proyectada es de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span>, con una rotación de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} unidades/día</span> ({unidadesTotalesPeriodo.toLocaleString()} unidades en {mesesValidos} meses).
-                  </p>
-                </div>
-              </div>
-
-              {/* Cuadrícula de 4 Pilares Analíticos */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                
-                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
-                  <div>
-                    <span className="font-bold text-[#CF9D7B] font-mono block">1. Tiempo de Alcance</span>
-                    <p className="text-gray-400 mt-1 leading-relaxed">
-                      Necesitas comercializar <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
-                    </p>
-                  </div>
-                  <div className="text-emerald-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
-                    ⏱️ Consecución: <span className="text-sm">{diasParaMeta} días</span>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
-                  <div>
-                    <span className="font-bold text-[#CF9D7B] font-mono block">2. Aceleración Comercial</span>
-                    <p className="text-gray-400 mt-1 leading-relaxed">
-                      {cumpleMetaEnPeriodo 
-                        ? `Cumples la meta en los ${mesesValidos} meses con un saldo a favor de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
-                        : `Para cumplir la meta en ${mesesValidos} meses (${diasTotalesPeriodo} días), debes vender ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día (actual: ${rotacionTotalDia} uds/día).`}
-                    </p>
-                  </div>
-                  <div className="text-sky-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
-                    📈 Ritmo exigido: {Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} uds/día
-                  </div>
-                </div>
-
-                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
-                  <div>
-                    <span className="font-bold text-amber-400 font-mono block">3. Producto Motor</span>
-                    {(() => {
-                      const mejorProducto = [...productosSimulacion].sort((a, b) => {
-                        const margenA = ((a.nuevo_precio || a.precio_base) - a.costo_unitario) * (Number(a.ventas_dia) || 0);
-                        const margenB = ((b.nuevo_precio || b.precio_base) - b.costo_unitario) * (Number(b.ventas_dia) || 0);
-                        return margenB - margenA;
-                      })[0];
-
-                      if (!mejorProducto) return <p className="text-gray-400 mt-1">Sin productos.</p>;
-
-                      const margenUnit = (mejorProducto.nuevo_precio || mejorProducto.precio_base) - mejorProducto.costo_unitario;
-                      const aporteDiario = margenUnit * (Number(mejorProducto.ventas_dia) || 0);
-
-                      return (
-                        <p className="text-gray-400 mt-1 leading-relaxed">
-                          <span className="text-white font-bold">{mejorProducto.producto}</span> aporta <span className="text-emerald-400 font-mono font-bold">+{formatearDineroDirecto(aporteDiario)}/día</span> al margen total.
-                        </p>
-                      );
-                    })()}
-                  </div>
-                  <div className="text-amber-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
-                    ⭐ Pilar de Rentabilidad
-                  </div>
-                </div>
-
-                <div className="p-4 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-2 text-xs flex flex-col justify-between">
-                  <div>
-                    <span className="font-bold text-purple-400 font-mono block">4. Directriz TARS</span>
-                    <p className="text-gray-400 mt-1 leading-relaxed">
-                      {cumpleMetaEnPeriodo
-                        ? 'Escenario sólido. Asegura insumos para la rotación y planifica la reinversión del excedente.'
-                        : 'Ajusta precios en productos de rotación media o arma combos para elevar el ticket promedio.'}
-                    </p>
-                  </div>
-                  <div className="text-purple-400 font-mono font-bold text-xs pt-2 border-t border-[#141F28]">
-                    🎯 Acción Táctica
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Barra de Progreso */}
-              <div className="bg-[#0D151B] p-4 rounded-xl border border-[#18232B] space-y-2.5">
-                <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="text-gray-400">Progreso Financiero ({mesesValidos} meses):</span>
-                  <span className="text-white font-bold">
-                    {formatearDineroDirecto(gananciaTotalPeriodo)} de {formatearDineroDirecto(metaIngreso)}
-                  </span>
-                  <span className={cumpleMetaEnPeriodo ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
-                    {((gananciaTotalPeriodo / (metaIngreso || 1)) * 100).toFixed(0)}% Alcanzado
-                  </span>
-                </div>
-
-                <div className="w-full bg-[#081015] h-3 rounded-full overflow-hidden border border-[#18232B]">
-                  <div
-                    className={`h-full transition-all duration-500 rounded-full ${
-                      cumpleMetaEnPeriodo 
-                        ? 'bg-gradient-to-r from-emerald-500 to-[#38BDF8]' 
-                        : 'bg-gradient-to-r from-amber-500 to-[#CF9D7B]'
-                    }`}
-                    style={{ width: `${Math.min(100, Math.max(5, (gananciaTotalPeriodo / (metaIngreso || 1)) * 100))}%` }}
-                  />
-                </div>
-              </div>
-
-            </div>
-
-{/* SECCIÓN INFERIOR: GRÁFICO (4 Cols) + DIAGNÓSTICO EJECUTIVO AMPLIO (8 Cols) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              
-              {/* Gráfico Comparativo Acumulado */}
-              <div className="lg:col-span-4 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-xs text-[#CF9D7B] font-mono uppercase font-semibold">Evolución Acumulada</span>
-                      <h4 className="text-base font-bold text-white mt-0.5">Precio Base vs. Simulado</h4>
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] font-mono">
-                      <span className="flex items-center gap-1 text-gray-400"><span className="w-2 h-2 rounded-full bg-[#1E2E39]"></span> Base</span>
-                      <span className="flex items-center gap-1 text-[#CF9D7B]"><span className="w-2 h-2 rounded-full bg-[#CF9D7B]"></span> Simulado</span>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-gray-400 mt-1">Comparativa de ganancia neta mes a mes.</p>
-                </div>
-
-                <div className="h-72 w-full pt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={datosGraficoSimulacion} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#16222A" vertical={false} />
-                      <XAxis dataKey="periodo" stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} />
-                      <YAxis stroke="#6B7280" fontSize={10} tickLine={false} axisLine={{ stroke: '#1E2E39' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#0D161C', border: '1px solid rgba(207, 157, 123, 0.6)', borderRadius: '10px' }}
-                        formatter={(val) => [formatearDineroDirecto(val), 'Ganancia Acumulada']}
-                      />
-                      <Bar dataKey="actual" fill="#1E2E39" radius={[4, 4, 0, 0]} name="Precio Actual" />
-                      <Bar dataKey="simulado" fill="#CF9D7B" radius={[4, 4, 0, 0]} name="Precio Simulado" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="pt-2 border-t border-[#141F28] text-center font-mono text-[11px] text-gray-400">
-                  Impacto total: <span className="text-emerald-400 font-bold">+{formatearDineroDirecto(deltaPeriodo)}</span> extra en {mesesValidos} meses
-                </div>
-              </div>
-
-              {/* Panel de Diagnóstico Ejecutivo y Hoja de Ruta Amplia */}
-              <div className="lg:col-span-8 bg-[#081015]/90 backdrop-blur-xl border border-[#CF9D7B]/40 p-6 md:p-7 rounded-2xl space-y-5 shadow-2xl flex flex-col justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#141F28] pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B] animate-pulse"></span>
-                      <span className="text-xs uppercase font-mono tracking-wider font-bold text-[#CF9D7B]">
-                        Diagnóstico Ejecutivo // Hoja de Ruta Comercial
-                      </span>
-                    </div>
-                    <span className="text-xs font-mono font-bold text-white bg-[#0D151B] px-3 py-1 rounded-lg border border-[#18232B]">
-                      Meta: {formatearDineroDirecto(metaIngreso)}
-                    </span>
-                  </div>
-
-                  <div className="mt-3.5">
-                    <h4 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                      {cumpleMetaEnPeriodo ? '🚀 Escenario Altamente Rentable y Viable' : '⚠️ Brecha Detectada: Requiere Ajuste de Estrategia'}
-                    </h4>
-                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed">
-                      Con los <span className="text-white font-bold">{productosSimulacion.length} productos</span> en análisis, tu portafolio genera un flujo de <span className="text-emerald-400 font-mono font-bold">{formatearDineroDirecto(gananciaDiariaSimulada)} diarios</span> respaldado por una venta constante de <span className="text-sky-400 font-mono font-bold">{rotacionTotalDia} unidades/día</span>.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Grid de 4 Pilares Tácticos de Decisión */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {/* Pilar 1: Tiempo de Alcance */}
-                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
-                    <span className="font-bold text-[#CF9D7B] font-mono block">1. Tiempo de Alcance:</span>
-                    <p className="text-gray-400 leading-relaxed">
-                      Necesitas vender <span className="text-white font-mono font-semibold">{unidadesParaMeta.toLocaleString()} unidades totales</span> para acumular tu meta de {formatearDineroDirecto(metaIngreso)}.
-                    </p>
-                    <div className="text-emerald-400 font-mono font-bold text-xs pt-0.5">
-                      ⏱️ Meta lograda en: <span className="text-sm">{diasParaMeta} días</span>
-                    </div>
-                  </div>
-
-                  {/* Pilar 2: Aceleración Comercial */}
-                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
-                    <span className="font-bold text-[#CF9D7B] font-mono block">2. Aceleración Comercial:</span>
-                    <p className="text-gray-400 leading-relaxed">
-                      {cumpleMetaEnPeriodo 
-                        ? `Alcanzas el objetivo dentro de los ${mesesValidos} meses proyectados, acumulando un excedente neto de ${formatearDineroDirecto(gananciaTotalPeriodo - metaIngreso)}.`
-                        : `Para lograr la meta dentro del plazo de ${mesesValidos} meses (${diasTotalesPeriodo} días), debes elevar la rotación diaria de ${rotacionTotalDia} a ${Math.ceil(unidadesParaMeta / diasTotalesPeriodo)} unidades/día.`}
-                    </p>
-                  </div>
-
-                  {/* Pilar 3: Producto Motor */}
-                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
-                    <span className="font-bold text-sky-400 font-mono block">3. Producto Motor del Margen:</span>
-                    {(() => {
-                      const mejorProducto = [...productosSimulacion].sort((a, b) => {
-                        const margenA = ((a.nuevo_precio || a.precio_base) - a.costo_unitario) * (Number(a.ventas_dia) || 0);
-                        const margenB = ((b.nuevo_precio || b.precio_base) - b.costo_unitario) * (Number(b.ventas_dia) || 0);
-                        return margenB - margenA;
-                      })[0];
-
-                      if (!mejorProducto) return <p className="text-gray-400">Sin productos seleccionados.</p>;
-
-                      const margenUnit = (mejorProducto.nuevo_precio || mejorProducto.precio_base) - mejorProducto.costo_unitario;
-                      const aporteDiario = margenUnit * (Number(mejorProducto.ventas_dia) || 0);
-
-                      return (
-                        <p className="text-gray-400 leading-relaxed">
-                          <span className="text-white font-bold">{mejorProducto.producto}</span> lidera el aporte financiero generando <span className="text-emerald-400 font-mono font-bold">+{formatearDineroDirecto(aporteDiario)}/día</span> al margen total.
-                        </p>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Pilar 4: Recomendación Estratégica */}
-                  <div className="p-3.5 bg-[#0D151B] border border-[#1A2834] rounded-xl space-y-1.5 text-xs">
-                    <span className="font-bold text-amber-400 font-mono block">4. Recomendación Táctica:</span>
-                    <p className="text-gray-400 leading-relaxed">
-                      {cumpleMetaEnPeriodo
-                        ? 'Mantén la rotación estable y evalúa reinvertir parte del remanente en inventario de alta rotación.'
-                        : 'Ajusta ligeramente el precio de los productos de mayor volumen o implementa combos para subir el ticket promedio.'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Barra de Progreso y Balance Financiero */}
-                <div className="bg-[#0D151B] p-3.5 rounded-xl border border-[#18232B] space-y-2">
-                  <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-gray-400">Progreso hacia el Objetivo ({mesesValidos} meses):</span>
-                    <span className="text-white font-bold">
-                      {formatearDineroDirecto(gananciaTotalPeriodo)} / {formatearDineroDirecto(metaIngreso)}
-                    </span>
-                    <span className={cumpleMetaEnPeriodo ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
-                      {((gananciaTotalPeriodo / (metaIngreso || 1)) * 100).toFixed(0)}%
-                    </span>
-                  </div>
-
-                  {/* Barra visual de porcentaje */}
-                  <div className="w-full bg-[#081015] h-2.5 rounded-full overflow-hidden border border-[#18232B]">
-                    <div
-                      className={`h-full transition-all duration-500 rounded-full ${
-                        cumpleMetaEnPeriodo 
-                          ? 'bg-gradient-to-r from-emerald-500 to-[#38BDF8]' 
-                          : 'bg-gradient-to-r from-amber-500 to-[#CF9D7B]'
-                      }`}
-                      style={{ width: `${Math.min(100, Math.max(5, (gananciaTotalPeriodo / (metaIngreso || 1)) * 100))}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
           </div>
         )}
 
@@ -1593,14 +1338,14 @@ return (
               </div>
 
               <label className={`inline-flex items-center gap-2 px-7 py-3 bg-[#CF9D7B] text-[#05080A] text-xs font-bold uppercase tracking-wider rounded-full cursor-pointer hover:bg-[#b88565] transition-all duration-300 shadow-lg ${cargandoCSV ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {cargandoCSV ? 'Analizando registros...' : 'Seleccionar Archivo'}
-              <input
-                type="file"
-                accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv, *.*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </label>
+                {cargandoCSV ? 'Analizando registros...' : 'Seleccionar Archivo'}
+                <input
+                  type="file"
+                  accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv, *.*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
 
               {errorCSV && (
                 <div className="flex items-center justify-center gap-2 text-rose-400 text-xs mt-2">
@@ -1673,67 +1418,67 @@ return (
                       <div className="lg:col-span-3 h-80 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <ScatterChart margin={{ top: 25, right: 35, bottom: 20, left: 10 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#16222C" />
-                        <XAxis 
-                          type="number" 
-                          dataKey="unidades" 
-                          name="Unidades Vendidas" 
-                          stroke="#64748B" 
-                          fontSize={11} 
-                          tickLine={false}
-                          label={{ value: 'Unidades Vendidas (Rotación)', position: 'insideBottom', offset: -10, fill: '#64748B', fontSize: 11 }}
-                        />
-                        <YAxis 
-                          type="number" 
-                          dataKey="ventas" 
-                          name="Facturación" 
-                          stroke="#64748B" 
-                          fontSize={11} 
-                          tickLine={false}
-                          tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
-                          label={{ value: 'Facturación / Ganancia Neta', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }}
-                        />
-                        <Tooltip 
-                          cursor={{ strokeDasharray: '3 3', stroke: '#38BDF8', strokeOpacity: 0.3 }}
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
-                                  <p className="font-bold text-white flex items-center gap-2">
-                                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
-                                    {data.nombre}
-                                  </p>
-                                  <p className="text-gray-300">Rotación: <span className="font-mono text-[#38BDF8] font-bold">{data.unidades} uds</span></p>
-                                  <p className="text-gray-300">Facturación: <span className="font-mono text-[#34D399] font-bold">{formatearDinero(data.ventas)}</span></p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Scatter 
-                          name="Productos" 
-                          data={datosMatrizBCG}
-                          shape={(props) => {
-                            const { cx, cy, fill } = props;
-                            return (
-                              <g>
-                                {/* Anillo exterior / Aura */}
-                                <circle cx={cx} cy={cy} r={14} fill="none" stroke="#FFFFFF" strokeWidth={2.5} opacity={0.85} />
-                                {/* Esfera interior sólida */}
-                                <circle cx={cx} cy={cy} r={11} fill={fill} />
-                                {/* Brillo especular 3D */}
-                                <circle cx={cx - 3.5} cy={cy - 3.5} r={3} fill="#FFFFFF" opacity={0.65} />
-                              </g>
-                            );
-                          }}
-                        >
-                          {datosMatrizBCG.map((entry, index) => (
-                            <Cell key={`cell-scatter-${index}`} fill={entry.color} />
-                          ))}
-                        </Scatter>
-                      </ScatterChart>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#16222C" />
+                            <XAxis 
+                              type="number" 
+                              dataKey="unidades" 
+                              name="Unidades Vendidas" 
+                              stroke="#64748B" 
+                              fontSize={11} 
+                              tickLine={false} 
+                              label={{ value: 'Unidades Vendidas (Rotación)', position: 'insideBottom', offset: -10, fill: '#64748B', fontSize: 11 }}
+                            />
+                            <YAxis 
+                              type="number" 
+                              dataKey="ventas" 
+                              name="Facturación" 
+                              stroke="#64748B" 
+                              fontSize={11} 
+                              tickLine={false} 
+                              tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} 
+                              label={{ value: 'Facturación / Ganancia Neta', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }}
+                            />
+                            <Tooltip 
+                              cursor={{ strokeDasharray: '3 3', stroke: '#38BDF8', strokeOpacity: 0.3 }}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                      <p className="font-bold text-white flex items-center gap-2">
+                                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
+                                        {data.nombre}
+                                      </p>
+                                      <p className="text-gray-300">Rotación: <span className="font-mono text-[#38BDF8] font-bold">{data.unidades} uds</span></p>
+                                      <p className="text-gray-300">Facturación: <span className="font-mono text-[#34D399] font-bold">{formatearDinero(data.ventas)}</span></p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Scatter 
+                              name="Productos" 
+                              data={datosMatrizBCG}
+                              shape={(props) => {
+                                const { cx, cy, fill } = props;
+                                return (
+                                  <g>
+                                    {/* Anillo exterior / Aura */}
+                                    <circle cx={cx} cy={cy} r={14} fill="none" stroke="#FFFFFF" strokeWidth={2.5} opacity={0.85} />
+                                    {/* Esfera interior sólida */}
+                                    <circle cx={cx} cy={cy} r={11} fill={fill} />
+                                    {/* Brillo especular 3D */}
+                                    <circle cx={cx - 3.5} cy={cy - 3.5} r={3} fill="#FFFFFF" opacity={0.65} />
+                                  </g>
+                                );
+                              }}
+                            >
+                              {datosMatrizBCG.map((entry, index) => (
+                                <Cell key={`cell-scatter-${index}`} fill={entry.color} />
+                              ))}
+                            </Scatter>
+                          </ScatterChart>
                         </ResponsiveContainer>
                       </div>
 
@@ -1842,29 +1587,29 @@ return (
                           width={160} 
                         />
                         <Tooltip
-                      cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          const esUnidades = criterioAnalisis === 'unidades';
-                          return (
-                            <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
-                              <p className="font-bold text-white flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
-                                {data.nombre}
-                              </p>
-                              <p className="text-gray-300">
-                                {esUnidades ? 'Rotación: ' : 'Facturación Total: '}
-                                <span className={`font-mono font-bold ${esUnidades ? 'text-[#38BDF8]' : 'text-[#34D399]'}`}>
-                                  {esUnidades ? `${data.unidades} unidades` : formatearDinero(data.ventas)}
-                                </span>
-                              </p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
+                          cursor={{ fill: 'rgba(255, 255, 255, 0.03)' }}
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              const esUnidades = criterioAnalisis === 'unidades';
+                              return (
+                                <div className="bg-[#0E171E] border border-[#1E2D3D] p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                                  <p className="font-bold text-white flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: data.color }} />
+                                    {data.nombre}
+                                  </p>
+                                  <p className="text-gray-300">
+                                    {esUnidades ? 'Rotación: ' : 'Facturación Total: '}
+                                    <span className={`font-mono font-bold ${esUnidades ? 'text-[#38BDF8]' : 'text-[#34D399]'}`}>
+                                      {esUnidades ? `${data.unidades} unidades` : formatearDinero(data.ventas)}
+                                    </span>
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
                         <Bar 
                           dataKey={criterioAnalisis === 'unidades' ? 'unidades' : 'ventas'} 
                           radius={[0, 6, 6, 0]}
@@ -1897,7 +1642,7 @@ return (
                       </div>
                       <h4 className="text-xl font-bold text-white tracking-tight">{datosAuditoria.diagnostico.rey.nombre}</h4>
                       <p className="text-xs text-gray-400 leading-relaxed">
-                        Generó el mayor volumen de facturación con <span className="text-white font-mono font-medium">{formatearDinero(datosAuditoria.diagnostico.rey.ventas)}</span> en ventas.
+                        Generó el mayor volumen de facturación con <span className="text-white font-mono font-medium">{formatearDinero(datosAuditoria.diagnostico.rey.ventas)}</span>
                       </p>
                     </div>
 
@@ -1916,7 +1661,6 @@ return (
 
               </div>
             )}
-
           </div>
         )}
       </main>
@@ -1982,10 +1726,10 @@ return (
                     </div>
                   )}
 
-                  <div
+                  <div 
                     className={`p-3 rounded-xl max-w-[80%] ${
-                      msg.remitente === 'usuario'
-                        ? 'bg-[#CF9D7B] text-[#05080A] rounded-tr-none font-medium'
+                      msg.remitente === 'usuario' 
+                        ? 'bg-[#CF9D7B] text-[#05080A] rounded-tr-none font-medium' 
                         : 'bg-[#0E171E] text-gray-300 border border-[#1D2B36] rounded-tl-none'
                     }`}
                   >
@@ -2030,15 +1774,15 @@ return (
             <form onSubmit={handleEnviarMensajeChat} className="pt-2 border-t border-[#1A2630] flex gap-2">
               <input 
                 type="text" 
-                value={mensajeInput}
-                onChange={(e) => setMensajeInput(e.target.value)}
+                value={mensajeInput} 
+                onChange={(e) => setMensajeInput(e.target.value)} 
                 placeholder="Preguntar a Mini-TARS..." 
-                disabled={cargandoChat}
-                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono disabled:opacity-50"
+                disabled={cargandoChat} 
+                className="w-full bg-[#0E171E] border border-[#1D2B36] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#CF9D7B] font-mono disabled:opacity-50" 
               />
               <button 
                 type="submit" 
-                disabled={cargandoChat || !mensajeInput.trim()}
+                disabled={cargandoChat || !mensajeInput.trim()} 
                 className={`px-3 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold font-mono hover:opacity-90 transition-opacity flex items-center gap-1.5 ${
                   cargandoChat || !mensajeInput.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                 }`}
@@ -2062,8 +1806,6 @@ return (
                 opacity: 0 
               }}
               animate={{
-                // Coordenadas relativas continuas respecto a la base de aterrizaje (0, 0 es el botón exacto):
-                // 1. Entra arriba izq -> 2. Sobre Asistido -> 3. Detective CSV -> 4. Curva Simulador SaaS -> 5. Rizo de aproximación -> 6. Carril vertical -> 7. Descenso 1 -> 8. Descenso 2 -> 9. Aterriza en 0
                 x: [
                   '-105vw', 
                   '-70vw', 
@@ -2086,7 +1828,6 @@ return (
                   '-10vh', 
                   '0vh'
                 ],
-                // Rotaciones continuas en grados:
                 rotate: [15, 30, 50, 20, 360, 720, 0, 0, 0],
                 scale: [0.6, 1.05, 1.15, 1.1, 1.05, 1, 1, 1, 1],
                 opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1]
