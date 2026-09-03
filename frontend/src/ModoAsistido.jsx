@@ -102,10 +102,10 @@ const handleCambioFila = (id, campo, valor) => {
     );
   };
 
-  const procesarEnLugar = () => {
-    const totalVentas = filas.reduce((acc, d) => acc + d.cantidad * d.precio, 0);
-    const totalCostos = filas.reduce((acc, d) => acc + d.cantidad * d.costo, 0);
-    const totalUnidades = filas.reduce((acc, d) => acc + d.cantidad, 0);
+const procesarEnLugar = () => {
+    const totalVentas = filas.reduce((acc, d) => acc + (Number(d.unidades || d.cantidad || 0) * Number(d.precio || 0)), 0);
+    const totalCostos = filas.reduce((acc, d) => acc + (Number(d.unidades || d.cantidad || 0) * Number(d.costo || 0)), 0);
+    const totalUnidades = filas.reduce((acc, d) => acc + Number(d.unidades || d.cantidad || 0), 0);
     const precioPromedio = totalUnidades > 0 ? totalVentas / totalUnidades : 0;
     const gananciaTotal = totalVentas - totalCostos;
     const margenGlobalPct = totalVentas > 0 ? (gananciaTotal / totalVentas) * 100 : 0;
@@ -114,19 +114,23 @@ const handleCambioFila = (id, campo, valor) => {
     filas.forEach((f) => {
       if (!f.producto || !f.producto.trim()) return;
       const nom = f.producto.trim();
+      const cant = Number(f.unidades || f.cantidad || 0);
+      const pre = Number(f.precio || 0);
+      const cos = Number(f.costo || 0);
+
       if (!mapaProductos[nom]) {
-        mapaProductos[nom] = { 
-          nombre: nom, 
-          ventas: 0, 
+        mapaProductos[nom] = {
+          nombre: nom,
+          ventas: 0,
           costos: 0,
           unidades: 0,
-          costoUnitario: f.costo,
-          precioUnitario: f.precio
+          costoUnitario: cos,
+          precioUnitario: pre
         };
       }
-      mapaProductos[nom].ventas += f.cantidad * f.precio;
-      mapaProductos[nom].costos += f.cantidad * f.costo;
-      mapaProductos[nom].unidades += f.cantidad;
+      mapaProductos[nom].ventas += cant * pre;
+      mapaProductos[nom].costos += cant * cos;
+      mapaProductos[nom].unidades += cant;
     });
 
     const ranking = Object.values(mapaProductos).map((p, idx) => ({
