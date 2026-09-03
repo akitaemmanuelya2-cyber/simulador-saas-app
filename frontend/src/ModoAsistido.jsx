@@ -80,18 +80,21 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP', onActualiza
     ]);
   };
 
-  const handleEliminarFila = (id) => {
-    if (filas.length <= 1) return;
-    setFilas(filas.filter((f) => f.id !== id));
-  };
-
-  const handleCambioFila = (id, campo, valor) => {
+const handleCambioFila = (id, campo, valor) => {
     setFilas(
       filas.map((f) => {
         if (f.id === id) {
+          if (campo === 'producto') {
+            return { ...f, [campo]: valor };
+          }
+          // Si el usuario borra todo el input, dejamos el string vacío '' para que no force un 0
+          if (valor === '') {
+            return { ...f, [campo]: '' };
+          }
+          const valorNum = Number(valor);
           return {
             ...f,
-            [campo]: campo === 'producto' ? valor : Math.max(0, Number(valor) || 0)
+            [campo]: isNaN(valorNum) ? '' : Math.max(0, valorNum)
           };
         }
         return f;
@@ -231,30 +234,41 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP', onActualiza
                         className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none"
                       />
                     </td>
-                    <td className="p-2 w-24">
-                      <input 
-                        type="number" 
-                        value={fila.cantidad} 
-                        onChange={(e) => handleCambioFila(fila.id, 'cantidad', e.target.value)}
-                        className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none"
-                      />
-                    </td>
-                    <td className="p-2 w-32">
-                      <input 
-                        type="number" 
-                        value={fila.costo} 
-                        onChange={(e) => handleCambioFila(fila.id, 'costo', e.target.value)}
-                        className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none"
-                      />
-                    </td>
-                    <td className="p-2 w-32">
-                      <input 
-                        type="number" 
-                        value={fila.precio} 
-                        onChange={(e) => handleCambioFila(fila.id, 'precio', e.target.value)}
-                        className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none"
-                      />
-                    </td>
+                    {/* UNIDADES */}
+              <td className="p-2 w-24">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={fila.unidades ?? fila.cantidad ?? ''}
+                  onChange={(e) => handleCambioFila(fila.id, 'unidades', e.target.value)}
+                  className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none text-right font-mono"
+                />
+              </td>
+
+              {/* COSTO PROVEEDOR */}
+              <td className="p-2 w-32">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={fila.costo ?? ''}
+                  onChange={(e) => handleCambioFila(fila.id, 'costo', e.target.value)}
+                  className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none text-right font-mono"
+                />
+              </td>
+
+              {/* PRECIO VENTA */}
+              <td className="p-2 w-32">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={fila.precio ?? ''}
+                  onChange={(e) => handleCambioFila(fila.id, 'precio', e.target.value)}
+                  className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none text-right font-mono"
+                />
+              </td>
                     <td className="p-3 font-semibold text-[#CF9D7B]">
                       {formatoMoneda(subtotal)}
                     </td>
