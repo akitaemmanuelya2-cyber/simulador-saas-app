@@ -918,11 +918,12 @@ export default function Home() {
 
         {/* VISTA DEL MODO ASISTIDO */}
         <div className={activeTab === 'asistido' ? 'block' : 'hidden'}>
-          <ModoAsistido
-            onVolverHome={() => setActiveTab('lobby')}
-            moneda={moneda}
-            onActualizarDatosAsistido={(datos) => setDatosModoAsistido(datos)}
-          />
+          {/* AHORA: referencia estática estable */}
+<ModoAsistido
+  onVolverHome={() => setActiveTab('lobby')}
+  moneda={moneda}
+  onActualizarDatosAsistido={setDatosModoAsistido}
+/>
         </div>
 
         {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}

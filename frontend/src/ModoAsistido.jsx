@@ -65,12 +65,13 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP', onActualiza
   const [tabGraficaAsistido, setTabGraficaAsistido] = useState('barras'); // 'barras' | 'matriz' | 'estructura'
   const [criterioBarras, setCriterioBarras] = useState('ventas'); // 'ventas' | 'unidades'
 
-  // Sincronizar datos con el componente padre (para Mini TARS)
+// Sincronizar datos con el padre sin generar loop de re-renders
   useEffect(() => {
     if (typeof onActualizarDatosAsistido === 'function') {
       onActualizarDatosAsistido({ filas, reporteGenerado });
     }
-  }, [filas, reporteGenerado, onActualizarDatosAsistido]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filas, reporteGenerado]);
 
   const handleAgregarFila = () => {
     setFilas([
