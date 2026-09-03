@@ -921,6 +921,28 @@ export default function Home() {
         {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
         {activeTab === 'simulador' && (
           <div className="space-y-6">
+            {/* ENCABEZADO GUÍA DEL SIMULADOR */}
+            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#CF9D7B] animate-pulse" />
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#CF9D7B] font-semibold">
+                    PASO 03 // SIMULADOR ESTRATÉGICO
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  Simulación y Proyección de Escenarios
+                </h2>
+                <p className="text-xs text-gray-400 max-w-2xl leading-relaxed">
+                  Ajusta precios, costos y ritmo de venta para proyectar tus ganancias netas antes de tomar decisiones. Evalúa si tu portafolio actual alcanza la meta financiera o si necesitas acelerar la rotación.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 self-start md:self-auto bg-[#0D151B] px-3.5 py-2 rounded-xl border border-[#1E2D3D] text-[11px] font-mono text-gray-300">
+                <span className="text-emerald-400 font-bold">⚡ Modo Interactivo:</span>
+                <span>Mueve los sliders y observa el impacto en tiempo real</span>
+              </div>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
               {/* PANEL IZQUIERDO: CONFIGURACIÓN OPERATIVA */}
