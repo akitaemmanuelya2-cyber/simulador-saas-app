@@ -219,9 +219,13 @@ const handleCambioFila = (id, campo, valor) => {
             </thead>
             <tbody className="divide-y divide-[#141F28] text-gray-200">
               {filas.map((fila, index) => {
-                const subtotal = fila.cantidad * fila.precio;
-                const costoTotal = fila.cantidad * fila.costo;
-                const margenFila = subtotal > 0 ? ((subtotal - costoTotal) / subtotal) * 100 : 0;
+  const cant = Number(fila.unidades || fila.cantidad || 0);
+  const prec = Number(fila.precio || 0);
+  const cost = Number(fila.costo || 0);
+
+  const subtotal = cant * prec;
+  const costoTotal = cant * cost;
+  const margenFila = subtotal > 0 ? ((subtotal - costoTotal) / subtotal) * 100 : 0;
 
                 return (
                   <tr key={fila.id} className="hover:bg-[#0B1319]/80 transition-colors">
@@ -269,14 +273,35 @@ const handleCambioFila = (id, campo, valor) => {
                   className="w-full bg-[#070D12] border border-[#1B2935] focus:border-[#CF9D7B] rounded-lg px-2.5 py-1.5 text-white outline-none text-right font-mono"
                 />
               </td>
-                    <td className="p-3 font-semibold text-[#CF9D7B]">
-                      {formatoMoneda(subtotal)}
-                    </td>
-                    <td className="p-3 font-mono">
-                      <span className={`px-2 py-0.5 rounded text-[11px] ${margenFila >= 30 ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40' : 'bg-amber-950/60 text-amber-400 border border-amber-800/40'}`}>
-                        {margenFila.toFixed(1)}%
+                    {/* SUBTOTAL */}
+              <td className="p-3 font-semibold text-[#CF9D7B]">
+                {formatoMoneda((Number(fila.unidades || fila.cantidad || 0)) * (Number(fila.precio || 0)))}
+              </td>
+
+              {/* MARGEN */}
+              <td className="p-3 font-mono">
+                {(() => {
+                  const p = Number(fila.precio || 0);
+                  const c = Number(fila.costo || 0);
+                  if (p <= 0) {
+                    return (
+                      <span className="px-2 py-0.5 rounded text-[11px] bg-amber-950/40 text-amber-400 border border-amber-800/40">
+                        0.0%
                       </span>
-                    </td>
+                    );
+                  }
+                  const margen = ((p - c) / p) * 100;
+                  return (
+                    <span className={`px-2 py-0.5 rounded text-[11px] ${
+                      margen >= 30 
+                        ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40' 
+                        : 'bg-rose-950/60 text-rose-400 border border-rose-800/40'
+                    }`}>
+                      {margen.toFixed(1)}%
+                    </span>
+                  );
+                })()}
+              </td>
                     <td className="p-3 text-center">
                       <button 
                         onClick={() => handleEliminarFila(fila.id)}
