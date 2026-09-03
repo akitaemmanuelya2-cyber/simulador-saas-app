@@ -47,6 +47,7 @@ export default function Home() {
   const [mensajeInput, setMensajeInput] = useState('');
   const [historialMensajes, setHistorialMensajes] = useState([]);
   const [moneda, setMoneda] = useState('COP');
+  const [datosModoAsistido, setDatosModoAsistido] = useState(null);
   // Estado para guardar el catálogo enviado por el backend
   const [catalogoSimulacion, setCatalogoSimulacion] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -496,7 +497,12 @@ export default function Home() {
     try {
       const contextoNegocio = {
         monedaActiva: moneda,
+        moduloActivo: activeTab,
         datosAuditoria: datosAuditoria || null,
+        modoAsistido: datosModoAsistido ? {
+          productos: datosModoAsistido.filas?.filter(f => f.producto && f.producto.trim() !== '') || [],
+          resumenDiagnostico: datosModoAsistido.reporteGenerado || null
+        } : null,
         simulador: {
           precioOriginal,
           nuevoPrecio,
@@ -911,12 +917,13 @@ export default function Home() {
         )}
 
         {/* VISTA DEL MODO ASISTIDO */}
-        {activeTab === 'asistido' && (
-          <ModoAsistido 
+        <div className={activeTab === 'asistido' ? 'block' : 'hidden'}>
+          <ModoAsistido
             onVolverHome={() => setActiveTab('lobby')}
             moneda={moneda}
+            onActualizarDatosAsistido={(datos) => setDatosModoAsistido(datos)}
           />
-        )}
+        </div>
 
         {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
         {activeTab === 'simulador' && (

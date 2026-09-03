@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Plus, 
@@ -29,7 +29,7 @@ import {
   Legend
 } from 'recharts';
 
-export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
+export default function ModoAsistido({ onVolverHome, moneda = 'COP', onActualizarDatosAsistido }) {
   const formatoMoneda = (val) => {
     const num = Number(val || 0);
     if (moneda === 'COP') {
@@ -64,6 +64,13 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
   const [reporteGenerado, setReporteGenerado] = useState(null);
   const [tabGraficaAsistido, setTabGraficaAsistido] = useState('barras'); // 'barras' | 'matriz' | 'estructura'
   const [criterioBarras, setCriterioBarras] = useState('ventas'); // 'ventas' | 'unidades'
+
+  // Sincronizar datos con el componente padre (para Mini TARS)
+  useEffect(() => {
+    if (typeof onActualizarDatosAsistido === 'function') {
+      onActualizarDatosAsistido({ filas, reporteGenerado });
+    }
+  }, [filas, reporteGenerado, onActualizarDatosAsistido]);
 
   const handleAgregarFila = () => {
     setFilas([
