@@ -951,8 +951,12 @@ export default function Home() {
                           type="number"
                           min="1"
                           max="12"
+                          placeholder="1"
                           value={mesesProyeccion}
-                          onChange={(e) => setMesesProyeccion(Math.max(1, Number(e.target.value) || 1))}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setMesesProyeccion(val === '' ? '' : Math.max(1, Number(val)));
+                          }}
                           className="w-full bg-[#081015] border border-[#18232B] rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#CF9D7B]"
                         />
                       </div>
@@ -964,8 +968,12 @@ export default function Home() {
                         <input
                           type="text"
                           inputMode="numeric"
-                          value={metaIngreso}
-                          onChange={(e) => setMetaIngreso(Number(e.target.value.replace(/\D/g, '')) || 0)}
+                          placeholder="0"
+                          value={metaIngreso === 0 || metaIngreso === '' ? '' : metaIngreso}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            setMetaIngreso(val === '' ? '' : Number(val));
+                          }}
                           className="w-full bg-[#081015] border border-[#CF9D7B]/40 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#CF9D7B]"
                         />
                       </div>
@@ -1083,14 +1091,15 @@ export default function Home() {
                               </label>
                               <input
                                 type="number"
-                                min="1"
+                                min="0"
                                 step="1"
-                                value={prod.ventas_dia}
+                                placeholder="0"
+                                value={prod.ventas_dia === 0 || prod.ventas_dia === '' ? '' : prod.ventas_dia}
                                 onChange={(e) => {
-                                  const val = Math.max(1, Math.round(Number(e.target.value) || 1));
+                                  const val = e.target.value;
                                   setProductosSimulacion(prev => prev.map((item, i) => {
                                     if (i !== idx) return item;
-                                    return { ...item, ventas_dia: val };
+                                    return { ...item, ventas_dia: val === '' ? '' : Number(val) };
                                   }));
                                 }}
                                 className="w-full bg-[#0D151B] border border-[#1E2D3D] rounded px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:border-[#CF9D7B]"
