@@ -54,10 +54,11 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
     '#E879F9'  // Orquídea Neón
   ];
 
+  // Estado inicial limpio para ingreso de datos
   const [filas, setFilas] = useState([
-    { id: 1, producto: 'Arroz', cantidad: 10, costo: 1800, precio: 3000 },
-    { id: 2, producto: 'Arepas', cantidad: 10, costo: 1200, precio: 2000 },
-    { id: 3, producto: 'Pan tajado', cantidad: 5, costo: 900, precio: 1500 }
+    { id: 1, producto: '', unidades: '', costo: '', precio: '' },
+    { id: 2, producto: '', unidades: '', costo: '', precio: '' },
+    { id: 3, producto: '', unidades: '', costo: '', precio: '' }
   ]);
 
   const [reporteGenerado, setReporteGenerado] = useState(null);
@@ -67,7 +68,7 @@ export default function ModoAsistido({ onVolverHome, moneda = 'COP' }) {
   const handleAgregarFila = () => {
     setFilas([
       ...filas,
-      { id: Date.now(), producto: `Producto ${String.fromCharCode(65 + filas.length)}`, cantidad: 1, costo: 0, precio: 0 }
+      { id: Date.now(), producto: `Producto ${String.fromCharCode(65 + filas.length)}`, unidades: '', costo: '', precio: '' }
     ]);
   };
 
