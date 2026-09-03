@@ -141,13 +141,13 @@ export default function Home() {
     '#94A3B8'  // Acero Refinado
   ];
 
-  // Estados del Simulador Temporal y Metas
-  const [precioOriginal, setPrecioOriginal] = useState(10000);
-  const [nuevoPrecio, setNuevoPrecio] = useState(15000);
-  const [costoUnitario, setCostoUnitario] = useState(5000);
-  const [ventasPorDia, setVentasPorDia] = useState(20);
-  const [mesesProyeccion, setMesesProyeccion] = useState(2);
-  const [metaIngreso, setMetaIngreso] = useState(5000000);
+// Estados del Simulador Temporal y Metas (Inicializados en blanco/cero)
+  const [precioOriginal, setPrecioOriginal] = useState(0);
+  const [nuevoPrecio, setNuevoPrecio] = useState(0);
+  const [costoUnitario, setCostoUnitario] = useState(0);
+  const [ventasPorDia, setVentasPorDia] = useState(0);
+  const [mesesProyeccion, setMesesProyeccion] = useState(1);
+  const [metaIngreso, setMetaIngreso] = useState(0);
 
   // Factor de conversión monetaria reactiva
   const factorConversion = (typeof moneda !== 'undefined' && moneda === 'COP') ? 3300 : 1;
@@ -818,16 +818,16 @@ export default function Home() {
             <div className="text-center space-y-4 max-w-3xl mx-auto">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#081015]/80 backdrop-blur-md border border-[#1B2A36] text-[#CF9D7B] text-[11px] font-mono tracking-wider uppercase shadow-inner">
                 <Zap className="w-3.5 h-3.5" />
-                Motor de Inteligencia Cuantitativa
+                Tu copiloto financiero y estratégico
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight leading-tight">
-                Decisiones basadas en <br />
+                Claridad total sobre los <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#CF9D7B] via-[#E8C5AF] to-[#CF9D7B] drop-shadow-[0_0_25px_rgba(207,157,123,0.3)]">
-                  datos cuantitativos reales.
+                  números de tu negocio.
                 </span>
               </h1>
               <p className="text-gray-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
-                Auditoría algorítmica de transacciones, análisis de concentración de catálogo y modelado paramétrico de elasticidad de precios.
+                Descubre qué productos te dejan dinero real, cuáles te están costando de más y proyecta tus ganancias antes de mover un solo precio.
               </p>
             </div>
 
@@ -842,19 +842,19 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
                     <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                      MOD-01
+                      PASO 01
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-tight pt-1">Modo Asistido</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Completa manualmente tus datos o descarga la plantilla CSV para auditar tu catálogo sin depender de archivos previos.
+                    Escribe tus productos a mano o usa nuestra plantilla simple para analizar tu catálogo paso a paso, sin enredos.
                   </p>
                 </div>
                 <div className="flex gap-2 pt-6">
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Paso a paso</span>
                   <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Plantilla</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Tabla</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Lienzo</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Sin archivos</span>
                 </div>
               </div>
 
@@ -866,19 +866,19 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
                     <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                      MOD-02
+                      PASO 02
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-tight pt-1">Detective CSV</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Auditoría automatizada de transacciones históricas. Identifica productos estrella, concentración de ingresos y anomalías con Pandas.
+                    Sube tu historial de ventas en Excel o CSV y deja que el sistema identifique al instante tus productos estrella y los que van a pérdida.
                   </p>
                 </div>
                 <div className="flex gap-2 pt-6">
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Pandas</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Top 5</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">FastAPI</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Automático</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Diagnóstico</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Excel / CSV</span>
                 </div>
               </div>
 
@@ -890,19 +890,19 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
                     <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                      MOD-03
+                      PASO 03
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
-                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Simulador SaaS</h3>
+                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Simulador de Escenarios</h3>
                   <p className="text-gray-400 text-xs leading-relaxed">
-                    Simulación paramétrica de elasticidad de precios, estructura de costos y distribución óptima de presupuesto publicitario.
+                    Experimenta con cambios de precio y metas de venta para ver exactamente cuánta ganancia de bolsillo obtendrías cada mes.
                   </p>
                 </div>
                 <div className="flex gap-2 pt-6">
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Costos</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Margen</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">CAC</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Proyecciones</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Ganancia Neta</span>
+                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Estrategia</span>
                 </div>
               </div>
 
