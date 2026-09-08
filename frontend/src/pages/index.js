@@ -941,23 +941,10 @@ export default function Home() {
           moneda={moneda}
           datosAuditoria={datosAuditoria}
           datosModoAsistido={datosModoAsistido}
-          onConsultarMiniTars={(datos) => {
-            const consulta = `Hola Mini-TARS, ayúdame a revisar si vale la pena meterle publicidad a este producto:
-- Producto: ${datos.producto || 'Producto seleccionado'}
-- Precio de venta: $${Number(datos.precio || 0).toLocaleString('es-CO')}
-- Costo del producto: $${Number(datos.costo || 0).toLocaleString('es-CO')} (Margen de ganancia: ${Number(datos.margenPct || 0).toFixed(1)}%)
-- Presupuesto para anuncios: $${Number(datos.presupuesto || 0).toLocaleString('es-CO')}
-- Retorno mínimo exigido (ROAS): ${Number(datos.roasMinimo || 0).toFixed(2)}x
-- Lo máximo que puedo pagar por cliente conseguido (CPA): $${Number(datos.cpaMaximo || 0).toLocaleString('es-CO')}
-- Ganancia proyectada si sale bien: $${Number(datos.gananciaEstimada || 0).toLocaleString('es-CO')}
-
-Dime en cristiano: ¿es una jugada inteligente o voy a terminar perdiendo plata? Dame tu veredicto y un par de recomendaciones prácticas.`;
-
-            if (typeof setIsChatOpen === 'function') {
-              setIsChatOpen(true);
-            }
-            if (typeof handleSendMessage === 'function') {
-              handleSendMessage(consulta);
+          onConsultarMiniTars={(consulta) => {
+            // Ponemos el texto en el input del chat de Mini-TARS
+            if (typeof setMensajeInput === 'function') {
+              setMensajeInput(consulta);
             }
           }}
         />

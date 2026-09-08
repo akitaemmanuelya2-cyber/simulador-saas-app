@@ -13,34 +13,39 @@ export default function SimuladorPublicidad({
   const productosDisponibles = useMemo(() => {
     const lista = [];
 
-    // Busca en todas las posibles formas en que el Detective CSV guarda los datos
-    const itemsCSV = datosAuditoria?.rankingProductos 
-      || datosAuditoria?.productos 
-      || datosAuditoria?.datosGraficaRentabilidad 
-      || datosAuditoria?.topRentables 
-      || [];
+    // Busca en todas las posibles estructuras donde el Detective CSV guarda los productos
+    const itemsCSV = 
+      datosAuditoria?.rankingProductos ||
+      datosAuditoria?.productos ||
+      datosAuditoria?.topRentables ||
+      datosAuditoria?.datosGraficaRentabilidad ||
+      datosAuditoria?.resumenProductos ||
+      datosAuditoria?.tabla ||
+      datosAuditoria?.data ||
+      (Array.isArray(datosAuditoria) ? datosAuditoria : []);
 
     if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
       itemsCSV.forEach((p, idx) => {
-        const nombre = p.nombre || p.producto || p.Producto || `Producto ${idx + 1}`;
-        const unidades = Number(p.unidades || p.cantidad || p.Cantidad || 1);
-        const ventas = Number(p.ventas || p.subtotalVenta || p.Ingresos || 0);
-        const costos = Number(p.costos || p.subtotalCosto || p.Costos || 0);
+        // Soporta nombres de columnas comunes en CSV o reportes
+        const nombre = p.nombre || p.producto || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
+        const unidades = Number(p.unidades || p.cantidad || p.Cantidad || p.ventas_cantidad || 1);
+        const ventas = Number(p.ventas || p.subtotalVenta || p.Ingresos || p.ingresos || p.Total || 0);
+        const costos = Number(p.costos || p.subtotalCosto || p.Costos || p.costosTotales || 0);
 
-        const precio = Number(p.precioUnitario || p.precioPromedio || (unidades > 0 && ventas > 0 ? ventas / unidades : 0));
-        const costo = Number(p.costoUnitario || (unidades > 0 && costos > 0 ? costos / unidades : 0));
+        const precio = Number(p.precioUnitario || p.precioPromedio || p.precio || (unidades > 0 && ventas > 0 ? ventas / unidades : 0));
+        const costo = Number(p.costoUnitario || p.costo || (unidades > 0 && costos > 0 ? costos / unidades : 0));
 
         lista.push({
           id: `csv-${idx}-${nombre}`,
           nombre,
-          precio,
-          costo,
+          precio: Math.round(precio),
+          costo: Math.round(costo),
           origen: 'Detective CSV'
         });
       });
     }
 
-    // Si no hay CSV, busca si cargó algo en Modo Asistido
+    // Si viene de Modo Asistido
     if (datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
       datosModoAsistido.filas
         .filter(f => f.producto && f.producto.trim() !== '')
@@ -55,7 +60,7 @@ export default function SimuladorPublicidad({
         });
     }
 
-    // Si aún no ha subido nada, le damos una opción base para que explore
+    // Si no hay productos aún, dar la opción manual limpia
     if (lista.length === 0) {
       return [
         { id: 'custom-1', nombre: 'Ingresar Producto Manualmente', precio: 0, costo: 0, origen: 'Manual' }
