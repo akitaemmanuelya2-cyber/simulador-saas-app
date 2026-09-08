@@ -3,6 +3,7 @@ import ModoAsistido from '../ModoAsistido';
 import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import SimuladorPublicidad from '../SimuladorPublicidad';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, 
@@ -794,6 +795,14 @@ export default function Home() {
           >
             Simulador
           </button>
+          <button
+            onClick={() => setActiveTab('pauta')}
+            className={`px-4 py-1.5 rounded-full text-xs tracking-wide transition-all duration-200 ${
+              activeTab === 'pauta' ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Pauta Ads
+          </button>
 
           {/* SELECTOR DE DIVISA */}
           <div className="flex items-center gap-1 bg-[#0D151B]/80 border border-[#1E293B] p-1 rounded-full ml-2">
@@ -925,7 +934,41 @@ export default function Home() {
   onActualizarDatosAsistido={setDatosModoAsistido}
 />
         </div>
+        {/* VISTA DEL SIMULADOR DE PUBLICIDAD Y PAUTA ADS */}
+      <div className={activeTab === 'pauta' ? 'block' : 'hidden'}>
+        <SimuladorPublicidad
+          onVolverHome={() => setActiveTab('lobby')}
+          moneda={moneda}
+          datosAuditoria={datosAuditoria}
+          datosModoAsistido={datosModoAsistido}
+          onConsultarMiniTars={(contexto) => {
+            if (typeof setContextoAdicional === 'function') {
+              setContextoAdicional(contexto);
+            }
+            if (typeof setIsChatOpen === 'function') {
+              setIsChatOpen(true);
+            }
+          }}
+        />
+      </div>
 
+        {/* VISTA DEL SIMULADOR DE PUBLICIDAD Y PAUTA ADS */}
+      <div className={activeTab === 'pauta' ? 'block' : 'hidden'}>
+        <SimuladorPublicidad
+          onVolverHome={() => setActiveTab('lobby')}
+          moneda={moneda}
+          datosAuditoria={datosAuditoria}
+          datosModoAsistido={datosModoAsistido}
+          onConsultarMiniTars={(contexto) => {
+            if (typeof setContextoAdicional === 'function') {
+              setContextoAdicional(contexto);
+            }
+            if (typeof setIsChatOpen === 'function') {
+              setIsChatOpen(true);
+            }
+          }}
+        />
+      </div>
         {/* VISTA DEL SIMULADOR PRO / TEMPORAL, METAS, GRÁFICOS Y DIAGNÓSTICO */}
         {activeTab === 'simulador' && (
           <div className="space-y-6">
