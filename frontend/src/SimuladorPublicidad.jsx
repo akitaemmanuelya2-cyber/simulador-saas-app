@@ -153,12 +153,13 @@ export default function SimuladorPublicidad({
     const gananciaNetaEmpate = ingresoEmpate - (ventasEmpate * costo) - pauta;
     const roasEmpate = pauta > 0 ? ingresoEmpate / pauta : 0;
 
-    // Escenario 3: QUEMA-BOLSILLO (campaña fallida por debajo del punto de equilibrio)
-    // Se calcula logrando un 40% menos de las ventas mínimas para empatar
-    const ventasDestructivo = Math.max(0, Math.floor(ventasEmpate * 0.6));
+    // Escenario 3: QUEMA-BOLSILLO (El anuncio se vuelve ineficiente y supera el CPA límite)
+    // El CPA se encarece un 40% por encima del CPA máximo permitido
+    const cpaDestructivo = margenUnitarioDinero > 0 ? (cpaMaximoPermitido * 1.4) : (cpaBase * 1.5);
+    const ventasDestructivo = (pauta > 0 && cpaDestructivo > 0) ? Math.floor(pauta / cpaDestructivo) : 0;
     const ingresoDestructivo = ventasDestructivo * precio;
     const gananciaNetaDestructivo = ingresoDestructivo - (ventasDestructivo * costo) - pauta;
-    const roasDestructivo = pauta > 0 ? ingresoDestructivo / pauta : 0;
+    const roasDestructivo = pauta > 0 ? (ingresoDestructivo / pauta) : 0;
 
     return {
       precio,
