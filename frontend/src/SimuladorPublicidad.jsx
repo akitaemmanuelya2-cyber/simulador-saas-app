@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, AlertTriangle, Flame, Target, Sparkles } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
 export default function SimuladorPublicidad({
