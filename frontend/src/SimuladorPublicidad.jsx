@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, AlertTriangle, Flame, Target, Sparkles } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
 export default function SimuladorPublicidad({
   onVolverHome,
@@ -123,19 +124,23 @@ export default function SimuladorPublicidad({
   const calculos = useMemo(() => {
     const precio = Number(precioManual || 0);
     const costo = Number(costoManual || 0);
-    const pauta = Number(presupuestoPauta || 0);
-    const cpaBase = Math.max(1, Number(costoAdquisicionEstimado || 1));
+    const pauta = Math.max(0, Number(presupuestoPauta) || 0);
+    // Solo toma un CPA si el usuario realmente escribió un número mayor a 0
+    const cpaIngresado = Number(costoAdquisicionEstimado);
+    const cpaValido = !isNaN(cpaIngresado) && cpaIngresado > 0;
+    const cpaBase = cpaValido ? cpaIngresado : 0;
 
     const margenUnitarioDinero = Math.max(0, precio - costo);
     const margenUnitarioPct = precio > 0 ? (margenUnitarioDinero / precio) * 100 : 0;
     const roasEquilibrio = margenUnitarioPct > 0 ? (100 / margenUnitarioPct) : 0;
     const cpaMaximoPermitido = margenUnitarioDinero;
 
-    // Escenario 1: RENTABLE (campaña que cumple el objetivo planeado)
-    const ventasRentable = pauta > 0 ? Math.floor(pauta / cpaBase) : 0;
+    // Escenario 1: RENTABLE (Solo calcula ventas si el usuario ingresó un CPA)
+    const ventasRentable = (pauta > 0 && cpaBase > 0) ? Math.floor(pauta / cpaBase) : 0;
     const ingresoRentable = ventasRentable * precio;
-    const gananciaNetaRentable = ingresoRentable - (ventasRentable * costo) - pauta;
-    const roasRentable = pauta > 0 ? ingresoRentable / pauta : 0;
+    const gananciaNetaRentable = (pauta > 0 && cpaBase > 0)
+      ? ingresoRentable - (ventasRentable * costo) - pauta
+      : 0;
 
     // Escenario 2: EMPATE (sales tablas, ni ganas ni pierdes)
     const ventasEmpate = margenUnitarioDinero > 0 && pauta > 0 
@@ -165,11 +170,23 @@ export default function SimuladorPublicidad({
     };
   }, [precioManual, costoManual, presupuestoPauta, costoAdquisicionEstimado]);
 
-  // Datos para la gráfica
+  // Datos para la gráfica (permitiendo valores reales y negativos)
   const datosGrafico = [
-    { nombre: 'Rentable', 'Ganancia Neta': Math.max(0, calculos.rentable.gananciaNeta), fill: '#10B981' },
-    { nombre: 'Empate', 'Ganancia Neta': Math.max(0, calculos.empate.gananciaNeta), fill: '#F59E0B' },
-    { nombre: 'Quema-Bolsillo', 'Ganancia Neta': Math.max(0, calculos.destructivo.gananciaNeta), fill: '#EF4444' }
+    { 
+      nombre: 'Rentable', 
+      'Ganancia Neta': calculos.gananciaNetaRentable, 
+      fill: '#10B981' 
+    },
+    { 
+      nombre: 'Empate', 
+      'Ganancia Neta': calculos.gananciaNetaEmpate, 
+      fill: '#F59E0B' 
+    },
+    { 
+      nombre: 'Quema-Bolsillo', 
+      'Ganancia Neta': calculos.gananciaNetaDestructivo, 
+      fill: '#EF4444' 
+    }
   ];
 
   return (
@@ -387,12 +404,18 @@ export default function SimuladorPublicidad({
         <div className="h-52 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={datosGrafico}>
-              <XAxis dataKey="nombre" stroke="#4B5563" fontSize={11}/>
-              <YAxis stroke="#4B5563" fontSize={11} tickFormatter={(v) => `$${v / 1000}k`}/>
-              <Tooltip
-                contentStyle={{ backgroundColor: '#070D12', borderColor: '#1B2935', borderRadius: '8px', fontSize: '11px' }}
-                formatter={(v) => [formatoMoneda(v), 'Ganancia']}
-              />
+          <XAxis dataKey="nombre" stroke="#4B5563" fontSize={11}/>
+          <YAxis 
+            domain={['auto', 'auto']} 
+            stroke="#4B5563" 
+            fontSize={11} 
+            tickFormatter={(v) => `$${Math.round(v / 1000)}k`} 
+          />
+          <ReferenceLine y={0} stroke="#4B5563" strokeDasharray="3 3" />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#070D12', borderColor: '#1B2935', borderRadius: '8px', fontSize: '11px' }}
+            formatter={(v) => [formatoMoneda(v), 'Ganancia / Pérdida']}
+          />
               <Bar dataKey="Ganancia Neta" radius={[4, 4, 0, 0]}>
                 {datosGrafico.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill}/>
