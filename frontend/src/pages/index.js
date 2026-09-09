@@ -942,15 +942,11 @@ export default function Home() {
           datosAuditoria={datosAuditoria}
           datosModoAsistido={datosModoAsistido}
           onConsultarMiniTars={(consulta) => {
-            // 1. Abrir la ventana del chat (intenta las variables usuales de tu estado)
-            if (typeof setChatAbierto === 'function') setChatAbierto(true);
-            if (typeof setMostrarChat === 'function') setMostrarChat(true);
-            if (typeof setIsChatOpen === 'function') setIsChatOpen(true);
+            // 1. Abrir la ventana de Mini-TARS usando su variable nativa
+            setAbrirChatIA(true);
 
-            // 2. Colocar la pregunta en el input
-            if (typeof setMensajeInput === 'function') {
-              setMensajeInput(consulta);
-            }
+            // 2. Colocar la consulta en el cajón de texto del chat
+            setMensajeInput(consulta);
           }}
         />
       </div>

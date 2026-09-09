@@ -9,33 +9,34 @@ export default function SimuladorPublicidad({
   datosModoAsistido = null,
   onConsultarMiniTars
 }) {
-  // 1. Extracción segura de productos sin riesgo de caída
+  // 1. Extracción segura y compatible con el backend Python
   const productosDisponibles = useMemo(() => {
     const lista = [];
 
     try {
-      // 1. Si datosAuditoria tiene una lista directa de productos
-      const posiblesListas = [
-        datosAuditoria?.rankingProductos,
-        datosAuditoria?.productos,
-        datosAuditoria?.topRentables,
-        datosAuditoria?.datosGraficaRentabilidad,
-        datosAuditoria?.resumenProductos,
-        Array.isArray(datosAuditoria) ? datosAuditoria : null
-      ];
+      // 1. Lista de posibles nombres que entrega el motor Python
+      const itemsCSV = 
+        datosAuditoria?.ranking_productos ||
+        datosAuditoria?.rankingProductos ||
+        datosAuditoria?.productos ||
+        datosAuditoria?.productos_estrella ||
+        datosAuditoria?.top_rentables ||
+        datosAuditoria?.topRentables ||
+        datosAuditoria?.datos_grafica ||
+        datosAuditoria?.datosGraficaRentabilidad ||
+        (Array.isArray(datosAuditoria) ? datosAuditoria : []);
 
-      const listaValida = posiblesListas.find(l => Array.isArray(l) && l.length > 0);
-
-      if (listaValida) {
-        listaValida.forEach((p, idx) => {
+      if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
+        itemsCSV.forEach((p, idx) => {
           if (!p || typeof p !== 'object') return;
+          
           const nombre = p.nombre || p.producto || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
-          const unidades = Math.max(1, Number(p.unidades || p.cantidad || p.Cantidad || 1));
-          const ventas = Number(p.ventas || p.subtotalVenta || p.Ingresos || p.ingresos || p.Total || 0);
-          const costos = Number(p.costos || p.subtotalCosto || p.Costos || p.costosTotales || 0);
+          const unidades = Math.max(1, Number(p.unidades || p.cantidad || p.Cantidad || p.ventas_cantidad || 1));
+          const ventas = Number(p.ventas || p.subtotalVenta || p.subtotal_venta || p.Ingresos || p.ingresos || p.Total || 0);
+          const costos = Number(p.costos || p.subtotalCosto || p.subtotal_costo || p.Costos || p.costos_totales || 0);
 
-          const precio = Number(p.precioUnitario || p.precioPromedio || p.precio || (ventas > 0 ? ventas / unidades : 0));
-          const costo = Number(p.costoUnitario || p.costo || (costos > 0 ? costos / unidades : 0));
+          const precio = Number(p.precio_unitario || p.precioUnitario || p.precio_promedio || p.precio || (ventas > 0 ? ventas / unidades : 0));
+          const costo = Number(p.costo_unitario || p.costoUnitario || p.costo_promedio || p.costo || (costos > 0 ? costos / unidades : 0));
 
           lista.push({
             id: `csv-${idx}-${nombre}`,
@@ -47,18 +48,16 @@ export default function SimuladorPublicidad({
         });
       }
 
-      // 2. Si no encontró lista pero existe un producto estrella en datosAuditoria
-      if (lista.length === 0 && datosAuditoria && typeof datosAuditoria === 'object') {
-        const estrella = datosAuditoria.productoEstrella || datosAuditoria.productoPrincipal;
-        if (estrella) {
-          lista.push({
-            id: 'csv-estrella',
-            nombre: typeof estrella === 'string' ? estrella : (estrella.nombre || 'Producto Estrella'),
-            precio: Number(estrella.precio || datosAuditoria.precioPromedio || 0),
-            costo: Number(estrella.costo || datosAuditoria.costoPromedio || 0),
-            origen: 'Detective CSV'
-          });
-        }
+      // 2. Si no viene como lista sino con un producto estrella destacado
+      if (lista.length === 0 && datosAuditoria?.producto_estrella) {
+        const estrella = datosAuditoria.producto_estrella;
+        lista.push({
+          id: 'csv-estrella',
+          nombre: typeof estrella === 'string' ? estrella : (estrella.nombre || 'Producto Estrella'),
+          precio: Number(estrella.precio || datosAuditoria.precio_promedio || 0),
+          costo: Number(estrella.costo || datosAuditoria.costo_promedio || 0),
+          origen: 'Detective CSV'
+        });
       }
 
       // 3. Revisar Modo Asistido
@@ -76,7 +75,7 @@ export default function SimuladorPublicidad({
           });
       }
     } catch (err) {
-      console.error("Error al procesar catálogo para pauta:", err);
+      console.error("Error procesando productos:", err);
     }
 
     if (lista.length === 0) {
@@ -192,20 +191,18 @@ export default function SimuladorPublicidad({
           </p>
         </div>
 
-        {/* Botón de Mini-TARS */}
         <button
           onClick={() => {
             if (typeof onConsultarMiniTars === 'function') {
-              onConsultarMiniTars({
-                producto: productoActivo?.nombre,
-                precio: calculos.precio,
-                costo: calculos.costo,
-                margenPct: calculos.margenUnitarioPct,
-                presupuesto: Number(presupuestoPauta || 0),
-                roasMinimo: calculos.roasEquilibrio,
-                cpaMaximo: calculos.cpaMaximoPermitido,
-                gananciaEstimada: calculos.rentable.gananciaNeta
-              });
+              const mensaje = `Hola Mini-TARS, analiza si vale la pena pautar para:
+- Producto: ${productoActivo?.nombre || 'Producto manual'}
+- Precio de venta: ${formatoMoneda(calculos.precio)} | Costo unitario: ${formatoMoneda(calculos.costo)} (Margen: ${calculos.margenUnitarioPct.toFixed(1)}%)
+- Presupuesto pauta: ${formatoMoneda(presupuestoPauta || 0)}
+- ROAS mínimo exigido: ${calculos.roasEquilibrio.toFixed(2)}x
+- Límite máximo por cliente (CPA): ${formatoMoneda(calculos.cpaMaximoPermitido)}
+
+¿Es viable o es una campaña quema-bolsillo?`;
+              onConsultarMiniTars(mensaje);
             }
           }}
           className="flex items-center justify-center gap-2 bg-[#CF9D7B] hover:bg-[#b88563] text-black font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-[#CF9D7B]/10 active:scale-95"
