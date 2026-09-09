@@ -9,58 +9,76 @@ export default function SimuladorPublicidad({
   datosModoAsistido = null,
   onConsultarMiniTars
 }) {
-  // 1. Extraer los productos del CSV o del Modo Asistido
+  // 1. Extracción segura de productos sin riesgo de caída
   const productosDisponibles = useMemo(() => {
     const lista = [];
 
-    // Busca en todas las posibles estructuras donde el Detective CSV guarda los productos
-    const itemsCSV = 
-      datosAuditoria?.rankingProductos ||
-      datosAuditoria?.productos ||
-      datosAuditoria?.topRentables ||
-      datosAuditoria?.datosGraficaRentabilidad ||
-      datosAuditoria?.resumenProductos ||
-      datosAuditoria?.tabla ||
-      datosAuditoria?.data ||
-      (Array.isArray(datosAuditoria) ? datosAuditoria : []);
+    try {
+      // 1. Si datosAuditoria tiene una lista directa de productos
+      const posiblesListas = [
+        datosAuditoria?.rankingProductos,
+        datosAuditoria?.productos,
+        datosAuditoria?.topRentables,
+        datosAuditoria?.datosGraficaRentabilidad,
+        datosAuditoria?.resumenProductos,
+        Array.isArray(datosAuditoria) ? datosAuditoria : null
+      ];
 
-    if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
-      itemsCSV.forEach((p, idx) => {
-        // Soporta nombres de columnas comunes en CSV o reportes
-        const nombre = p.nombre || p.producto || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
-        const unidades = Number(p.unidades || p.cantidad || p.Cantidad || p.ventas_cantidad || 1);
-        const ventas = Number(p.ventas || p.subtotalVenta || p.Ingresos || p.ingresos || p.Total || 0);
-        const costos = Number(p.costos || p.subtotalCosto || p.Costos || p.costosTotales || 0);
+      const listaValida = posiblesListas.find(l => Array.isArray(l) && l.length > 0);
 
-        const precio = Number(p.precioUnitario || p.precioPromedio || p.precio || (unidades > 0 && ventas > 0 ? ventas / unidades : 0));
-        const costo = Number(p.costoUnitario || p.costo || (unidades > 0 && costos > 0 ? costos / unidades : 0));
+      if (listaValida) {
+        listaValida.forEach((p, idx) => {
+          if (!p || typeof p !== 'object') return;
+          const nombre = p.nombre || p.producto || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
+          const unidades = Math.max(1, Number(p.unidades || p.cantidad || p.Cantidad || 1));
+          const ventas = Number(p.ventas || p.subtotalVenta || p.Ingresos || p.ingresos || p.Total || 0);
+          const costos = Number(p.costos || p.subtotalCosto || p.Costos || p.costosTotales || 0);
 
-        lista.push({
-          id: `csv-${idx}-${nombre}`,
-          nombre,
-          precio: Math.round(precio),
-          costo: Math.round(costo),
-          origen: 'Detective CSV'
-        });
-      });
-    }
+          const precio = Number(p.precioUnitario || p.precioPromedio || p.precio || (ventas > 0 ? ventas / unidades : 0));
+          const costo = Number(p.costoUnitario || p.costo || (costos > 0 ? costos / unidades : 0));
 
-    // Si viene de Modo Asistido
-    if (datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
-      datosModoAsistido.filas
-        .filter(f => f.producto && f.producto.trim() !== '')
-        .forEach((f, idx) => {
           lista.push({
-            id: f.id || `asistido-${idx}`,
-            nombre: f.producto.trim(),
-            precio: Number(f.precio || 0),
-            costo: Number(f.costo || 0),
-            origen: 'Modo Asistido'
+            id: `csv-${idx}-${nombre}`,
+            nombre: String(nombre),
+            precio: Math.round(precio),
+            costo: Math.round(costo),
+            origen: 'Detective CSV'
           });
         });
+      }
+
+      // 2. Si no encontró lista pero existe un producto estrella en datosAuditoria
+      if (lista.length === 0 && datosAuditoria && typeof datosAuditoria === 'object') {
+        const estrella = datosAuditoria.productoEstrella || datosAuditoria.productoPrincipal;
+        if (estrella) {
+          lista.push({
+            id: 'csv-estrella',
+            nombre: typeof estrella === 'string' ? estrella : (estrella.nombre || 'Producto Estrella'),
+            precio: Number(estrella.precio || datosAuditoria.precioPromedio || 0),
+            costo: Number(estrella.costo || datosAuditoria.costoPromedio || 0),
+            origen: 'Detective CSV'
+          });
+        }
+      }
+
+      // 3. Revisar Modo Asistido
+      if (datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
+        datosModoAsistido.filas
+          .filter(f => f && f.producto && String(f.producto).trim() !== '')
+          .forEach((f, idx) => {
+            lista.push({
+              id: f.id || `asistido-${idx}`,
+              nombre: String(f.producto).trim(),
+              precio: Number(f.precio || 0),
+              costo: Number(f.costo || 0),
+              origen: 'Modo Asistido'
+            });
+          });
+      }
+    } catch (err) {
+      console.error("Error al procesar catálogo para pauta:", err);
     }
 
-    // Si no hay productos aún, dar la opción manual limpia
     if (lista.length === 0) {
       return [
         { id: 'custom-1', nombre: 'Ingresar Producto Manualmente', precio: 0, costo: 0, origen: 'Manual' }
