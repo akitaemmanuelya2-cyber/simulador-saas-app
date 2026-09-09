@@ -113,9 +113,12 @@ export default function SimuladorPublicidad({
     }
   }, [productoActivo]);
 
-  // Formato bonito de dinero ($ 500.000)
+  // Formato limpio de moneda con manejo de negativos (-$ 50.000)
   const formatoMoneda = (val) => {
     const n = Math.round(Number(val) || 0);
+    if (n < 0) {
+      return `-$ ${Math.abs(n).toLocaleString('es-CO')}`;
+    }
     return `$ ${n.toLocaleString('es-CO')}`;
   };
 
@@ -191,7 +194,7 @@ export default function SimuladorPublicidad({
     {
       nombre: 'Rentable',
       valor: Number(calculos?.rentable?.gananciaNeta) || 0,
-      fill: '#10B981'
+      fill: (calculos?.rentable?.gananciaNeta ?? 0) >= 0 ? '#10B981' : '#F43F5E'
     },
     {
       nombre: 'Empate',
