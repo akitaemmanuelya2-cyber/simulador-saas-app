@@ -421,26 +421,49 @@ export default function SimuladorPublicidad({
         <h4 className="text-xs font-semibold text-gray-300">
           Comparativa Visual: Ganancia neta real frente a los escenarios
         </h4>
-        <div style={{ width: '100%', height: 240, minHeight: 240 }}>
+        <div style={{ width: '100%', height: 260, minHeight: 260 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={datosGrafico} 
-              margin={{ top: 15, right: 30, left: 10, bottom: 5 }}
+              margin={{ top: 25, right: 30, left: 15, bottom: 10 }}
             >
-              <XAxis dataKey="nombre" stroke="#9CA3AF" fontSize={12} tickLine={false} />
+              {/* Eje X con texto blanco visible y claro */}
+              <XAxis 
+                dataKey="nombre" 
+                stroke="#9CA3AF" 
+                tick={{ fill: '#E5E7EB', fontSize: 12, fontWeight: 500 }} 
+                tickLine={false} 
+              />
+              
+              {/* Eje Y legible */}
               <YAxis 
                 type="number"
                 domain={['auto', 'auto']}
-                stroke="#9CA3AF" 
-                fontSize={11} 
+                stroke="#6B7280" 
+                tick={{ fill: '#9CA3AF', fontSize: 11 }}
                 tickFormatter={(v) => `$${Math.round(v / 1000)}k`} 
               />
+              
+              {/* Línea divisoria en 0 con etiqueta visual */}
               <ReferenceLine y={0} stroke="#4B5563" strokeDasharray="3 3" />
+              
+              {/* Tooltip con fondo oscuro elegante, sin la sombra gris molesta */}
               <Tooltip
-                contentStyle={{ backgroundColor: '#070D12', borderColor: '#1B2935', borderRadius: '8px', fontSize: '11px' }}
-                formatter={(val) => [formatoMoneda(val), 'Ganancia / Pérdida']}
+                cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                contentStyle={{ 
+                  backgroundColor: '#0F172A', 
+                  borderColor: '#334155', 
+                  borderRadius: '10px', 
+                  padding: '8px 12px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
+                }}
+                itemStyle={{ color: '#F8FAFC', fontWeight: 600, fontSize: '12px' }}
+                labelStyle={{ color: '#94A3B8', fontSize: '11px', marginBottom: '4px' }}
+                formatter={(val) => [formatoMoneda(val), 'Ganancia / Pérdida neta']}
               />
-              <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
+              
+              {/* Barras con esquinas adaptadas */}
+              <Bar dataKey="valor" radius={[6, 6, 6, 6]}>
                 {datosGrafico.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
