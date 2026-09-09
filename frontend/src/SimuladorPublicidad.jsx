@@ -134,12 +134,13 @@ export default function SimuladorPublicidad({
     const roasEquilibrio = margenUnitarioPct > 0 ? (100 / margenUnitarioPct) : 0;
     const cpaMaximoPermitido = margenUnitarioDinero;
 
-    // Escenario 1: RENTABLE (Solo calcula ventas si el usuario ingresó un CPA)
+    // Escenario 1: RENTABLE
     const ventasRentable = (pauta > 0 && cpaBase > 0) ? Math.floor(pauta / cpaBase) : 0;
     const ingresoRentable = ventasRentable * precio;
     const gananciaNetaRentable = (pauta > 0 && cpaBase > 0)
       ? ingresoRentable - (ventasRentable * costo) - pauta
       : 0;
+    const roasRentable = pauta > 0 ? (ingresoRentable / pauta) : 0;
 
     // Escenario 2: EMPATE (sales tablas, ni ganas ni pierdes)
     const ventasEmpate = margenUnitarioDinero > 0 && pauta > 0 
@@ -159,13 +160,30 @@ export default function SimuladorPublicidad({
     return {
       precio,
       costo,
+      pauta,
+      cpaBase,
       margenUnitarioDinero,
       margenUnitarioPct,
       roasEquilibrio,
       cpaMaximoPermitido,
-      rentable: { ventas: ventasRentable, ingreso: ingresoRentable, gananciaNeta: gananciaNetaRentable, roas: roasRentable },
-      empate: { ventas: ventasEmpate, ingreso: ingresoEmpate, gananciaNeta: gananciaNetaEmpate, roas: roasEquilibrio },
-      destructivo: { ventas: ventasDestructivo, ingreso: ingresoDestructivo, gananciaNeta: gananciaNetaDestructivo, roas: roasDestructivo }
+      rentable: {
+        ventas: ventasRentable,
+        ingreso: ingresoRentable,
+        gananciaNeta: gananciaNetaRentable,
+        roas: roasRentable
+      },
+      empate: {
+        ventas: ventasEmpate,
+        ingreso: ingresoEmpate,
+        gananciaNeta: 0,
+        roas: roasEquilibrio
+      },
+      destructivo: {
+        ventas: ventasDestructivo,
+        ingreso: ingresoDestructivo,
+        gananciaNeta: gananciaNetaDestructivo,
+        roas: roasDestructivo
+      }
     };
   }, [precioManual, costoManual, presupuestoPauta, costoAdquisicionEstimado]);
 
