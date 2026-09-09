@@ -187,24 +187,23 @@ export default function SimuladorPublicidad({
     };
   }, [precioManual, costoManual, presupuestoPauta, costoAdquisicionEstimado]);
 
-  // Datos para la gráfica (permitiendo valores reales y negativos)
-  const datosGrafico = [
-    { 
-      nombre: 'Rentable', 
-      'Ganancia Neta': calculos.gananciaNetaRentable, 
-      fill: '#10B981' 
+  const datosGrafico = useMemo(() => [
+    {
+      nombre: 'Rentable',
+      valor: Number(calculos?.rentable?.gananciaNeta) || 0,
+      fill: '#10B981'
     },
-    { 
-      nombre: 'Empate', 
-      'Ganancia Neta': calculos.gananciaNetaEmpate, 
-      fill: '#F59E0B' 
+    {
+      nombre: 'Empate',
+      valor: Number(calculos?.empate?.gananciaNeta) || 0,
+      fill: '#F59E0B'
     },
-    { 
-      nombre: 'Quema-Bolsillo', 
-      'Ganancia Neta': calculos.gananciaNetaDestructivo, 
-      fill: '#EF4444' 
+    {
+      nombre: 'Quema-Bolsillo',
+      valor: Number(calculos?.destructivo?.gananciaNeta) || 0,
+      fill: '#EF4444'
     }
-  ];
+  ], [calculos]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 py-4 text-white">
@@ -418,24 +417,28 @@ export default function SimuladorPublicidad({
         <h4 className="text-xs font-semibold text-gray-300">
           Comparativa Visual: Ganancia neta real frente a los escenarios
         </h4>
-        <div className="h-52 w-full">
+        <div style={{ width: '100%', height: 240, minHeight: 240 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={datosGrafico}>
-          <XAxis dataKey="nombre" stroke="#4B5563" fontSize={11}/>
-          <YAxis 
-            domain={['auto', 'auto']} 
-            stroke="#4B5563" 
-            fontSize={11} 
-            tickFormatter={(v) => `$${Math.round(v / 1000)}k`} 
-          />
-          <ReferenceLine y={0} stroke="#4B5563" strokeDasharray="3 3" />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#070D12', borderColor: '#1B2935', borderRadius: '8px', fontSize: '11px' }}
-            formatter={(v) => [formatoMoneda(v), 'Ganancia / Pérdida']}
-          />
-              <Bar dataKey="Ganancia Neta" radius={[4, 4, 0, 0]}>
+            <BarChart 
+              data={datosGrafico} 
+              margin={{ top: 15, right: 30, left: 10, bottom: 5 }}
+            >
+              <XAxis dataKey="nombre" stroke="#9CA3AF" fontSize={12} tickLine={false} />
+              <YAxis 
+                type="number"
+                domain={['auto', 'auto']}
+                stroke="#9CA3AF" 
+                fontSize={11} 
+                tickFormatter={(v) => `$${Math.round(v / 1000)}k`} 
+              />
+              <ReferenceLine y={0} stroke="#4B5563" strokeDasharray="3 3" />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#070D12', borderColor: '#1B2935', borderRadius: '8px', fontSize: '11px' }}
+                formatter={(val) => [formatoMoneda(val), 'Ganancia / Pérdida']}
+              />
+              <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
                 {datosGrafico.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill}/>
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </Bar>
             </BarChart>
