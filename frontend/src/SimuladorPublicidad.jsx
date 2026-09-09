@@ -131,21 +131,23 @@ export default function SimuladorPublicidad({
     const roasEquilibrio = margenUnitarioPct > 0 ? (100 / margenUnitarioPct) : 0;
     const cpaMaximoPermitido = margenUnitarioDinero;
 
-    // Escenario 1: RENTABLE (campaña eficiente)
-    const cpaRentable = Math.max(1, cpaBase * 0.75);
-    const ventasRentable = pauta > 0 ? Math.floor(pauta / cpaRentable) : 0;
+    // Escenario 1: RENTABLE (campaña que cumple el objetivo planeado)
+    const ventasRentable = pauta > 0 ? Math.floor(pauta / cpaBase) : 0;
     const ingresoRentable = ventasRentable * precio;
     const gananciaNetaRentable = ingresoRentable - (ventasRentable * costo) - pauta;
     const roasRentable = pauta > 0 ? ingresoRentable / pauta : 0;
 
     // Escenario 2: EMPATE (sales tablas, ni ganas ni pierdes)
-    const ventasEmpate = margenUnitarioDinero > 0 && pauta > 0 ? Math.ceil(pauta / margenUnitarioDinero) : 0;
+    const ventasEmpate = margenUnitarioDinero > 0 && pauta > 0 
+      ? Math.ceil(pauta / margenUnitarioDinero) 
+      : 0;
     const ingresoEmpate = ventasEmpate * precio;
     const gananciaNetaEmpate = ingresoEmpate - (ventasEmpate * costo) - pauta;
+    const roasEmpate = pauta > 0 ? ingresoEmpate / pauta : 0;
 
-    // Escenario 3: QUEMA-BOLSILLO (el anuncio se encarece)
-    const cpaDestructivo = cpaBase * 1.5;
-    const ventasDestructivo = pauta > 0 ? Math.floor(pauta / cpaDestructivo) : 0;
+    // Escenario 3: QUEMA-BOLSILLO (campaña fallida por debajo del punto de equilibrio)
+    // Se calcula logrando un 40% menos de las ventas mínimas para empatar
+    const ventasDestructivo = Math.max(0, Math.floor(ventasEmpate * 0.6));
     const ingresoDestructivo = ventasDestructivo * precio;
     const gananciaNetaDestructivo = ingresoDestructivo - (ventasDestructivo * costo) - pauta;
     const roasDestructivo = pauta > 0 ? ingresoDestructivo / pauta : 0;
