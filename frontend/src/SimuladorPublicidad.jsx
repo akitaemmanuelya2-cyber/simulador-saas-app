@@ -7,6 +7,7 @@ export default function SimuladorPublicidad({
   onVolverHome,
   moneda = 'COP',
   datosAuditoria = null,
+  datosMatrizBCG = null,
   datosModoAsistido = null,
   onConsultarMiniTars
 }) {
@@ -16,16 +17,14 @@ export default function SimuladorPublicidad({
 
     try {
       // 1. Lista de posibles nombres que entrega el motor Python
-      const itemsCSV = 
-        datosAuditoria?.ranking_productos ||
-        datosAuditoria?.rankingProductos ||
-        datosAuditoria?.productos ||
-        datosAuditoria?.productos_estrella ||
-        datosAuditoria?.top_rentables ||
-        datosAuditoria?.topRentables ||
-        datosAuditoria?.datos_grafica ||
-        datosAuditoria?.datosGraficaRentabilidad ||
-        (Array.isArray(datosAuditoria) ? datosAuditoria : []);
+      const itemsCSV =
+      (Array.isArray(datosMatrizBCG) && datosMatrizBCG.length > 0 ? datosMatrizBCG : null) ||
+      datosAuditoria?.matriz_bcg ||
+      datosAuditoria?.matrizBCG ||
+      datosAuditoria?.ranking_productos ||
+      datosAuditoria?.rankingProductos ||
+      datosAuditoria?.productos ||
+      (Array.isArray(datosAuditoria) ? datosAuditoria : []);
 
       if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
         itemsCSV.forEach((p, idx) => {

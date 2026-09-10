@@ -984,6 +984,7 @@ export default function Home() {
           onVolverHome={() => setActiveTab('lobby')}
           moneda={moneda}
           datosAuditoria={datosAuditoria}
+          datosMatrizBCG={datosMatrizBCG}
           datosModoAsistido={datosModoAsistido}
           onConsultarMiniTars={(consulta) => {
             // 1. Abrir la ventana de Mini-TARS usando su variable nativa
