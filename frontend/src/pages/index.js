@@ -897,34 +897,50 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* MOD-03: SIMULADOR SAAS */}
-              <div 
-                onClick={() => setActiveTab('simulador')}
-                className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col justify-between shadow-2xl hover:shadow-[0_15px_30px_rgba(207,157,123,0.12)]"
-              >
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                      PASO 03
-                    </span>
-                    <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white tracking-tight pt-1">Simulador de Escenarios</h3>
-                  <p className="text-gray-400 text-xs leading-relaxed">
-                    Experimenta con cambios de precio y metas de venta para ver exactamente cuánta ganancia de bolsillo obtendrías cada mes.
-                  </p>
+              {/* MOD-04: SIMULADOR DE INVERSIÓN // ADS */}
+            <div
+              onClick={() => setActiveTab('publicidad')}
+              className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-emerald-500/60 p-8 rounded-2xl transition-all cursor-pointer hover:shadow-lg hover:shadow-emerald-950/20"
+            >
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
+                  <span className="text-[11px] px-2.5 py-1 bg-emerald-950/40 text-emerald-400 rounded-md font-mono border border-emerald-500/20">
+                    PASO 04
+                  </span>
+                  <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
-                <div className="flex gap-2 pt-6">
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Proyecciones</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Ganancia Neta</span>
-                  <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Estrategia</span>
-                </div>
+                <h3 className="text-xl font-bold text-white tracking-tight pt-1">
+                  Simulador de Inversión & Ads
+                </h3>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  Calcula el retorno de tu pauta publicitaria, el límite para no perder dinero y proyecta escenarios reales.
+                </p>
               </div>
+              <div className="flex flex-wrap gap-2 pt-6">
+                <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-emerald-400/80 rounded border border-[#18232B]">ROAS Mínimo</span>
+                <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">CPA Límite</span>
+                <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Meta / TikTok Ads</span>
+              </div>
+            </div>
 
             </div>
           </div>
         )}
 
+        {/* FOOTER // FIRMA DEVELOPER */}
+      <footer className="w-full py-8 mt-16 border-t border-[#16222C] flex flex-col items-center justify-center space-y-2">
+        <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+          SISTEMA DE CONTROL // ENDURANCE FINANCIERO
+        </p>
+        <div className="glitch-wrapper">
+          <span 
+            className="glitch-text font-mono text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-default"
+            data-text="DESARROLLADO POR EMMANUEL TAPASCO"
+          >
+            DESARROLLADO POR EMMANUEL TAPASCO
+          </span>
+        </div>
+      </footer>
         {/* VISTA DEL MODO ASISTIDO */}
         <div className={activeTab === 'asistido' ? 'block' : 'hidden'}>
           {/* AHORA: referencia estática estable */}
