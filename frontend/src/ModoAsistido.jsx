@@ -181,29 +181,44 @@ const procesarEnLugar = () => {
   return (
     <div className="space-y-8 animate-fadeIn max-w-6xl mx-auto pb-12">
       
-      {/* Barra superior */}
-      <div className="flex justify-between items-center bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-2xl">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={onVolverHome}
-            className="p-2 bg-[#0D151B] border border-[#18232B] hover:border-[#CF9D7B]/60 text-gray-300 hover:text-white rounded-xl transition-all"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Modo Asistido // Captura de Operaciones</h2>
-            <p className="text-xs text-gray-400">Ingresa tus productos, costos unitarios y precios para auditar márgenes y concentración.</p>
-          </div>
-        </div>
+      {/* Barra superior // Estilo Cabina Táctica */}
+    <div className="relative overflow-hidden bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Línea sutil de brillo superior cian */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
 
-        <button 
-          onClick={handleAgregarFila}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0D151B] text-[#CF9D7B] border border-[#CF9D7B]/40 hover:bg-[#16222C] text-xs font-semibold rounded-xl transition-all"
+      <div className="flex items-start md:items-center gap-4">
+        {/* Botón Volver */}
+        <button
+          onClick={onVolverHome}
+          className="p-2.5 bg-[#0D151B] border border-[#18232B] hover:border-cyan-500/50 text-gray-300 hover:text-white rounded-xl transition-all shadow-sm group"
+          title="Volver al Lobby"
         >
-          <Plus className="w-3.5 h-3.5" />
-          Añadir Fila
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
         </button>
+
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-cyan-950/40 border border-cyan-500/20 text-[10px] font-mono text-cyan-400 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            PASO 01 // REGISTRO MANUAL
+          </div>
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            Estructura tus Productos y Costos
+          </h2>
+          <p className="text-xs text-gray-400 max-w-xl leading-relaxed">
+            Ingresa precios de venta y costos de compra. Calculamos tu <strong className="text-emerald-400 font-semibold">margen real por unidad</strong> antes de evaluar inventario.
+          </p>
+        </div>
       </div>
+
+      {/* Botón Añadir Fila */}
+      <button
+        onClick={handleAgregarFila}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0D151B] hover:bg-[#14202B] border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-mono font-medium rounded-xl transition-all duration-150 shadow-sm"
+      >
+        <Plus className="w-3.5 h-3.5 text-cyan-400" />
+        <span>Añadir Fila</span>
+      </button>
+    </div>
 
       {/* Grid de edición manual */}
       <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">

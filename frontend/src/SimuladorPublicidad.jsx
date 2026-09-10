@@ -212,23 +212,32 @@ export default function SimuladorPublicidad({
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 py-4 text-white">
       {/* BARRA SUPERIOR */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl">
+      <div className="relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#081015]/90 border border-[#16222C] p-6 rounded-2xl shadow-xl">
+      {/* Línea de brillo superior esmeralda */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+
+      <div className="flex items-start md:items-center gap-3">
+        <button
+          onClick={onVolverHome}
+          className="p-2 bg-[#0E171F] hover:bg-[#16222C] border border-[#1B2935] hover:border-emerald-500/40 rounded-xl text-gray-300 hover:text-white transition-all shadow-sm group"
+          title="Volver al Lobby"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+        </button>
+
         <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onVolverHome}
-              className="p-2 bg-[#0E171F] hover:bg-[#16222C] border border-[#1B2935] rounded-xl text-gray-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5"/>
-            </button>
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              Simulador de Crecimiento // ¿Conviene Pautar?
-            </h2>
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-emerald-950/40 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            PASO 04 // SIMULADOR DE INVERSIÓN & ADS
           </div>
-          <p className="text-gray-400 text-xs pl-10">
-            Descubre si meterle plata a anuncios te dejará ganancias reales o terminará quemando tu capital.
+          <h2 className="text-xl font-bold tracking-tight text-white">
+            ¿Conviene Pautar este Producto?
+          </h2>
+          <p className="text-gray-400 text-xs leading-relaxed max-w-xl">
+            Simula cuánto presupuesto meter en anuncios y calcula el retorno real antes de quemar dinero.
           </p>
         </div>
+      </div>
 
         <button
           onClick={() => {
