@@ -754,9 +754,9 @@ export default function Home() {
             <div className="w-3 h-3 rounded-full bg-[#CF9D7B] shadow-[0_0_18px_#CF9D7B]"></div>
             <div className="absolute w-5 h-5 rounded-full border border-[#CF9D7B]/40 animate-ping"></div>
           </div>
-          <span className="font-semibold text-lg tracking-tight text-white uppercase">
-            Simulador <span className="text-[#CF9D7B] font-mono font-normal">SaaS</span>
-          </span>
+          <span className="font-mono font-bold tracking-wider text-white text-sm">
+  ENDURANCE <span className="text-[#CF9D7B]">FINANCIERO</span>
+</span>
         </div>
 
         <nav className="flex items-center gap-1.5 md:gap-2 bg-[#090F13]/85 backdrop-blur-xl p-1.5 rounded-full border border-[#182631] shadow-2xl">
@@ -829,10 +829,22 @@ export default function Home() {
         {activeTab === 'lobby' && (
           <div className="space-y-8">
             
-            {/* HERO SECTION COMPACTO */}
-        <div className="text-center max-w-2xl mx-auto pt-2 pb-6 space-y-2">
-          <p className="text-gray-400 text-sm md:text-base font-light tracking-wide leading-relaxed">
-            Descubre qué productos te dejan dinero real, cuáles te están costando de más y proyecta tus ganancias antes de mover un solo precio.
+            {/* HERO SECTION // ENDURANCE FINANCIERO */}
+        <div className="text-center max-w-3xl mx-auto pt-2 pb-6 space-y-3">
+          {/* Badge táctico elegante */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#081015]/80 border border-[#1B2A36] text-[11px] font-mono text-[#CF9D7B] uppercase tracking-widest shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Terminal de Control & Supervivencia
+          </div>
+
+          {/* Título de Marca con fuerza */}
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+            Endurance <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#CF9D7B] via-[#E8C5AF] to-[#CF9D7B]">Financiero</span>
+          </h1>
+
+          {/* Descripción con tipografía legible y destaque de palabras clave */}
+          <p className="text-gray-300 text-sm md:text-base font-normal leading-relaxed max-w-2xl mx-auto">
+            Descubre con precisión qué productos dejan <span className="text-emerald-400 font-medium">dinero real</span>, cuáles están <span className="text-rose-400 font-medium">quemando capital</span> y proyecta tus ganancias antes de arriesgar un solo peso.
           </p>
         </div>
 
