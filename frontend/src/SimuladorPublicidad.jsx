@@ -26,7 +26,8 @@ export default function SimuladorPublicidad({
       (Array.isArray(datosAuditoria) ? datosAuditoria : []);
 
       if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
-        itemsCSV.forEach((p, idx) => {
+      console.log("CLAVES DE PRODUCTO EN CATALOGO:", itemsCSV[0]);
+      itemsCSV.forEach((p, idx) => {
           if (!p || typeof p !== 'object') return;
           
           const nombre = p.nombre || p.producto || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
