@@ -546,138 +546,224 @@ export default function Home() {
     }
   };
 
-  // Generador de Reporte PDF
+// Generador de Reporte Integral - Endurance Financiero
   const exportarPDF = () => {
     try {
-      if (!datosAuditoria) return;
+      if (!datosAuditoria && !datosModoAsistido) return;
 
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
+      // Pie de página y marca corporativa sin métodos experimentales
+      const aplicarFooter = (paginaActual, totalPaginas) => {
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(140, 150, 160);
+        doc.text(
+          `Endurance Financiero SaaS | Confidencial - Página ${paginaActual} de ${totalPaginas}`,
+          14,
+          pageHeight - 8
+        );
+      };
+
+      // --- ENCABEZADO CORPORATIVO ---
       doc.setFillColor(8, 12, 16);
-      doc.rect(0, 0, 210, 35, 'F');
+      doc.rect(0, 0, pageWidth, 32, 'F');
 
       doc.setTextColor(207, 157, 123);
-      doc.setFontSize(16);
+      doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
-      doc.text('PLATAFORMA ANALÍTICA SaaS - AUDITORÍA FORENSE', 14, 18);
+      doc.text('ENDURANCE FINANCIERO // REPORTE EJECUTIVO INTEGRAL', 14, 15);
 
       doc.setTextColor(200, 205, 210);
-      doc.setFontSize(9);
+      doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Auditor Responsable: Emmanuel Tapasco`, 14, 26);
+      doc.text(
+        `Fecha: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Auditor Líder: Emmanuel Tapasco`,
+        14,
+        24
+      );
 
-      doc.setTextColor(20, 30, 40);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('1. MÉTRICAS CLAVE DE RENDIMIENTO', 14, 48);
+      let currentY = 42;
 
-      const metricasData = [
-        ['Total Registros Procesados', datosAuditoria.total_registros.toLocaleString('es-CO')],
-        ['Facturación Total Acumulada', formatearDinero(datosAuditoria.ventas_historicas)],
-        ['Unidades Vendidas', datosAuditoria.unidades_historicas.toLocaleString('es-CO')],
-        ['Precio Promedio Ponderado', formatearDinero(datosAuditoria.precio_promedio)],
-      ];
+      // ==========================================
+      // 1. MODO ASISTIDO (ESTRUCTURA DE PRODUCTOS Y COSTOS)
+      // ==========================================
+      const filasAsistido = Array.isArray(datosModoAsistido)
+        ? datosModoAsistido
+        : datosModoAsistido?.productos || [];
 
-      autoTable(doc, {
-        startY: 53,
-        head: [['Indicador', 'Valor']],
-        body: metricasData,
-        theme: 'grid',
-        headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
-        styles: { fontSize: 9, cellPadding: 4 },
-      });
+      if (filasAsistido.length > 0) {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(12, 18, 24);
+        doc.text('1. ESTRUCTURA OPERATIVA & MODO ASISTIDO', 14, currentY);
 
-      const diagStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 110;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('2. DIAGNÓSTICO ESTRATÉGICO DE CATÁLOGO', 14, diagStartY);
+        const tablaAsistidoData = filasAsistido.map((p, idx) => {
+          const unidades = Number(p.unidades || p.cantidad || 0);
+          const costo = Number(p.costo || p.costo_unitario || p.costoProveedor || 0);
+          const precio = Number(p.precio || p.precio_unitario || p.precioVenta || 0);
+          const subtotal = unidades * precio;
+          const margen = precio > 0 ? (((precio - costo) / precio) * 100).toFixed(1) + '%' : '0.0%';
 
-      const diagData = [
-        ['Producto Estrella (Líder)', datosAuditoria.diagnostico?.rey?.nombre || 'N/A', formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)],
-        ['Producto Crítico (Bajo Desempeño)', datosAuditoria.diagnostico?.hueso?.nombre || 'N/A', formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)],
-      ];
+          return [
+            `#0${idx + 1}`,
+            p.nombre || p.producto || `Item ${idx + 1}`,
+            unidades.toLocaleString('es-CO'),
+            formatearDinero(costo),
+            formatearDinero(precio),
+            formatearDinero(subtotal),
+            margen
+          ];
+        });
 
-      autoTable(doc, {
-        startY: diagStartY + 5,
-        head: [['Clasificación', 'Producto', 'Ventas']],
-        body: diagData,
-        theme: 'grid',
-        headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
-        styles: { fontSize: 9, cellPadding: 4 },
-      });
+        autoTable(doc, {
+          startY: currentY + 4,
+          head: [['#', 'Producto', 'Uds', 'Costo Unit.', 'Precio Venta', 'Subtotal', 'Margen']],
+          body: tablaAsistidoData,
+          theme: 'grid',
+          headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
+          styles: { fontSize: 8, cellPadding: 3 },
+        });
 
-      const rankingStartY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : 170;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('3. TOP 5 PRODUCTOS POR PARTICIPACIÓN', 14, rankingStartY);
+        currentY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : currentY + 40;
+      }
 
-      const rankingData = (datosAuditoria.ranking_productos || []).map((item, idx) => [
-        `#0${idx + 1}`,
-        item.nombre,
-        formatearDinero(item.ventas),
-      ]);
-
-      autoTable(doc, {
-        startY: rankingStartY + 5,
-        head: [['Posición', 'Producto', 'Ventas']],
-        body: rankingData,
-        theme: 'striped',
-        headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
-        styles: { fontSize: 9, cellPadding: 3 },
-      });
-
-      if (historialMensajes && historialMensajes.length > 0) {
-        let posY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 14 : 200;
-
-        if (posY > 240) {
+      // ==========================================
+      // 2. AUDITORÍA FORENSE & DIAGNÓSTICO CSV
+      // ==========================================
+      if (datosAuditoria) {
+        if (currentY > 210) {
           doc.addPage();
-          posY = 20;
+          currentY = 20;
         }
 
         doc.setFontSize(11);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(15, 23, 42);
-        doc.text("4. BITÁCORA ESTRATÉGICA & DIÁLOGO CON COPILOTO AI (MINI TARS)", 14, posY);
-        posY += 8;
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(12, 18, 24);
+        doc.text('2. AUDITORÍA FORENSE CSV & PARTICIPACIÓN', 14, currentY);
+
+        const metricasData = [
+          ['Registros Procesados', (datosAuditoria.total_registros || 0).toLocaleString('es-CO')],
+          ['Facturación Histórica', formatearDinero(datosAuditoria.ventas_historicas || 0)],
+          ['Unidades Totales Vendidas', (datosAuditoria.unidades_historicas || 0).toLocaleString('es-CO')],
+          ['Precio Promedio Ponderado', formatearDinero(datosAuditoria.precio_promedio || 0)],
+          ['Producto Estrella (Rey)', `${datosAuditoria.diagnostico?.rey?.nombre || 'N/A'} (${formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)})`],
+          ['Producto Crítico (Hueso)', `${datosAuditoria.diagnostico?.hueso?.nombre || 'N/A'} (${formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)})`]
+        ];
+
+        autoTable(doc, {
+          startY: currentY + 4,
+          head: [['Métrica Operativa', 'Resultado Forense']],
+          body: metricasData,
+          theme: 'grid',
+          headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
+          styles: { fontSize: 8, cellPadding: 3 },
+        });
+
+        currentY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 10 : currentY + 50;
+
+        // Gráfico nativo vectorial Top 5
+        const itemsRanking = (datosAuditoria.ranking_productos || []).slice(0, 5);
+        if (itemsRanking.length > 0) {
+          if (currentY > 220) {
+            doc.addPage();
+            currentY = 20;
+          }
+
+          doc.setFontSize(9.5);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(50, 60, 70);
+          doc.text('Distribución de Participación en Ventas (Top Catálogo)', 14, currentY);
+          currentY += 6;
+
+          const maxVenta = Math.max(...itemsRanking.map(i => Number(i.ventas || 0)), 1);
+          const maxBarWidth = 100;
+
+          itemsRanking.forEach(item => {
+            const barraWidth = Math.max(4, (Number(item.ventas || 0) / maxVenta) * maxBarWidth);
+            doc.setFontSize(7.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 41, 59);
+            
+            const nombreItem = String(item.nombre || '').substring(0, 22);
+            doc.text(nombreItem, 14, currentY + 4);
+
+            doc.setFillColor(207, 157, 123);
+            doc.rect(58, currentY, barraWidth, 5, 'F');
+
+            doc.setFontSize(7.5);
+            doc.setTextColor(80, 90, 100);
+            doc.text(formatearDinero(item.ventas), 60 + barraWidth, currentY + 4);
+
+            currentY += 7.5;
+          });
+
+          currentY += 6;
+        }
+      }
+
+      // ==========================================
+      // 3. DIÁLOGO ESTRATÉGICO & BITÁCORA AI (MINI TARS)
+      // ==========================================
+      if (historialMensajes && historialMensajes.length > 0) {
+        if (currentY > 210) {
+          doc.addPage();
+          currentY = 20;
+        }
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(12, 18, 24);
+        doc.text('3. DIÁLOGO ESTRATÉGICO & BITÁCORA COPILOTO (MINI TARS)', 14, currentY);
+        currentY += 7;
 
         historialMensajes.forEach((msg) => {
           const esUsuario = msg.remitente === 'usuario';
-          const emisor = esUsuario ? "USUARIO" : "MINI TARS";
-          
+          const emisor = esUsuario ? 'USUARIO' : 'MINI TARS';
+
           const textoLimpio = (typeof msg.texto === 'string' ? msg.texto : '')
             .replace(/\*\*/g, '')
             .replace(/\*/g, '');
 
           const lineasTexto = doc.splitTextToSize(textoLimpio, 175);
-          const alturaBloque = lineasTexto.length * 4.5 + 8;
+          const alturaBloque = lineasTexto.length * 4.2 + 8;
 
-          if (posY + alturaBloque > 280) {
+          if (currentY + alturaBloque > pageHeight - 18) {
             doc.addPage();
-            posY = 20;
+            currentY = 20;
           }
 
           doc.setFontSize(8.5);
-          doc.setFont("helvetica", "bold");
+          doc.setFont('helvetica', 'bold');
           if (esUsuario) {
-            doc.setTextColor(207, 157, 123);
+            doc.setTextColor(180, 120, 80);
           } else {
-            doc.setTextColor(51, 65, 85);
+            doc.setTextColor(15, 23, 42);
           }
-          doc.text(`[${emisor}]`, 14, posY);
-          posY += 4.5;
+          doc.text(`[${emisor}]`, 14, currentY);
+          currentY += 4.5;
 
           doc.setFontSize(8);
-          doc.setFont("helvetica", "normal");
+          doc.setFont('helvetica', 'normal');
           doc.setTextColor(71, 85, 105);
-          doc.text(lineasTexto, 14, posY);
+          doc.text(lineasTexto, 14, currentY);
 
-          posY += lineasTexto.length * 4.2 + 4;
+          currentY += lineasTexto.length * 4.2 + 4;
         });
       }
 
-      doc.save('Reporte_Auditoria_Forense.pdf');
+      // Estampar pie de página con paginación
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        aplicarFooter(i, totalPaginas);
+      }
+
+      doc.save('Reporte_Integral_Endurance_Financiero.pdf');
     } catch (error) {
-      console.error('Error generando PDF:', error);
+      console.error('Error generando PDF integral:', error);
     }
   };
 
