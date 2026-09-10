@@ -15,6 +15,11 @@ export default function SimuladorPublicidad({
   const productosDisponibles = useMemo(() => {
     const lista = [];
 
+    console.log("=== DATOS EN SIMULADOR PUBLICIDAD ===", {
+  datosAuditoria,
+  datosMatrizBCG
+});
+
     try {
       // 1. Lista de posibles nombres que entrega el motor Python
       const itemsCSV =
