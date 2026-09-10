@@ -1211,23 +1211,15 @@ export default function Home() {
             Pauta Ads
           </button>
 
-          {/* SELECTOR DE DIVISA */}
-          <div className="flex items-center gap-1 bg-[#0D151B]/80 border border-[#1E293B] p-1 rounded-full ml-2">
-            {['COP', 'USD', 'EUR'].map((curr) => (
-              <button
-                key={curr}
-                type="button"
-                onClick={() => setMoneda(curr)}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                  moneda === curr
-                    ? 'bg-[#CF9D7B] text-[#05080A] font-semibold shadow-sm'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                {curr === 'COP' ? '🇨🇴 COP' : curr === 'USD' ? '🇺🇸 USD' : '🇪🇺 EUR'}
-              </button>
-            ))}
-          </div>
+          {/* INSIGNIA FIJA DE MONEDA LOCAL */}
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#0D151B]/80 border border-[#1E293B] rounded-full ml-2">
+              <span className="bg-[#CF9D7B] text-[#05080A] font-bold text-[10px] px-1.5 py-0.5 rounded-full font-mono">
+                CO
+              </span>
+              <span className="text-xs font-mono font-semibold text-gray-200">
+                COP
+              </span>
+            </div>
         </nav>
       </header>
 
@@ -1827,22 +1819,6 @@ export default function Home() {
 
                 </div>
 
-                {/* 5. Botón de Exportación */}
-                <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-3 rounded-2xl shadow-xl flex items-center justify-between">
-                  <div className="flex items-center gap-2 pl-2">
-                    <span className="text-xs text-gray-300 font-medium">📄 Reporte Integral de Estrategia</span>
-                    <span className="text-[10px] text-gray-500 font-mono">(Simulación + Diagnóstico TARS)</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={exportarPDF}
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#CF9D7B] to-[#b38363] hover:brightness-110 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs font-mono transition-all shadow-lg shadow-[#CF9D7B]/20 cursor-pointer"
-                  >
-                    <span>Descargar PDF</span>
-                    <span>↓</span>
-                  </button>
-                </div>
-
               </div> {/* Cierre lg:col-span-7 */}
             </div>   {/* Cierre grid-cols-12 superior */}
 
@@ -2029,13 +2005,7 @@ export default function Home() {
                     <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">Diagnóstico del Catálogo</h3>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button
-                      onClick={exportarPDF}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#0D151B] border border-[#1E2D3D] hover:border-[#CF9D7B]/50 text-white rounded-xl text-xs font-medium transition-all"
-                    >
-                      <Download className="w-4 h-4 text-[#CF9D7B]" />
-                      Descargar Reporte PDF
-                    </button>
+                    
                     <button
                       onClick={transferirAlSimulador}
                       className="flex items-center gap-2 px-4 py-2 bg-[#CF9D7B] text-[#05080A] rounded-xl text-xs font-bold hover:shadow-[0_0_15px_rgba(207,157,123,0.4)] transition-all"
