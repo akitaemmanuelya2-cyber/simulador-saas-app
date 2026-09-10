@@ -827,27 +827,17 @@ export default function Home() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="relative z-20 max-w-6xl mx-auto w-full my-auto py-12">
         {activeTab === 'lobby' && (
-          <div className="space-y-16">
+          <div className="space-y-8">
             
-            {/* HERO SECTION */}
-            <div className="text-center space-y-4 max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#081015]/80 backdrop-blur-md border border-[#1B2A36] text-[#CF9D7B] text-[11px] font-mono tracking-wider uppercase shadow-inner">
-                <Zap className="w-3.5 h-3.5" />
-                Tu copiloto financiero y estratégico
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight leading-tight">
-                Claridad total sobre los <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#CF9D7B] via-[#E8C5AF] to-[#CF9D7B] drop-shadow-[0_0_25px_rgba(207,157,123,0.3)]">
-                  números de tu negocio.
-                </span>
-              </h1>
-              <p className="text-gray-400 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
-                Descubre qué productos te dejan dinero real, cuáles te están costando de más y proyecta tus ganancias antes de mover un solo precio.
-              </p>
-            </div>
+            {/* HERO SECTION COMPACTO */}
+        <div className="text-center max-w-2xl mx-auto pt-2 pb-6 space-y-2">
+          <p className="text-gray-400 text-sm md:text-base font-light tracking-wide leading-relaxed">
+            Descubre qué productos te dejan dinero real, cuáles te están costando de más y proyecta tus ganancias antes de mover un solo precio.
+          </p>
+        </div>
 
             {/* MÓDULOS DE ACCESO */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
               
               {/* MOD-01: MODO ASISTIDO */}
               <div 
@@ -951,22 +941,22 @@ export default function Home() {
           </div>
         )}
 
-        {/* FOOTER // FIRMA DEVELOPER (SOLO EN EL LOBBY) */}
-      {activeTab === 'lobby' && (
-        <footer className="w-full py-8 mt-16 border-t border-[#16222C] flex flex-col items-center justify-center space-y-2 relative z-10">
-          <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
-            SISTEMA DE CONTROL // ENDURANCE FINANCIERO
-          </p>
-          <div className="glitch-wrapper">
-            <span 
-              className="glitch-text font-mono text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-default"
-              data-text="DESARROLLADO POR EMMANUEL TAPASCO"
-            >
-              DESARROLLADO POR EMMANUEL TAPASCO
-            </span>
-          </div>
-        </footer>
-      )}
+        {/* FOOTER // FIRMA DEVELOPER */}
+        {activeTab === 'lobby' && (
+          <footer className="w-full py-6 mt-8 border-t border-[#16222C]/60 flex flex-col items-center justify-center space-y-2 relative z-10">
+            <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+              SISTEMA DE CONTROL // ENDURANCE FINANCIERO
+            </p>
+            <div className="glitch-wrapper">
+              <span 
+                className="glitch-text font-mono text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-default"
+                data-text="DESARROLLADO POR EMMANUEL TAPASCO"
+              >
+                DESARROLLADO POR EMMANUEL TAPASCO
+              </span>
+            </div>
+          </footer>
+        )}
         {/* VISTA DEL MODO ASISTIDO */}
         <div className={activeTab === 'asistido' ? 'block' : 'hidden'}>
           {/* AHORA: referencia estática estable */}
