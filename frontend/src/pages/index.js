@@ -2001,9 +2001,12 @@ export default function Home() {
                 {/* 1. Panel de Métricas Clave y Botones de Acción */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 rounded-2xl shadow-xl">
                   <div>
-                    <span className="text-xs font-mono text-[#CF9D7B] uppercase tracking-wider font-semibold">Resumen Forense</span>
-                    <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">Diagnóstico del Catálogo</h3>
-                  </div>
+                <span className="text-xs font-mono text-[#CF9D7B] uppercase tracking-wider font-semibold">Resumen Forense</span>
+                <h3 className="text-xl font-bold text-white tracking-tight mt-0.5">Diagnóstico del Catálogo</h3>
+                <p className="text-xs text-gray-400 mt-1 max-w-xl leading-relaxed">
+                  Radiografía rápida de tu histórico de ventas. Consolidamos el desempeño real de tu negocio para identificar qué productos sostienen la facturación y cuáles se están quedando atrás.
+                </p>
+              </div>
                   <div className="flex items-center gap-3">
                     
                     <button
@@ -2022,17 +2025,29 @@ export default function Home() {
                     <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Total Registros</span>
                     <p className="text-2xl font-bold text-white font-mono">{datosAuditoria.total_registros}</p>
                   </div>
+                  <p className="text-[10px] text-gray-500 font-mono leading-tight">
+  Filas analizadas de transacciones o productos únicos procesados.
+</p>
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
                     <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Ventas Totales</span>
                     <p className="text-2xl font-bold text-[#CF9D7B] font-mono">{formatearDinero(datosAuditoria.ventas_historicas)}</p>
+                    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+  Facturación bruta acumulada dentro del período de datos cargado.
+</p>
                   </div>
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
                     <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Unidades Vendidas</span>
                     <p className="text-2xl font-bold text-white font-mono">{datosAuditoria.unidades_historicas}</p>
+                    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+  Volumen físico de productos entregados a tus clientes.
+</p>
                   </div>
                   <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-5 rounded-2xl space-y-1 shadow-lg">
                     <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Precio Promedio</span>
                     <p className="text-2xl font-bold text-white font-mono">{formatearDinero(datosAuditoria.precio_promedio)}</p>
+                    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+  Ticket promedio ponderado por cada unidad colocada en el mercado.
+</p>
                   </div>
                 </div>
 
