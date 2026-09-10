@@ -897,9 +897,33 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* MOD-04: SIMULADOR DE INVERSIÓN // ADS */}
+              {/* MOD-03: SIMULADOR DE ESCENARIOS */}
             <div
-              onClick={() => setActiveTab('publicidad')}
+              onClick={() => setActiveTab('simulador')}
+              className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-[#CF9D7B]/60 p-8 rounded-2xl transition-all cursor-pointer"
+            >
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
+                  <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
+                    PASO 03
+                  </span>
+                  <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+                <h3 className="text-xl font-bold text-white tracking-tight pt-1">Simulador de Escenarios</h3>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  Experimenta con cambios de precio y metas de venta para ver exactamente cuánta ganancia de bolsillo obtendrías cada mes.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-6">
+                <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Proyecciones</span>
+                <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Ganancia Neta</span>
+                <span className="text-[10px] font-mono px-2 py-1 bg-[#0D151B] text-gray-400 rounded border border-[#18232B]">Estrategia</span>
+              </div>
+            </div>
+
+            {/* MOD-04: SIMULADOR DE INVERSIÓN // ADS */}
+            <div
+              onClick={() => setActiveTab('pauta')}
               className="group relative bg-[#081015]/85 backdrop-blur-xl border border-[#16222C] hover:border-emerald-500/60 p-8 rounded-2xl transition-all cursor-pointer hover:shadow-lg hover:shadow-emerald-950/20"
             >
               <div className="space-y-4">
@@ -927,20 +951,22 @@ export default function Home() {
           </div>
         )}
 
-        {/* FOOTER // FIRMA DEVELOPER */}
-      <footer className="w-full py-8 mt-16 border-t border-[#16222C] flex flex-col items-center justify-center space-y-2">
-        <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
-          SISTEMA DE CONTROL // ENDURANCE FINANCIERO
-        </p>
-        <div className="glitch-wrapper">
-          <span 
-            className="glitch-text font-mono text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-default"
-            data-text="DESARROLLADO POR EMMANUEL TAPASCO"
-          >
-            DESARROLLADO POR EMMANUEL TAPASCO
-          </span>
-        </div>
-      </footer>
+        {/* FOOTER // FIRMA DEVELOPER (SOLO EN EL LOBBY) */}
+      {activeTab === 'lobby' && (
+        <footer className="w-full py-8 mt-16 border-t border-[#16222C] flex flex-col items-center justify-center space-y-2 relative z-10">
+          <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+            SISTEMA DE CONTROL // ENDURANCE FINANCIERO
+          </p>
+          <div className="glitch-wrapper">
+            <span 
+              className="glitch-text font-mono text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-default"
+              data-text="DESARROLLADO POR EMMANUEL TAPASCO"
+            >
+              DESARROLLADO POR EMMANUEL TAPASCO
+            </span>
+          </div>
+        </footer>
+      )}
         {/* VISTA DEL MODO ASISTIDO */}
         <div className={activeTab === 'asistido' ? 'block' : 'hidden'}>
           {/* AHORA: referencia estática estable */}
