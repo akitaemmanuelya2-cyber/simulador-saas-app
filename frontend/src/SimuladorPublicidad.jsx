@@ -26,17 +26,30 @@ export default function SimuladorPublicidad({
       (Array.isArray(datosAuditoria) ? datosAuditoria : []);
 
       if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
-      console.log("CLAVES DE PRODUCTO EN CATALOGO:", itemsCSV[0]);
       itemsCSV.forEach((p, idx) => {
           if (!p || typeof p !== 'object') return;
           
-          const nombre = p.nombre || p.producto || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
-          const unidades = Math.max(1, Number(p.unidades || p.cantidad || p.Cantidad || p.ventas_cantidad || 1));
-          const ventas = Number(p.ventas || p.subtotalVenta || p.subtotal_venta || p.Ingresos || p.ingresos || p.Total || 0);
-          const costos = Number(p.costos || p.subtotalCosto || p.subtotal_costo || p.Costos || p.costos_totales || 0);
+          const nombre = p.producto || p.nombre || p.Producto || p.Item || p.item || `Producto ${idx + 1}`;
+        const unidades = Math.max(1, Number(p.unidades_totales || p.unidades || p.cantidad || p.Cantidad || 1));
+        const ventas = Number(p.ventas_totales || p.ventas || p.subtotalVenta || p.subtotal_venta || 0);
+        const costos = Number(p.costos || p.subtotalCosto || p.subtotal_costo || 0);
 
-          const precio = Number(p.precio_unitario || p.precioUnitario || p.precio_promedio || p.precio || (ventas > 0 ? ventas / unidades : 0));
-          const costo = Number(p.costo_unitario || p.costoUnitario || p.costo_promedio || p.costo || (costos > 0 ? costos / unidades : 0));
+        const precio = Number(
+          p.precio_actual ??
+          p.precio_unitario ??
+          p.precioUnitario ??
+          p.precio_promedio ??
+          p.precio ??
+          (ventas > 0 ? ventas / unidades : 0)
+        );
+
+        const costo = Number(
+          p.costo_unitario ??
+          p.costoUnitario ??
+          p.costo_promedio ??
+          p.costo ??
+          (costos > 0 ? costos / unidades : 0)
+        );
 
           lista.push({
             id: `csv-${idx}-${nombre}`,
