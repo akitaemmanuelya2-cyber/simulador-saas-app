@@ -1393,6 +1393,7 @@ export default function Home() {
           datosAuditoria={datosAuditoria}
           datosMatrizBCG={datosMatrizBCG}
           datosModoAsistido={datosModoAsistido}
+          onExportarPDF={exportarPDF}
           onConsultarMiniTars={(consulta) => {
             // 1. Abrir la ventana de Mini-TARS usando su variable nativa
             setAbrirChatIA(true);

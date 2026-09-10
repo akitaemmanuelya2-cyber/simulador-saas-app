@@ -9,7 +9,8 @@ export default function SimuladorPublicidad({
   datosAuditoria = null,
   datosMatrizBCG = null,
   datosModoAsistido = null,
-  onConsultarMiniTars
+  onConsultarMiniTars,
+  onExportarPDF
 }) {
   // 1. Extracción segura y compatible con el backend Python
   const productosDisponibles = useMemo(() => {
@@ -271,7 +272,22 @@ export default function SimuladorPublicidad({
           <Sparkles className="w-4 h-4 text-black"/>
           <span>Interpretar viabilidad con Mini-TARS</span>
         </button>
-      </div>
+
+          {/* BOTÓN OFICIAL DE EXPORTACIÓN C-LEVEL */}
+          <div className="flex flex-col items-end pt-1">
+            <button
+              type="button"
+              onClick={() => onExportarPDF && onExportarPDF()}
+              className="flex items-center justify-center gap-2 bg-[#CF9D7B] hover:bg-[#b88563] text-black font-semibold px-4 py-2 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-black" />
+              <span>Descargar Reporte PDF</span>
+            </button>
+            <span className="text-[10px] text-gray-400 font-mono mt-1">
+              descarga tus consultas y movimientos de la app ;)
+            </span>
+          </div>
+        </div>
 
       {/* ENTRADAS / INPUTS LIMPIOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
