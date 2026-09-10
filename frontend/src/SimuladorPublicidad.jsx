@@ -253,41 +253,63 @@ export default function SimuladorPublicidad({
         </div>
       </div>
 
-        <button
-          onClick={() => {
-            if (typeof onConsultarMiniTars === 'function') {
-              const mensaje = `Hola Mini-TARS, analiza si vale la pena pautar para:
+        {/* PANEL DE ACCIONES DERECHO: INTERPRETACIÓN Y EXPORTACIÓN */}
+        <div className="flex flex-col items-end gap-1.5 self-start md:self-auto">
+          <div className="flex items-center gap-3">
+            {/* BOTÓN COPILOTO MINI-TARS */}
+            <button
+              type="button"
+              onClick={() => {
+                const mensaje = `Hola Mini-TARS, analiza si vale la pena pautar para:
 - Producto: ${productoActivo?.nombre || 'Producto manual'}
 - Precio de venta: ${formatoMoneda(calculos.precio)} | Costo unitario: ${formatoMoneda(calculos.costo)} (Margen: ${calculos.margenUnitarioPct.toFixed(1)}%)
 - Presupuesto pauta: ${formatoMoneda(presupuestoPauta || 0)}
 - ROAS mínimo exigido: ${calculos.roasEquilibrio.toFixed(2)}x
 - Límite máximo por cliente (CPA): ${formatoMoneda(calculos.cpaMaximoPermitido)}
-
 ¿Es viable o es una campaña quema-bolsillo?`;
-              onConsultarMiniTars(mensaje);
-            }
-          }}
-          className="flex items-center justify-center gap-2 bg-[#CF9D7B] hover:bg-[#b88563] text-black font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-[#CF9D7B]/10 active:scale-95"
-        >
-          <Sparkles className="w-4 h-4 text-black"/>
-          <span>Interpretar viabilidad con Mini-TARS</span>
-        </button>
+                if (typeof onConsultarMiniTars === 'function') {
+                  onConsultarMiniTars(mensaje);
+                }
+              }}
+              className="flex items-center justify-center gap-2 bg-[#CF9D7B] hover:bg-[#b88563] text-black font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-black" />
+              <span>Interpretar viabilidad con Mini-TARS</span>
+            </button>
 
-          {/* BOTÓN OFICIAL DE EXPORTACIÓN C-LEVEL */}
-          <div className="flex flex-col items-end pt-1">
+            {/* BOTÓN DESCARGA DE REPORTE */}
             <button
               type="button"
               onClick={() => onExportarPDF && onExportarPDF()}
-              className="flex items-center justify-center gap-2 bg-[#CF9D7B] hover:bg-[#b88563] text-black font-semibold px-4 py-2 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+              className="flex items-center justify-center gap-2 bg-[#0D151B] hover:bg-[#16222C] text-[#CF9D7B] border border-[#CF9D7B]/40 hover:border-[#CF9D7B] font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-black" />
+              <Download className="w-4 h-4 text-[#CF9D7B]" />
               <span>Descargar Reporte PDF</span>
             </button>
-            <span className="text-[10px] text-gray-400 font-mono mt-1">
-              descarga tus consultas y movimientos de la app ;)
+          </div>
+
+          {/* MICROCOPY CON STICKER PERSONALIZADO */}
+          <div className="flex items-center gap-1.5 pr-1">
+            <span className="text-[11px] text-gray-400 font-mono tracking-tight">
+              Descarga tus consultas
             </span>
+            <svg
+              className="w-3.5 h-3.5 text-[#CF9D7B]"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="16" rx="4" />
+              <line x1="9" y1="10" x2="9.01" y2="10" strokeWidth="3" />
+              <line x1="15" y1="10" x2="15.01" y2="10" strokeWidth="3" />
+              <path d="M8 15a4 4 0 0 0 8 0" />
+            </svg>
           </div>
         </div>
+      </div>
 
       {/* ENTRADAS / INPUTS LIMPIOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
