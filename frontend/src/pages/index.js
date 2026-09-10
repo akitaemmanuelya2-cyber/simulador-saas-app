@@ -1550,36 +1550,64 @@ export default function Home() {
         {activeTab === 'auditoria' && (
           <div className="space-y-8">
             
-            {/* Panel de Carga */}
-            <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-10 rounded-2xl max-w-2xl mx-auto text-center space-y-6 shadow-2xl">
-              <div className="w-14 h-14 rounded-2xl bg-[#0D151B] border border-[#CF9D7B]/30 flex items-center justify-center mx-auto text-[#CF9D7B] shadow-[0_0_20px_rgba(207,157,123,0.15)]">
-                {cargandoCSV ? <Loader2 className="w-7 h-7 animate-spin" /> : <Upload className="w-7 h-7" />}
-              </div>
+            {/* Panel de Carga Renovado // Estilo Táctico y Lenguaje Claro */}
+        <div className="relative overflow-hidden bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-8 sm:p-10 rounded-2xl max-w-xl mx-auto text-center space-y-6 shadow-2xl">
+          {/* Línea de brillo superior */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#CF9D7B]/60 to-transparent" />
 
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-white tracking-tight">Auditoría Forense CSV</h2>
-                <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-                  Carga tu conjunto de transacciones históricas. El motor Python auditará ingresos, márgenes y concentración de catálogo.
-                </p>
-              </div>
+          {/* Badge táctico de paso */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D151B] border border-[#18232B] text-[11px] font-mono text-[#CF9D7B] uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            PASO 02 // DETECTIVE DE VENTAS
+          </div>
 
-              <label className={`inline-flex items-center gap-2 px-7 py-3 bg-[#CF9D7B] text-[#05080A] text-xs font-bold uppercase tracking-wider rounded-full cursor-pointer hover:bg-[#b88565] transition-all duration-300 shadow-lg ${cargandoCSV ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                {cargandoCSV ? 'Analizando registros...' : 'Seleccionar Archivo'}
-                <input
-                  type="file"
-                  accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv, *.*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </label>
+          {/* Icono con animación de carga o estado estático */}
+          <div className="w-16 h-16 rounded-2xl bg-[#0F1A22] border border-[#1E2E3D] flex items-center justify-center mx-auto text-[#CF9D7B] shadow-inner shadow-[#CF9D7B]/10">
+            {cargandoCSV ? (
+              <Loader2 className="w-7 h-7 animate-spin text-[#CF9D7B]" />
+            ) : (
+              <Upload className="w-7 h-7" />
+            )}
+          </div>
 
-              {errorCSV && (
-                <div className="flex items-center justify-center gap-2 text-rose-400 text-xs mt-2">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{errorCSV}</span>
-                </div>
+          {/* Título y descripción sin tecnicismos */}
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              Analiza tu historial de ventas
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
+              Sube tu archivo de Excel o CSV. En segundos identificamos tus <strong className="text-emerald-400 font-semibold">productos estrella</strong> y aquellos que te están <strong className="text-rose-400 font-semibold">costando dinero en silencio</strong>.
+            </p>
+          </div>
+
+          {/* Botón de carga integrado con tu input */}
+          <div className="pt-2">
+            <label className="inline-flex items-center justify-center gap-2 px-7 py-3 bg-[#CF9D7B] hover:bg-[#dfb08e] text-[#05080A] text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all duration-200 shadow-lg shadow-[#CF9D7B]/10 hover:scale-[1.02] active:scale-[0.98]">
+              {cargandoCSV ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Escaneando ventas...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4" />
+                  <span>Seleccionar archivo</span>
+                </>
               )}
-            </div>
+              <input
+                type="file"
+                accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv, *.*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {/* Formatos compatibles */}
+          <p className="text-[11px] font-mono text-gray-500 pt-1">
+            Compatible con Excel (.xlsx, .xls) o reportes CSV de tu tienda
+          </p>
+        </div>
 
             {/* SECCIÓN DETECTIVE CSV AUDITORÍA COMPLETA */}
             {datosAuditoria && (
