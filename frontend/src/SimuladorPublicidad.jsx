@@ -15,20 +15,14 @@ export default function SimuladorPublicidad({
   const productosDisponibles = useMemo(() => {
     const lista = [];
 
-    console.log("=== DATOS EN SIMULADOR PUBLICIDAD ===", {
-  datosAuditoria,
-  datosMatrizBCG
-});
-
     try {
       // 1. Lista de posibles nombres que entrega el motor Python
       const itemsCSV =
+      (Array.isArray(datosAuditoria?.catalogo_simulacion) && datosAuditoria.catalogo_simulacion.length > 0
+        ? datosAuditoria.catalogo_simulacion
+        : null) ||
       (Array.isArray(datosMatrizBCG) && datosMatrizBCG.length > 0 ? datosMatrizBCG : null) ||
-      datosAuditoria?.matriz_bcg ||
-      datosAuditoria?.matrizBCG ||
       datosAuditoria?.ranking_productos ||
-      datosAuditoria?.rankingProductos ||
-      datosAuditoria?.productos ||
       (Array.isArray(datosAuditoria) ? datosAuditoria : []);
 
       if (Array.isArray(itemsCSV) && itemsCSV.length > 0) {
