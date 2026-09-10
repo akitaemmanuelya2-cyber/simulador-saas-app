@@ -858,9 +858,9 @@ export default function Home() {
               >
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                      PASO 01
-                    </span>
+                    <span className="text-[11px] px-2.5 py-1 bg-cyan-950/40 text-cyan-400 rounded-md font-mono border border-cyan-500/20">
+  PASO 01
+</span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-tight pt-1">Modo Asistido</h3>
@@ -882,9 +882,9 @@ export default function Home() {
               >
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                      PASO 02
-                    </span>
+                    <span className="text-[11px] px-2.5 py-1 bg-amber-950/40 text-amber-400 rounded-md font-mono border border-amber-500/20">
+  PASO 02
+</span>
                     <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-tight pt-1">Detective CSV</h3>
@@ -906,9 +906,9 @@ export default function Home() {
             >
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
-                  <span className="text-[11px] px-2.5 py-1 bg-[#0F1A22] text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/20">
-                    PASO 03
-                  </span>
+                  <span className="text-[11px] px-2.5 py-1 bg-[#2A1D15]/60 text-[#CF9D7B] rounded-md font-mono border border-[#CF9D7B]/30">
+  PASO 03
+</span>
                   <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-[#CF9D7B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
                 <h3 className="text-xl font-bold text-white tracking-tight pt-1">Simulador de Escenarios</h3>
