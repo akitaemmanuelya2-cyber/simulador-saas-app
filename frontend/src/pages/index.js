@@ -2022,53 +2022,53 @@ export default function Home() {
                 {/* Métricas en Tarjetas Rápidas con Contexto Táctico */}
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
   {/* Total Registros */}
-  <div className="bg-[#081015]/90 border border-[#16222C] p-4 rounded-xl space-y-1">
-    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">
+  <div className="bg-[#081015]/90 border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-lg">
+    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">
       Total Registros
     </span>
-    <div className="text-2xl font-bold text-white font-mono">
+    <div className="text-2xl font-bold text-white tracking-tight">
       {datosAuditoria.total_registros || 0}
     </div>
-    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+    <p className="text-[11px] text-gray-400 leading-snug">
       Filas analizadas de transacciones o productos únicos procesados.
     </p>
   </div>
 
   {/* Ventas Totales */}
-  <div className="bg-[#081015]/90 border border-[#16222C] p-4 rounded-xl space-y-1">
-    <span className="text-[10px] font-mono text-[#CF9D7B] uppercase tracking-wider block font-semibold">
+  <div className="bg-[#081015]/90 border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-lg">
+    <span className="text-[10px] text-[#CF9D7B] uppercase tracking-wider block font-semibold">
       Ventas Totales
     </span>
-    <div className="text-2xl font-bold text-[#CF9D7B] font-mono">
+    <div className="text-2xl font-bold text-[#CF9D7B] tracking-tight">
       {formatearDinero(datosAuditoria.ventas_historicas || 0)}
     </div>
-    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+    <p className="text-[11px] text-gray-400 leading-snug">
       Facturación bruta acumulada dentro del período de datos cargado.
     </p>
   </div>
 
   {/* Unidades Vendidas */}
-  <div className="bg-[#081015]/90 border border-[#16222C] p-4 rounded-xl space-y-1">
-    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">
+  <div className="bg-[#081015]/90 border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-lg">
+    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">
       Unidades Vendidas
     </span>
-    <div className="text-2xl font-bold text-white font-mono">
+    <div className="text-2xl font-bold text-white tracking-tight">
       {(datosAuditoria.unidades_historicas || 0).toLocaleString('es-CO')}
     </div>
-    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+    <p className="text-[11px] text-gray-400 leading-snug">
       Volumen físico de productos entregados a tus clientes.
     </p>
   </div>
 
   {/* Precio Promedio */}
-  <div className="bg-[#081015]/90 border border-[#16222C] p-4 rounded-xl space-y-1">
-    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">
+  <div className="bg-[#081015]/90 border border-[#16222C] p-5 rounded-2xl space-y-1.5 shadow-lg">
+    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-medium">
       Precio Promedio
     </span>
-    <div className="text-2xl font-bold text-white font-mono">
+    <div className="text-2xl font-bold text-white tracking-tight">
       {formatearDinero(datosAuditoria.precio_promedio || 0)}
     </div>
-    <p className="text-[10px] text-gray-500 font-mono leading-tight">
+    <p className="text-[11px] text-gray-400 leading-snug">
       Ticket promedio ponderado por cada unidad colocada en el mercado.
     </p>
   </div>
