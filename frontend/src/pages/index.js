@@ -54,6 +54,7 @@ export default function Home() {
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   // Lista de productos que el usuario está simulando activamente
   const [productosSimulacion, setProductosSimulacion] = useState([]);
+  const [datosSimulacionAds, setDatosSimulacionAds] = useState(null);
 
   // Tasas de cambio (Base: 1 USD)
   const TASAS_CAMBIO = {
@@ -549,13 +550,12 @@ export default function Home() {
 // Generador de Reporte Integral C-Level - Endurance Financiero
   const exportarPDF = () => {
     try {
-      if (!datosAuditoria && !datosModoAsistido) return;
+      if (!datosAuditoria && !datosModoAsistido && productosSimulacion.length === 0) return;
 
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
 
-      // Pie de página formal con paginación
       const aplicarFooter = (paginaActual, totalPaginas) => {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
@@ -574,13 +574,13 @@ export default function Home() {
       doc.setTextColor(207, 157, 123);
       doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
-      doc.text('ENDURANCE FINANCIERO // INFORME ESTRATÉGICO INTEGRAL', 14, 15);
+      doc.text('ENDURANCE FINANCIERO // INFORME ESTRATÉGICO C-LEVEL', 14, 15);
 
       doc.setTextColor(200, 205, 210);
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.text(
-        `Generado: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Auditor Líder: Emmanuel Tapasco`,
+        `Generado: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Auditor Responsable: Emmanuel Tapasco`,
         14,
         24
       );
@@ -588,10 +588,10 @@ export default function Home() {
       let currentY = 40;
 
       // =======================================================
-      // 1. ANÁLISIS DE COSTOS Y CATÁLOGO (MODO ASISTIDO)
+      // 1. MODO ASISTIDO (ESTRUCTURA DE COSTOS Y CATÁLOGO)
       // =======================================================
       const filasAsistido = datosModoAsistido?.filas || (Array.isArray(datosModoAsistido) ? datosModoAsistido : []);
-      const filasValidas = filasAsistido.filter(f => f && (f.producto || f.precio > 0 || f.unidades > 0));
+      const filasValidas = filasAsistido.filter(f => f && (f.producto || Number(f.precio) > 0 || Number(f.unidades) > 0));
 
       if (filasValidas.length > 0) {
         let totalVentaAcum = 0;
@@ -627,12 +627,10 @@ export default function Home() {
         const margenGlobal = totalVentaAcum > 0 ? ((gananciaBrutaModo / totalVentaAcum) * 100).toFixed(1) + '%' : '0.0%';
         const precioPromedioPond = totalUnidadesAcum > 0 ? totalVentaAcum / totalUnidadesAcum : 0;
 
-        // Ordenamiento para diagnóstico de catálogo
         const productosOrdenados = [...productosProcesados].sort((a, b) => b.subVenta - a.subVenta);
         const productoLider = productosOrdenados[0];
         const productoCritico = productosOrdenados[productosOrdenados.length - 1];
 
-        // 1.1 TARJETAS DE KPIS MACRO
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
@@ -651,16 +649,10 @@ export default function Home() {
           body: tablaKpisData,
           theme: 'grid',
           headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
-          styles: { fontSize: 8, cellPadding: 2.8 },
+          styles: { fontSize: 8, cellPadding: 2.5 },
         });
 
-        currentY = doc.lastAutoTable.finalY + 8;
-
-        // 1.2 TABLA DE DETALLE POR PRODUCTO
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(40, 50, 60);
-        doc.text('Desglose Operativo por Producto', 14, currentY);
+        currentY = doc.lastAutoTable.finalY + 6;
 
         const tablaAsistidoData = productosProcesados.map(p => [
           `#0${p.idx}`,
@@ -683,12 +675,12 @@ export default function Home() {
         ]);
 
         autoTable(doc, {
-          startY: currentY + 4,
+          startY: currentY,
           head: [['#', 'Producto', 'Uds', 'Costo Unit.', 'Precio Venta', 'Subtotal Venta', 'Margen']],
           body: tablaAsistidoData,
           theme: 'grid',
           headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
-          styles: { fontSize: 8, cellPadding: 2.8 },
+          styles: { fontSize: 8, cellPadding: 2.5 },
           didParseCell: function (data) {
             if (data.row.index === tablaAsistidoData.length - 1) {
               data.cell.styles.fontStyle = 'bold';
@@ -697,18 +689,18 @@ export default function Home() {
           }
         });
 
-        currentY = doc.lastAutoTable.finalY + 8;
+        currentY = doc.lastAutoTable.finalY + 6;
 
-        // 1.3 GRÁFICA VECTORIAL NATIVA: REPARTO DE VENTAS
-        if (currentY > 220) {
+        // Distribución gráfica vectorial de ventas
+        if (currentY > 230) {
           doc.addPage();
           currentY = 20;
         }
 
-        doc.setFontSize(9.5);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(50, 60, 70);
-        doc.text('¿Cómo se reparten tus ventas? (Participación Visual)', 14, currentY);
+        doc.text('Distribución Visual de Facturación por Producto', 14, currentY);
         currentY += 5;
 
         const maxVentaModo = Math.max(...productosOrdenados.map(i => i.subVenta), 1);
@@ -732,41 +724,133 @@ export default function Home() {
           currentY += 6.5;
         });
 
-        currentY += 4;
+        currentY += 8;
+      }
 
-        // 1.4 RECOMENDACIONES ESTRATÉGICAS AUTOMATIZADAS
-        if (currentY > 230) {
+      // =======================================================
+      // 2. SIMULADOR ESTRATÉGICO PRO (VARIABLES NATIVAS)
+      // =======================================================
+      if (Array.isArray(productosSimulacion) && productosSimulacion.length > 0) {
+        if (currentY > 210) {
           doc.addPage();
           currentY = 20;
         }
 
-        doc.setFontSize(9.5);
+        doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
-        doc.text('Directrices Estratégicas Automatizadas', 14, currentY);
-        currentY += 4;
+        doc.text('2. PLAN DE METAS Y PROYECCIÓN ESTRATÉGICA (SIMULADOR PRO)', 14, currentY);
 
-        const recomendaciones = [
-          ['Portafolio Diversificado', 'Tus ventas presentan una estructura operativa activa. Conviene monitorear los niveles de inventario de acuerdo con el ritmo de rotación.'],
-          ['Rentabilidad y Margen Comercial', `Margen consolidado del ${margenGlobal}. Tu estructura de precios promedio cubre sólidamente los costos de adquisición pactados con proveedores.`],
-          [`Estrategia para "${productoCritico.nombre}"`, `Aporta la menor facturación (${formatearDinero(productoCritico.subVenta)}) con un margen de ${productoCritico.margenPorc}. Se recomienda empaquetarlo en combo junto a "${productoLider.nombre}" para acelerar su rotación.`]
+        const tablaProyeccionMacro = [
+          ['Horizonte Evaluado', `${mesesValidos || 1} Meses (${diasTotalesPeriodo || 30} días)`, 'Meta de Ganancia Financiera', formatearDinero(metaIngreso || 0)],
+          ['Ganancia Proyectada Período', formatearDinero(gananciaTotalPeriodo || 0), 'Ganancia Base (Sin Ajustes)', formatearDinero(gananciaBasePeriodo || 0)],
+          ['Impacto Neto Extra (Delta)', `+${formatearDinero(deltaPeriodo || 0)}`, 'Margen Unitario Simulado', formatearDinero(margenUnitarioSimulado || 0)],
+          ['Unidades Requeridas p/ Meta', `${(unidadesParaMeta || 0).toLocaleString('es-CO')} uds`, 'Tiempo Requerido Estimado', `${diasParaMeta || 0} días (${rotacionTotalDia || 0} uds/día)`]
         ];
 
         autoTable(doc, {
-          startY: currentY,
-          head: [['Eje Estratégico', 'Recomendación Ejecutiva']],
-          body: recomendaciones,
-          theme: 'striped',
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255] },
-          styles: { fontSize: 7.8, cellPadding: 3 },
-          columnStyles: { 0: { cellWidth: 50, fontStyle: 'bold' } }
+          startY: currentY + 4,
+          head: [['Variable de Proyección', 'Valor Simulado', 'Indicador Operativo', 'Métrica Meta']],
+          body: tablaProyeccionMacro,
+          theme: 'grid',
+          headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
+          styles: { fontSize: 8, cellPadding: 2.5 },
         });
 
-        currentY = doc.lastAutoTable.finalY + 10;
+        currentY = doc.lastAutoTable.finalY + 6;
+
+        // Desglose de ajustes de precio en el simulador
+        const tablaSimData = productosSimulacion.map((p, idx) => {
+          const precioFinal = Number(p.nuevo_precio ?? p.precio ?? p.precio_base ?? 0);
+          const precioBase = Number(p.precio_base ?? p.precio ?? precioFinal);
+          const costo = Number(p.costo_unitario ?? p.costo ?? 0);
+          const margenUnit = precioFinal - costo;
+          const udsDia = Number(p.ventas_dia ?? p.unidadesDia ?? 1);
+          const pctAjuste = precioBase > 0 ? (((precioFinal - precioBase) / precioBase) * 100).toFixed(0) : '0';
+
+          return [
+            `#0${idx + 1}`,
+            String(p.producto || p.nombre || 'Item'),
+            formatearDinero(precioBase),
+            `${formatearDinero(precioFinal)} (${pctAjuste >= 0 ? '+' : ''}${pctAjuste}%)`,
+            formatearDinero(costo),
+            formatearDinero(margenUnit),
+            `${udsDia} uds/día`
+          ];
+        });
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['#', 'Producto', 'Precio Base', 'Precio Simulado', 'Costo Unit.', 'Margen Unit.', 'Rotación']],
+          body: tablaSimData,
+          theme: 'striped',
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255] },
+          styles: { fontSize: 8, cellPadding: 2.5 },
+        });
+
+        currentY = doc.lastAutoTable.finalY + 8;
       }
 
       // =======================================================
-      // 2. AUDITORÍA FORENSE HISTÓRICA (DETECTIVE CSV)
+      // 3. ANÁLISIS DE PAUTA ADS (EXTRACCIÓN AUTOMÁTICA)
+      // =======================================================
+      // Extrae la última simulación de pauta consultada con Mini TARS
+      let pautaActiva = null;
+      if (Array.isArray(historialMensajes)) {
+        for (let i = historialMensajes.length - 1; i >= 0; i--) {
+          const texto = historialMensajes[i]?.texto || '';
+          if (texto.includes('analiza si vale la pena pautar para:')) {
+            const matchProd = texto.match(/Producto:\s*([^\n\r|]+)/i);
+            const matchPrecio = texto.match(/Precio de venta:\s*\$?\s*([\d\.]+)/i);
+            const matchCosto = texto.match(/Costo unitario:\s*\$?\s*([\d\.]+)/i);
+            const matchPresupuesto = texto.match(/Presupuesto pauta:\s*\$?\s*([\d\.]+)/i);
+            const matchRoas = texto.match(/ROAS m[ií]nimo exigido:\s*([\d\.]+x?)/i);
+            const matchCpa = texto.match(/L[ií]mite m[aá]ximo por cliente \(CPA\):\s*\$?\s*([\d\.]+)/i);
+
+            pautaActiva = {
+              producto: matchProd ? matchProd[1].trim() : 'Producto Pautado',
+              precio: matchPrecio ? matchPrecio[1].replace(/\./g, '') : '0',
+              costo: matchCosto ? matchCosto[1].replace(/\./g, '') : '0',
+              presupuesto: matchPresupuesto ? matchPresupuesto[1].replace(/\./g, '') : '0',
+              roas: matchRoas ? matchRoas[1].trim() : 'N/A',
+              cpa: matchCpa ? matchCpa[1].replace(/\./g, '') : '0'
+            };
+            break;
+          }
+        }
+      }
+
+      if (pautaActiva) {
+        if (currentY > 210) {
+          doc.addPage();
+          currentY = 20;
+        }
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(12, 18, 24);
+        doc.text('3. MATRIZ DE INVERSIÓN PUBLICITARIA (PAUTA ADS)', 14, currentY);
+
+        const tablaPautaParametros = [
+          ['Producto Seleccionado', pautaActiva.producto, 'Presupuesto de Campaña', formatearDinero(pautaActiva.presupuesto)],
+          ['Precio Unitario de Venta', formatearDinero(pautaActiva.precio), 'Costo Unitario de Adquisición', formatearDinero(pautaActiva.costo)],
+          ['Límite Máximo por Cliente (CPA)', formatearDinero(pautaActiva.cpa), 'ROAS Mínimo Exigido', pautaActiva.roas]
+        ];
+
+        autoTable(doc, {
+          startY: currentY + 4,
+          head: [['Variable de Campaña', 'Valor Configurado', 'Control de Riesgo', 'Evaluación']],
+          body: tablaPautaParametros,
+          theme: 'grid',
+          headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
+          styles: { fontSize: 8, cellPadding: 2.5 },
+        });
+
+        currentY = doc.lastAutoTable.finalY + 8;
+      }
+
+      // =======================================================
+      // 4. AUDITORÍA FORENSE CSV
       // =======================================================
       if (datosAuditoria) {
         if (currentY > 210) {
@@ -777,7 +861,7 @@ export default function Home() {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
-        doc.text('2. AUDITORÍA FORENSE DE DATOS HISTÓRICOS (DETECTIVE CSV)', 14, currentY);
+        doc.text('4. AUDITORÍA FORENSE DE DATOS HISTÓRICOS (DETECTIVE CSV)', 14, currentY);
 
         const metricasCsv = [
           ['Registros Procesados en CSV', (datosAuditoria.total_registros || 0).toLocaleString('es-CO')],
@@ -794,14 +878,14 @@ export default function Home() {
           body: metricasCsv,
           theme: 'grid',
           headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
-          styles: { fontSize: 8, cellPadding: 2.8 },
+          styles: { fontSize: 8, cellPadding: 2.5 },
         });
 
-        currentY = doc.lastAutoTable.finalY + 10;
+        currentY = doc.lastAutoTable.finalY + 8;
       }
 
       // =======================================================
-      // 3. DIÁLOGO ESTRATÉGICO & BITÁCORA AI (MINI TARS)
+      // 5. DIÁLOGO ESTRATÉGICO & BITÁCORA AI (MINI TARS)
       // =======================================================
       if (historialMensajes && historialMensajes.length > 0) {
         if (currentY > 210) {
@@ -812,7 +896,7 @@ export default function Home() {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
-        doc.text('3. DIÁLOGO ESTRATÉGICO & BITÁCORA COPILOTO (MINI TARS)', 14, currentY);
+        doc.text('5. DIÁLOGO ESTRATÉGICO & BITÁCORA COPILOTO (MINI TARS)', 14, currentY);
         currentY += 7;
 
         historialMensajes.forEach((msg) => {
@@ -850,7 +934,7 @@ export default function Home() {
         });
       }
 
-      // Paginación y pie corporativo en todas las páginas generadas
+      // Numeración y pie de página formal
       const totalPaginas = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPaginas; i++) {
         doc.setPage(i);
