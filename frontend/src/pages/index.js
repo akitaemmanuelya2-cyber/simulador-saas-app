@@ -546,7 +546,7 @@ export default function Home() {
     }
   };
 
-// Generador de Reporte Integral - Endurance Financiero
+// Generador de Reporte Integral C-Level - Endurance Financiero
   const exportarPDF = () => {
     try {
       if (!datosAuditoria && !datosModoAsistido) return;
@@ -555,84 +555,113 @@ export default function Home() {
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
 
-      // Pie de página y marca corporativa sin métodos experimentales
+      // Función auxiliar para pie de página y paginación formal
       const aplicarFooter = (paginaActual, totalPaginas) => {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(140, 150, 160);
         doc.text(
-          `Endurance Financiero SaaS | Confidencial - Página ${paginaActual} de ${totalPaginas}`,
+          `Endurance Financiero SaaS | Informe Ejecutivo Confidencial - Página ${paginaActual} de ${totalPaginas}`,
           14,
           pageHeight - 8
         );
       };
 
-      // --- ENCABEZADO CORPORATIVO ---
+      // --- ENCABEZADO CORPORATIVO ENDURANCE FINANCIERO ---
       doc.setFillColor(8, 12, 16);
       doc.rect(0, 0, pageWidth, 32, 'F');
 
       doc.setTextColor(207, 157, 123);
       doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
-      doc.text('ENDURANCE FINANCIERO // REPORTE EJECUTIVO INTEGRAL', 14, 15);
+      doc.text('ENDURANCE FINANCIERO // INFORME ESTRATÉGICO INTEGRAL', 14, 15);
 
       doc.setTextColor(200, 205, 210);
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.text(
-        `Fecha: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Auditor Líder: Emmanuel Tapasco`,
+        `Fecha: ${new Date().toLocaleDateString('es-CO')} | Divisa: ${moneda} | Responsable: Emmanuel Tapasco`,
         14,
         24
       );
 
       let currentY = 42;
 
-      // ==========================================
-      // 1. MODO ASISTIDO (ESTRUCTURA DE PRODUCTOS Y COSTOS)
-      // ==========================================
-      const filasAsistido = Array.isArray(datosModoAsistido)
-        ? datosModoAsistido
-        : datosModoAsistido?.productos || [];
+      // =======================================================
+      // 1. MODO ASISTIDO (ESTRUCTURA DE PRODUCTOS, COSTOS Y MÁRGENES)
+      // =======================================================
+      const filasAsistido = datosModoAsistido?.filas || (Array.isArray(datosModoAsistido) ? datosModoAsistido : []);
+      const reporteAsistido = datosModoAsistido?.reporteGenerado || null;
 
-      if (filasAsistido.length > 0) {
+      // Filtrar filas que tengan nombre o datos numéricos reales
+      const filasValidas = filasAsistido.filter(f => f && (f.producto || f.precio > 0 || f.unidades > 0));
+
+      if (filasValidas.length > 0) {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
-        doc.text('1. ESTRUCTURA OPERATIVA & MODO ASISTIDO', 14, currentY);
+        doc.text('1. ANÁLISIS DE COSTOS Y CATÁLOGO (MODO ASISTIDO)', 14, currentY);
 
-        const tablaAsistidoData = filasAsistido.map((p, idx) => {
-          const unidades = Number(p.unidades || p.cantidad || 0);
-          const costo = Number(p.costo || p.costo_unitario || p.costoProveedor || 0);
-          const precio = Number(p.precio || p.precio_unitario || p.precioVenta || 0);
-          const subtotal = unidades * precio;
-          const margen = precio > 0 ? (((precio - costo) / precio) * 100).toFixed(1) + '%' : '0.0%';
+        let totalVentaAcum = 0;
+        let totalCostoAcum = 0;
+
+        const tablaAsistidoData = filasValidas.map((p, idx) => {
+          const unidades = Number(p.unidades || 0);
+          const costo = Number(p.costo || 0);
+          const precio = Number(p.precio || 0);
+          const subVenta = unidades * precio;
+          const subCosto = unidades * costo;
+
+          totalVentaAcum += subVenta;
+          totalCostoAcum += subCosto;
+
+          const margenPorc = precio > 0 ? (((precio - costo) / precio) * 100).toFixed(1) + '%' : '0.0%';
 
           return [
             `#0${idx + 1}`,
-            p.nombre || p.producto || `Item ${idx + 1}`,
+            String(p.producto || `Producto ${idx + 1}`),
             unidades.toLocaleString('es-CO'),
             formatearDinero(costo),
             formatearDinero(precio),
-            formatearDinero(subtotal),
-            margen
+            formatearDinero(subVenta),
+            margenPorc
           ];
         });
 
+        // Fila de consolidado general
+        const gananciaBrutaModo = totalVentaAcum - totalCostoAcum;
+        const margenGlobal = totalVentaAcum > 0 ? ((gananciaBrutaModo / totalVentaAcum) * 100).toFixed(1) + '%' : '0.0%';
+        tablaAsistidoData.push([
+          'TOTAL',
+          'Consolidado Operativo',
+          '-',
+          formatearDinero(totalCostoAcum),
+          formatearDinero(totalVentaAcum),
+          formatearDinero(gananciaBrutaModo),
+          margenGlobal
+        ]);
+
         autoTable(doc, {
           startY: currentY + 4,
-          head: [['#', 'Producto', 'Uds', 'Costo Unit.', 'Precio Venta', 'Subtotal', 'Margen']],
+          head: [['#', 'Producto', 'Uds', 'Costo Unit.', 'Precio Venta', 'Subtotal / Utilidad', 'Margen']],
           body: tablaAsistidoData,
           theme: 'grid',
           headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
           styles: { fontSize: 8, cellPadding: 3 },
+          didParseCell: function (data) {
+            if (data.row.index === tablaAsistidoData.length - 1) {
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.fillColor = [240, 244, 248];
+            }
+          }
         });
 
-        currentY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 12 : currentY + 40;
+        currentY = doc.lastAutoTable.finalY + 12;
       }
 
-      // ==========================================
-      // 2. AUDITORÍA FORENSE & DIAGNÓSTICO CSV
-      // ==========================================
+      // =======================================================
+      // 2. AUDITORÍA FORENSE CSV & PARTICIPACIÓN
+      // =======================================================
       if (datosAuditoria) {
         if (currentY > 210) {
           doc.addPage();
@@ -642,32 +671,32 @@ export default function Home() {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
-        doc.text('2. AUDITORÍA FORENSE CSV & PARTICIPACIÓN', 14, currentY);
+        doc.text('2. AUDITORÍA FORENSE DE DATOS HISTÓRICOS (DETECTIVE CSV)', 14, currentY);
 
         const metricasData = [
-          ['Registros Procesados', (datosAuditoria.total_registros || 0).toLocaleString('es-CO')],
-          ['Facturación Histórica', formatearDinero(datosAuditoria.ventas_historicas || 0)],
-          ['Unidades Totales Vendidas', (datosAuditoria.unidades_historicas || 0).toLocaleString('es-CO')],
+          ['Registros Procesados en CSV', (datosAuditoria.total_registros || 0).toLocaleString('es-CO')],
+          ['Facturación Histórica Acumulada', formatearDinero(datosAuditoria.ventas_historicas || 0)],
+          ['Volumen Total de Unidades', (datosAuditoria.unidades_historicas || 0).toLocaleString('es-CO')],
           ['Precio Promedio Ponderado', formatearDinero(datosAuditoria.precio_promedio || 0)],
-          ['Producto Estrella (Rey)', `${datosAuditoria.diagnostico?.rey?.nombre || 'N/A'} (${formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)})`],
-          ['Producto Crítico (Hueso)', `${datosAuditoria.diagnostico?.hueso?.nombre || 'N/A'} (${formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)})`]
+          ['Producto Rey (Mayor Facturación)', `${datosAuditoria.diagnostico?.rey?.nombre || 'N/A'} (${formatearDinero(datosAuditoria.diagnostico?.rey?.ventas || 0)})`],
+          ['Producto Hueso (Baja Rotación)', `${datosAuditoria.diagnostico?.hueso?.nombre || 'N/A'} (${formatearDinero(datosAuditoria.diagnostico?.hueso?.ventas || 0)})`]
         ];
 
         autoTable(doc, {
           startY: currentY + 4,
-          head: [['Métrica Operativa', 'Resultado Forense']],
+          head: [['Indicador Operativo', 'Resultado Forense']],
           body: metricasData,
           theme: 'grid',
           headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
           styles: { fontSize: 8, cellPadding: 3 },
         });
 
-        currentY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 10 : currentY + 50;
+        currentY = doc.lastAutoTable.finalY + 8;
 
-        // Gráfico nativo vectorial Top 5
+        // Distribución gráfica vectorial del Top 5
         const itemsRanking = (datosAuditoria.ranking_productos || []).slice(0, 5);
         if (itemsRanking.length > 0) {
-          if (currentY > 220) {
+          if (currentY > 215) {
             doc.addPage();
             currentY = 20;
           }
@@ -675,7 +704,7 @@ export default function Home() {
           doc.setFontSize(9.5);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(50, 60, 70);
-          doc.text('Distribución de Participación en Ventas (Top Catálogo)', 14, currentY);
+          doc.text('Participación de Ventas - Top 5 Productos', 14, currentY);
           currentY += 6;
 
           const maxVenta = Math.max(...itemsRanking.map(i => Number(i.ventas || 0)), 1);
@@ -686,7 +715,7 @@ export default function Home() {
             doc.setFontSize(7.5);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(30, 41, 59);
-            
+
             const nombreItem = String(item.nombre || '').substring(0, 22);
             doc.text(nombreItem, 14, currentY + 4);
 
@@ -704,9 +733,51 @@ export default function Home() {
         }
       }
 
-      // ==========================================
-      // 3. DIÁLOGO ESTRATÉGICO & BITÁCORA AI (MINI TARS)
-      // ==========================================
+      // =======================================================
+      // 3. SIMULACIÓN PROYECTADA (ESCENARIOS DE NEGOCIO)
+      // =======================================================
+      if (Array.isArray(productosSimulacion) && productosSimulacion.length > 0) {
+        if (currentY > 210) {
+          doc.addPage();
+          currentY = 20;
+        }
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(12, 18, 24);
+        doc.text('3. ESCENARIO DE SIMULACIÓN Y METAS PROYECTADAS', 14, currentY);
+
+        const tablaSimData = productosSimulacion.map((p, idx) => {
+          const precioFinal = Number(p.precioAjustado ?? p.precio ?? 0);
+          const costo = Number(p.costo ?? 0);
+          const margenUnit = precioFinal - costo;
+          const unidadesDia = Number(p.unidadesDia ?? p.ventas_dia ?? 1);
+
+          return [
+            `#0${idx + 1}`,
+            String(p.nombre || p.producto || 'Item'),
+            formatearDinero(precioFinal),
+            formatearDinero(costo),
+            formatearDinero(margenUnit),
+            `${unidadesDia} uds/día`
+          ];
+        });
+
+        autoTable(doc, {
+          startY: currentY + 4,
+          head: [['#', 'Producto Simulado', 'Precio Ajustado', 'Costo Unit.', 'Margen Unit.', 'Ritmo Ventas']],
+          body: tablaSimData,
+          theme: 'striped',
+          headStyles: { fillColor: [12, 18, 24], textColor: [207, 157, 123] },
+          styles: { fontSize: 8, cellPadding: 3 },
+        });
+
+        currentY = doc.lastAutoTable.finalY + 10;
+      }
+
+      // =======================================================
+      // 4. DIÁLOGO ESTRATÉGICO & BITÁCORA AI (MINI TARS)
+      // =======================================================
       if (historialMensajes && historialMensajes.length > 0) {
         if (currentY > 210) {
           doc.addPage();
@@ -716,7 +787,7 @@ export default function Home() {
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(12, 18, 24);
-        doc.text('3. DIÁLOGO ESTRATÉGICO & BITÁCORA COPILOTO (MINI TARS)', 14, currentY);
+        doc.text('4. DIÁLOGO ESTRATÉGICO & BITÁCORA COPILOTO (MINI TARS)', 14, currentY);
         currentY += 7;
 
         historialMensajes.forEach((msg) => {
@@ -754,7 +825,7 @@ export default function Home() {
         });
       }
 
-      // Estampar pie de página con paginación
+      // Paginación y footer formal en todas las páginas generadas
       const totalPaginas = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPaginas; i++) {
         doc.setPage(i);
