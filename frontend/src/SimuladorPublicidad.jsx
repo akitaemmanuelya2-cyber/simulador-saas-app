@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, AlertTriangle, Flame, Target, Sparkles } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
+import TooltipHelp from './components/TooltipHelp';
 
 export default function SimuladorPublicidad({
   onVolverHome,
@@ -341,25 +342,42 @@ export default function SimuladorPublicidad({
         </div>
       </div>
 
-      {/* LÍMITE FINANCIERO */}
-      <div className="bg-[#0E171F] border border-[#1B2935] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-lg bg-[#CF9D7B]/10 border border-[#CF9D7B]/30 text-[#CF9D7B]">
-            <Target className="w-5 h-5"/>
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-white">Límite para no perder dinero</h4>
-            <p className="text-xs text-gray-400">
-              Lo máximo que puedes pagar por un cliente es{' '}
-              <strong className="text-white">{formatoMoneda(calculos.cpaMaximoPermitido)}</strong>. Si un anuncio te cuesta más, estás pagando por vender.
-            </p>
-          </div>
+      {/* LÍMITE FINANCIERO // CPA & ROAS CON TOOLTIPS */}
+    <div className="bg-[#0E171F] border border-[#1B2935] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 rounded-lg bg-[#CF9D7B]/10 border border-[#CF9D7B]/30 text-[#CF9D7B]">
+          <Target className="w-5 h-5" />
         </div>
-        <div className="text-right">
-          <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Retorno mínimo exigido (ROAS)</span>
-          <span className="text-lg font-bold font-mono text-[#CF9D7B]">{calculos.roasEquilibrio.toFixed(2)}x</span>
+        <div>
+          <div className="flex items-center">
+            <h4 className="text-sm font-semibold text-white">Límite para no perder dinero</h4>
+            <TooltipHelp 
+              titulo="CPA Máximo Permitido" 
+              texto="Es lo máximo que puedes pagar por una venta en publicidad. Si tu anuncio cuesta más que esto, estás pagando por vender y perdiendo plata." 
+            />
+          </div>
+          <p className="text-xs text-gray-400">
+            Lo máximo que puedes pagar por un cliente es{' '}
+            <strong className="text-white">{formatoMoneda(calculos.cpaMaximoPermitido)}</strong>. Si un anuncio te cuesta más, estás pagando por vender.
+          </p>
         </div>
       </div>
+
+      <div className="text-right">
+        <div className="flex items-center justify-end">
+          <span className="text-[10px] text-gray-400 uppercase tracking-wider block">
+            Retorno mínimo exigido (ROAS)
+          </span>
+          <TooltipHelp 
+            titulo="Punto de Equilibrio (ROAS)" 
+            texto="Las veces que debes recuperar lo invertido en pauta para quedar en tablas. Por ejemplo, 2.0x significa que por cada $1 en anuncios debes facturar $2." 
+          />
+        </div>
+        <span className="text-lg font-bold font-mono text-[#CF9D7B]">
+          {calculos.roasEquilibrio.toFixed(2)}x
+        </span>
+      </div>
+    </div>
 
       {/* LOS 3 ESCENARIOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -484,3 +502,4 @@ export default function SimuladorPublicidad({
     </div>
   );
 }
+
