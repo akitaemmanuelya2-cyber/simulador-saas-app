@@ -691,7 +691,6 @@ export default function Home() {
 
         currentY = doc.lastAutoTable.finalY + 6;
 
-        // Distribución gráfica vectorial de ventas
         if (currentY > 230) {
           doc.addPage();
           currentY = 20;
@@ -728,10 +727,10 @@ export default function Home() {
       }
 
       // =======================================================
-      // 2. SIMULADOR ESTRATÉGICO PRO (VARIABLES NATIVAS)
+      // 2. SIMULADOR ESTRATÉGICO PRO (VARIABLES NATIVAS & GRÁFICAS)
       // =======================================================
       if (Array.isArray(productosSimulacion) && productosSimulacion.length > 0) {
-        if (currentY > 210) {
+        if (currentY > 190) {
           doc.addPage();
           currentY = 20;
         }
@@ -760,24 +759,37 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 6;
 
         // Desglose de ajustes de precio en el simulador
-        const tablaSimData = productosSimulacion.map((p, idx) => {
+        const aportesSimulados = productosSimulacion.map((p, idx) => {
           const precioFinal = Number(p.nuevo_precio ?? p.precio ?? p.precio_base ?? 0);
           const precioBase = Number(p.precio_base ?? p.precio ?? precioFinal);
           const costo = Number(p.costo_unitario ?? p.costo ?? 0);
           const margenUnit = precioFinal - costo;
           const udsDia = Number(p.ventas_dia ?? p.unidadesDia ?? 1);
+          const aporteDiario = margenUnit * udsDia;
           const pctAjuste = precioBase > 0 ? (((precioFinal - precioBase) / precioBase) * 100).toFixed(0) : '0';
 
-          return [
-            `#0${idx + 1}`,
-            String(p.producto || p.nombre || 'Item'),
-            formatearDinero(precioBase),
-            `${formatearDinero(precioFinal)} (${pctAjuste >= 0 ? '+' : ''}${pctAjuste}%)`,
-            formatearDinero(costo),
-            formatearDinero(margenUnit),
-            `${udsDia} uds/día`
-          ];
+          return {
+            idx: idx + 1,
+            nombre: String(p.producto || p.nombre || 'Item'),
+            precioBase,
+            precioFinal,
+            costo,
+            margenUnit,
+            udsDia,
+            pctAjuste,
+            aporteDiario
+          };
         });
+
+        const tablaSimData = aportesSimulados.map(p => [
+          `#0${p.idx}`,
+          p.nombre,
+          formatearDinero(p.precioBase),
+          `${formatearDinero(p.precioFinal)} (${p.pctAjuste >= 0 ? '+' : ''}${p.pctAjuste}%)`,
+          formatearDinero(p.costo),
+          formatearDinero(p.margenUnit),
+          `${p.udsDia} uds/día`
+        ]);
 
         autoTable(doc, {
           startY: currentY,
@@ -789,12 +801,142 @@ export default function Home() {
         });
 
         currentY = doc.lastAutoTable.finalY + 8;
+
+        // --- GRÁFICAS VISUALES DEL SIMULADOR ---
+        if (currentY > 195) {
+          doc.addPage();
+          currentY = 20;
+        }
+
+        // Gráfico 1: Comparativa Base vs. Simulado (Mes a Mes)
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(50, 60, 70);
+        doc.text('Comparativa Visual de Ganancia Proyectada (Base vs. Simulado)', 14, currentY);
+        currentY += 5;
+
+        const maxValSim = Math.max(gananciaTotalPeriodo || 1, gananciaBasePeriodo || 1);
+        const wBase = Math.max(6, ((gananciaBasePeriodo || 0) / maxValSim) * 110);
+        const wSim = Math.max(6, ((gananciaTotalPeriodo || 0) / maxValSim) * 110);
+
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(40, 50, 60);
+        doc.text('Escenario Base (Actual):', 14, currentY + 4);
+        doc.setFillColor(71, 85, 105);
+        doc.rect(58, currentY, wBase, 5, 'F');
+        doc.text(formatearDinero(gananciaBasePeriodo || 0), 60 + wBase, currentY + 4);
+
+        currentY += 7.5;
+
+        doc.text('Escenario Simulado (+Delta):', 14, currentY + 4);
+        doc.setFillColor(207, 157, 123);
+        doc.rect(58, currentY, wSim, 5, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.text(formatearDinero(gananciaTotalPeriodo || 0), 60 + wSim, currentY + 4);
+
+        currentY += 9;
+
+        // Gráfico 2: Concentración del Margen Diario por Producto
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(50, 60, 70);
+        doc.text('Concentración del Margen Diario por Producto', 14, currentY);
+        currentY += 5;
+
+        const maxAporte = Math.max(...aportesSimulados.map(a => a.aporteDiario), 1);
+        aportesSimulados.forEach(item => {
+          const bW = Math.max(5, (item.aporteDiario / maxAporte) * 105);
+          doc.setFontSize(7.5);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(40, 50, 60);
+          doc.text(item.nombre.substring(0, 22), 14, currentY + 4);
+
+          doc.setFillColor(16, 185, 129); // emerald
+          doc.rect(58, currentY, bW, 4.5, 'F');
+
+          doc.setTextColor(80, 90, 100);
+          doc.text(`${formatearDinero(item.aporteDiario)}/día`, 60 + bW, currentY + 3.8);
+
+          currentY += 6.5;
+        });
+
+        currentY += 6;
+
+        // =======================================================
+        // DIAGNÓSTICO EJECUTIVO // HOJA DE RUTA COMERCIAL
+        // =======================================================
+        if (currentY > 190) {
+          doc.addPage();
+          currentY = 20;
+        }
+
+        const aportesOrdenados = [...aportesSimulados].sort((a, b) => b.aporteDiario - a.aporteDiario);
+        const productoMotor = aportesOrdenados[0] || { nombre: 'N/A', aporteDiario: 0 };
+        const udsMetaDia = diasTotalesPeriodo > 0 ? Math.ceil((unidadesParaMeta || 0) / diasTotalesPeriodo) : 0;
+        const flujoDiarioTotal = aportesSimulados.reduce((acc, cur) => acc + cur.aporteDiario, 0);
+
+        doc.setFillColor(245, 247, 250);
+        doc.rect(14, currentY, 182, 48, 'F');
+        doc.setDrawColor(207, 157, 123);
+        doc.setLineWidth(0.5);
+        doc.rect(14, currentY, 182, 48, 'D');
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(180, 83, 9); // amber
+        doc.text(`DIAGNÓSTICO EJECUTIVO // HOJA DE RUTA (Meta: ${formatearDinero(metaIngreso || 0)})`, 18, currentY + 7);
+
+        doc.setFontSize(7.8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(51, 65, 85);
+        doc.text(
+          `Con los ${productosSimulacion.length} productos en análisis, tu portafolio genera un flujo de ${formatearDinero(flujoDiarioTotal)} diarios respaldado por ${rotacionTotalDia || 0} uds/día.`,
+          18,
+          currentY + 12
+        );
+
+        // Cuadrante 1 y 2
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('1. Tiempo de Alcance:', 18, currentY + 19);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Requiere ${(unidadesParaMeta || 0).toLocaleString('es-CO')} uds totales. Meta lograda en: ${diasParaMeta || 0} días.`, 18, currentY + 23);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('2. Aceleración Comercial Requerida:', 105, currentY + 19);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Para lograrlo en el plazo (${diasTotalesPeriodo || 60} días), elevar rotación de ${rotacionTotalDia || 0} a ${udsMetaDia} uds/día.`, 105, currentY + 23);
+
+        // Cuadrante 3 y 4
+        doc.setFont('helvetica', 'bold');
+        doc.text('3. Producto Motor del Margen:', 18, currentY + 31);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${productoMotor.nombre} lidera el aporte financiero generando ${formatearDinero(productoMotor.aporteDiario)}/día al margen.`, 18, currentY + 35);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('4. Recomendación Táctica:', 105, currentY + 31);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Ajusta ligeramente precios de alto volumen o implementa combos para subir el ticket promedio.', 105, currentY + 35);
+
+        // Barra de progreso de Meta
+        const pctProgreso = metaIngreso > 0 ? Math.min(100, Math.round(((gananciaTotalPeriodo || 0) / metaIngreso) * 100)) : 0;
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Progreso hacia el Objetivo (${mesesValidos || 1} meses): ${pctProgreso}% (${formatearDinero(gananciaTotalPeriodo || 0)} / ${formatearDinero(metaIngreso || 0)})`, 18, currentY + 41);
+
+        doc.setFillColor(226, 232, 240);
+        doc.rect(18, currentY + 43, 174, 3, 'F');
+        doc.setFillColor(207, 157, 123);
+        doc.rect(18, currentY + 43, (pctProgreso / 100) * 174, 3, 'F');
+
+        currentY += 54;
       }
 
       // =======================================================
       // 3. ANÁLISIS DE PAUTA ADS (EXTRACCIÓN AUTOMÁTICA)
       // =======================================================
-      // Extrae la última simulación de pauta consultada con Mini TARS
       let pautaActiva = null;
       if (Array.isArray(historialMensajes)) {
         for (let i = historialMensajes.length - 1; i >= 0; i--) {
@@ -934,7 +1076,6 @@ export default function Home() {
         });
       }
 
-      // Numeración y pie de página formal
       const totalPaginas = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPaginas; i++) {
         doc.setPage(i);
