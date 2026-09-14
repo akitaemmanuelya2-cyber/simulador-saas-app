@@ -221,19 +221,7 @@ const procesarEnLugar = () => {
             <span>Añadir Fila</span>
           </button>
         </div>
-
-        {/* Botón Simular con estos datos */}
-        {onTransferirAlSimulador && (
-          <button
-            type="button"
-            onClick={onTransferirAlSimulador}
-            className="ml-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#CF9D7B] hover:bg-[#b88563] text-[#05080A] rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
-          >
-            <span>Simular con estos datos</span>
-            <span>→</span>
-          </button>
-        )}
-      </div>
+    </div>
 
       {/* Grid de edición manual */}
       <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
@@ -357,7 +345,7 @@ const procesarEnLugar = () => {
             <button
               type="button"
               onClick={onTransferirAlSimulador}
-              className="inline-flex items-center gap-2 px-5 py-3.5 bg-[#0D151B] hover:bg-[#14202B] text-[#CF9D7B] hover:text-white border border-[#CF9D7B]/40 hover:border-[#CF9D7B] rounded-2xl text-xs font-mono uppercase tracking-wider font-semibold transition-all duration-200 shadow-sm active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-[#0D151B] hover:bg-[#14202B] text-[#CF9D7B] hover:text-white border border-[#CF9D7B]/40 hover:border-[#CF9D7B] rounded-2xl text-xs font-mono uppercase tracking-wider font-semibold transition-all duration-200 shadow-sm active:scale-95 cursor-pointer"
             >
               <span>Simular con estos datos</span>
               <span className="text-sm font-sans">→</span>
@@ -365,13 +353,13 @@ const procesarEnLugar = () => {
           )}
 
           <button
-  type="button"
-  onClick={handleGenerarDiagnostico}
-  className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#CF9D7B] hover:bg-[#B88563] text-[#05080A] rounded-2xl text-xs font-mono uppercase tracking-wider font-bold transition-all duration-200 shadow-[0_0_20px_rgba(207,157,123,0.3)] hover:shadow-[0_0_30px_rgba(207,157,123,0.5)] active:scale-95 cursor-pointer"
->
-  <Sparkles className="w-4 h-4" />
-  <span>Auditar y Generar Diagnóstico</span>
-</button>
+            type="button"
+            onClick={procesarEnLugar}
+            className="inline-flex items-center gap-2.5 px-6 py-3 bg-[#CF9D7B] hover:bg-[#B88563] text-[#05080A] rounded-2xl text-xs font-mono uppercase tracking-wider font-bold transition-all duration-200 shadow-[0_0_20px_rgba(207,157,123,0.3)] hover:shadow-[0_0_30px_rgba(207,157,123,0.5)] active:scale-95 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Auditar y Generar Diagnóstico</span>
+          </button>
         </div>
       </div>
 
