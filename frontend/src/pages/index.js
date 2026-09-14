@@ -199,11 +199,23 @@ export default function Home() {
       color: PALETA_COLORES[idx % PALETA_COLORES.length]
     }));
   }, [datosAuditoria]);
-  // Catálogo unificado: CSV o Modo Asistido
+  // Catálogo unificado y COMPLETO: sin cortes de Top
   const catalogoDisponible = React.useMemo(() => {
-    if (datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0) {
-      return datosAuditoria.catalogo_simulacion;
+    // 1. Si hay matriz BCG o catálogo de auditoría completo
+    if (datosAuditoria) {
+      // Prioridad a la matriz completa o al catálogo existente
+      const listaAuditoria = datosAuditoria.matriz_bcg || datosAuditoria.catalogo_simulacion || [];
+      if (listaAuditoria.length > 0) {
+        return listaAuditoria.map(item => ({
+          producto: item.producto || item.nombre || item.Product || '',
+          precio_actual: Number(item.precio_promedio || item.precio_actual || item.precio || 0),
+          costo_unitario: Number(item.costo_unitario || item.costo || 0),
+          ventas_dia: Math.max(1, Math.round(Number(item.ventas_dia || (item.unidades ? item.unidades / 30 : 1))))
+        })).filter(p => p.producto && p.precio_actual > 0);
+      }
     }
+
+    // 2. Si viene del Modo Asistido: TODAS las filas ingresadas
     if (datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
       return datosModoAsistido.filas
         .filter(f => f.producto && f.producto.trim() !== '' && Number(f.precio) > 0)
@@ -214,6 +226,7 @@ export default function Home() {
           ventas_dia: Math.max(1, Math.round((Number(f.unidades) || 30) / 30))
         }));
     }
+
     return [];
   }, [datosAuditoria, datosModoAsistido]);
 
@@ -473,7 +486,7 @@ export default function Home() {
   };
 
   const transferirAlSimulador = () => {
-    // 1. Obtener lista desde catalogoDisponible o directamente desde datosModoAsistido
+    // 1. Obtener lista desde catalogoDisponible o datosModoAsistido
     let lista = (catalogoDisponible && catalogoDisponible.length > 0) ? [...catalogoDisponible] : [];
 
     if (lista.length === 0 && datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
@@ -487,16 +500,15 @@ export default function Home() {
         }));
     }
 
-    // 2. Si definitivamente no hay productos válidos, avisar al usuario
     if (!lista || lista.length === 0) {
-      alert("Por favor ingresa al menos un producto con nombre y precio antes de simular.");
+      alert("Por favor ingresa o carga al menos un producto válido antes de simular.");
       return;
     }
 
     const primerProd = lista[0];
 
-    // Carga los productos disponibles en la simulación (hasta los primeros 3)
-    const seleccion = lista.slice(0, 3).map(prod => ({
+    // Carga los productos iniciales a simular
+    const seleccion = lista.slice(0, 5).map(prod => ({
       producto: prod.producto,
       precio_base: prod.precio_actual,
       costo_unitario: prod.costo_unitario,
@@ -505,17 +517,22 @@ export default function Home() {
       nuevo_precio: Math.round(prod.precio_actual * 1.10)
     }));
 
-    setProductosSimulacion(seleccion);
+    if (typeof setProductosSimulacion === 'function') {
+      setProductosSimulacion(seleccion);
+    }
 
-    // Mantener compatibilidad con inputs base de forma segura
+    // Setters con comprobación de existencia para evitar errores si difiere el camelCase
     if (typeof setPrecioOriginal === 'function') setPrecioOriginal(primerProd.precio_actual);
     if (typeof setNuevoPrecio === 'function') setNuevoPrecio(Math.round(primerProd.precio_actual * 1.10));
     if (typeof setCostoUnitario === 'function') setCostoUnitario(primerProd.costo_unitario);
     if (typeof setCostounitario === 'function') setCostounitario(primerProd.costo_unitario);
     if (typeof setVentasPorDia === 'function') setVentasPorDia(Math.max(1, Math.round(primerProd.ventas_dia || 1)));
-
     if (typeof setMesesProyeccion === 'function') setMesesProyeccion(2);
-    if (typeof setActiveTab === 'function') setActiveTab('simulador');
+
+    // Cambio garantizado de pestaña
+    if (typeof setActiveTab === 'function') {
+      setActiveTab('simulador');
+    }
   };
 
   // Enviar consulta interactiva a Mini-TARS vía API Route interna
