@@ -1390,7 +1390,7 @@ export default function Home() {
   onVolverHome={() => setActiveTab('lobby')}
   moneda={moneda}
   onActualizarDatosAsistido={setDatosModoAsistido}
-  onTransferirAlSimulador={transferirAsistidoAlSimulador}
+  onTransferirAlSimulador={transferirAlSimulador}
 />
         </div>
         {/* VISTA DEL SIMULADOR DE PUBLICIDAD Y PAUTA ADS */}
