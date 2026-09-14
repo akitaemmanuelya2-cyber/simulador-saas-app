@@ -365,13 +365,13 @@ const procesarEnLugar = () => {
           )}
 
           <button
-            type="button"
-            onClick={handleAuditar}
-            className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#CF9D7B] hover:bg-[#B88563] text-[#05080A] rounded-2xl text-xs font-mono uppercase tracking-wider font-bold transition-all duration-200 shadow-[0_0_20px_rgba(207,157,123,0.3)] hover:shadow-[0_0_30px_rgba(207,157,123,0.5)] active:scale-95 cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Auditar y Generar Diagnóstico</span>
-          </button>
+  type="button"
+  onClick={handleGenerarDiagnostico}
+  className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#CF9D7B] hover:bg-[#B88563] text-[#05080A] rounded-2xl text-xs font-mono uppercase tracking-wider font-bold transition-all duration-200 shadow-[0_0_20px_rgba(207,157,123,0.3)] hover:shadow-[0_0_30px_rgba(207,157,123,0.5)] active:scale-95 cursor-pointer"
+>
+  <Sparkles className="w-4 h-4" />
+  <span>Auditar y Generar Diagnóstico</span>
+</button>
         </div>
       </div>
 
