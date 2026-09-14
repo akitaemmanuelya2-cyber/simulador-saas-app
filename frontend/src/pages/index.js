@@ -507,14 +507,15 @@ export default function Home() {
 
     setProductosSimulacion(seleccion);
 
-    // Mantener compatibilidad con inputs base
-    setPrecioOriginal(primerProd.precio_actual);
-    setNuevoPrecio(Math.round(primerProd.precio_actual * 1.10));
-    setCostounitario(primerProd.costo_unitario);
-    setVentasPorDia(Math.max(1, Math.round(primerProd.ventas_dia || 1)));
+    // Mantener compatibilidad con inputs base de forma segura
+    if (typeof setPrecioOriginal === 'function') setPrecioOriginal(primerProd.precio_actual);
+    if (typeof setNuevoPrecio === 'function') setNuevoPrecio(Math.round(primerProd.precio_actual * 1.10));
+    if (typeof setCostoUnitario === 'function') setCostoUnitario(primerProd.costo_unitario);
+    if (typeof setCostounitario === 'function') setCostounitario(primerProd.costo_unitario);
+    if (typeof setVentasPorDia === 'function') setVentasPorDia(Math.max(1, Math.round(primerProd.ventas_dia || 1)));
 
-    setMesesProyeccion(2);
-    setActiveTab('simulador');
+    if (typeof setMesesProyeccion === 'function') setMesesProyeccion(2);
+    if (typeof setActiveTab === 'function') setActiveTab('simulador');
   };
 
   // Enviar consulta interactiva a Mini-TARS vía API Route interna
