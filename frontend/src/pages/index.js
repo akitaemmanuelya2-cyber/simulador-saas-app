@@ -473,12 +473,30 @@ export default function Home() {
   };
 
   const transferirAlSimulador = () => {
-    if (!catalogoDisponible || catalogoDisponible.length === 0) return;
+    // 1. Obtener lista desde catalogoDisponible o directamente desde datosModoAsistido
+    let lista = (catalogoDisponible && catalogoDisponible.length > 0) ? [...catalogoDisponible] : [];
 
-    const primerProd = catalogoDisponible[0];
+    if (lista.length === 0 && datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
+      lista = datosModoAsistido.filas
+        .filter(f => f.producto && f.producto.trim() !== '')
+        .map(f => ({
+          producto: f.producto.trim(),
+          precio_actual: Number(f.precio) || 0,
+          costo_unitario: Number(f.costo) || 0,
+          ventas_dia: Math.max(1, Math.round((Number(f.unidades) || 30) / 30))
+        }));
+    }
+
+    // 2. Si definitivamente no hay productos válidos, avisar al usuario
+    if (!lista || lista.length === 0) {
+      alert("Por favor ingresa al menos un producto con nombre y precio antes de simular.");
+      return;
+    }
+
+    const primerProd = lista[0];
 
     // Carga los productos disponibles en la simulación (hasta los primeros 3)
-    const seleccion = catalogoDisponible.slice(0, 3).map(prod => ({
+    const seleccion = lista.slice(0, 3).map(prod => ({
       producto: prod.producto,
       precio_base: prod.precio_actual,
       costo_unitario: prod.costo_unitario,
@@ -1496,43 +1514,46 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 2. SELECTOR DE PRODUCTOS UNIFICADO (CSV + MODO ASISTIDO) */}
+                  {/* 2. SELECTOR DE PRODUCTOS UNIFICADO */}
             {catalogoDisponible && catalogoDisponible.length > 0 && (
               <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between gap-3">
                 <span className="text-[11px] font-mono text-[#CF9D7B] uppercase font-semibold">
                   [+] Agregar Producto:
                 </span>
                 <select
+                  value=""
                   onChange={(e) => {
                     const val = e.target.value;
                     if (!val) return;
-                    const yaExiste = productosSimulacion.some(p => p.producto === val);
-                    if (!yaExiste) {
-                      const prod = catalogoDisponible.find(p => p.producto === val);
-                      if (prod) {
-                        setProductosSimulacion(prev => [
-                          ...prev,
-                          {
-                            producto: prod.producto,
-                            precio_base: prod.precio_actual,
-                            costo_unitario: prod.costo_unitario,
-                            ventas_dia: Math.max(1, Math.round(prod.ventas_dia || 1)),
-                            porcentaje: 10,
-                            nuevo_precio: Math.round(prod.precio_actual * 1.10)
-                          }
-                        ]);
-                      }
+                    const prod = catalogoDisponible.find(p => p.producto === val);
+                    if (prod) {
+                      setProductosSimulacion(prev => [
+                        ...prev,
+                        {
+                          producto: prod.producto,
+                          precio_base: prod.precio_actual,
+                          costo_unitario: prod.costo_unitario,
+                          ventas_dia: Math.max(1, Math.round(prod.ventas_dia || 1)),
+                          porcentaje: 10,
+                          nuevo_precio: Math.round(prod.precio_actual * 1.10)
+                        }
+                      ]);
                     }
-                    e.target.value = "";
                   }}
                   className="bg-[#081015] border border-[#1E2D3D] text-white rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#CF9D7B]"
                 >
-                  <option value="">-- Seleccionar catálogo ({datosAuditoria ? 'CSV' : 'Modo Asistido'}) --</option>
-                  {catalogoDisponible.map((item, idx) => (
-                    <option key={idx} value={item.producto}>
-                      {item.producto} (${(item.precio_actual || 0).toLocaleString('es-CO')})
-                    </option>
-                  ))}
+                  <option value="" disabled>
+                    {catalogoDisponible.filter(item => !productosSimulacion.some(p => p.producto === item.producto)).length > 0
+                      ? `-- Seleccionar producto para agregar --`
+                      : `-- Todos los productos ya están en la simulación --`}
+                  </option>
+                  {catalogoDisponible
+                    .filter(item => !productosSimulacion.some(p => p.producto === item.producto))
+                    .map((item, idx) => (
+                      <option key={idx} value={item.producto}>
+                        {item.producto} (${(item.precio_actual || 0).toLocaleString('es-CO')})
+                      </option>
+                    ))}
                 </select>
               </div>
             )}
