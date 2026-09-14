@@ -199,6 +199,23 @@ export default function Home() {
       color: PALETA_COLORES[idx % PALETA_COLORES.length]
     }));
   }, [datosAuditoria]);
+  // Catálogo unificado: CSV o Modo Asistido
+  const catalogoDisponible = React.useMemo(() => {
+    if (datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0) {
+      return datosAuditoria.catalogo_simulacion;
+    }
+    if (datosModoAsistido?.filas && Array.isArray(datosModoAsistido.filas)) {
+      return datosModoAsistido.filas
+        .filter(f => f.producto && f.producto.trim() !== '' && Number(f.precio) > 0)
+        .map(f => ({
+          producto: f.producto.trim(),
+          precio_actual: Number(f.precio) || 0,
+          costo_unitario: Number(f.costo) || 0,
+          ventas_dia: Math.max(1, Math.round((Number(f.unidades) || 30) / 30))
+        }));
+    }
+    return [];
+  }, [datosAuditoria, datosModoAsistido]);
 
   // 2. Colecciones dinámicas para Análisis Profundo (Top 10)
   const top10ProductosUnidades = React.useMemo(() => {
@@ -456,29 +473,27 @@ export default function Home() {
   };
 
   const transferirAlSimulador = () => {
-    if (!datosAuditoria) return;
+    if (!catalogoDisponible || catalogoDisponible.length === 0) return;
 
-    if (datosAuditoria.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0) {
-      const primerProd = datosAuditoria.catalogo_simulacion[0];
-      
-      // Inicializar con el primer producto auditado y +10% de margen sugerido
-      setProductosSimulacion([
-        {
-          producto: primerProd.producto,
-          precio_base: primerProd.precio_actual,
-          costo_unitario: primerProd.costo_unitario,
-          ventas_dia: primerProd.ventas_dia,
-          porcentaje: 10,
-          nuevo_precio: Math.round(primerProd.precio_actual * 1.10)
-        }
-      ]);
-      
-      // Mantener compatibilidad con inputs base
-      setPrecioOriginal(primerProd.precio_actual);
-      setNuevoPrecio(Math.round(primerProd.precio_actual * 1.10));
-      setCostoUnitario(primerProd.costo_unitario);
-      setVentasPorDia(primerProd.ventas_dia);
-    }
+    const primerProd = catalogoDisponible[0];
+
+    // Carga los productos disponibles en la simulación (hasta los primeros 3)
+    const seleccion = catalogoDisponible.slice(0, 3).map(prod => ({
+      producto: prod.producto,
+      precio_base: prod.precio_actual,
+      costo_unitario: prod.costo_unitario,
+      ventas_dia: Math.max(1, Math.round(prod.ventas_dia || 1)),
+      porcentaje: 10,
+      nuevo_precio: Math.round(prod.precio_actual * 1.10)
+    }));
+
+    setProductosSimulacion(seleccion);
+
+    // Mantener compatibilidad con inputs base
+    setPrecioOriginal(primerProd.precio_actual);
+    setNuevoPrecio(Math.round(primerProd.precio_actual * 1.10));
+    setCostounitario(primerProd.costo_unitario);
+    setVentasPorDia(Math.max(1, Math.round(primerProd.ventas_dia || 1)));
 
     setMesesProyeccion(2);
     setActiveTab('simulador');
@@ -1375,6 +1390,7 @@ export default function Home() {
   onVolverHome={() => setActiveTab('lobby')}
   moneda={moneda}
   onActualizarDatosAsistido={setDatosModoAsistido}
+  onTransferirAlSimulador={transferirAsistidoAlSimulador}
 />
         </div>
         {/* VISTA DEL SIMULADOR DE PUBLICIDAD Y PAUTA ADS */}
@@ -1480,46 +1496,46 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 2. SELECTOR DE PRODUCTOS */}
-                  {datosAuditoria?.catalogo_simulacion && datosAuditoria.catalogo_simulacion.length > 0 && (
-                    <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between gap-3">
-                      <span className="text-[11px] font-mono text-[#CF9D7B] uppercase font-semibold">
-                        ➕ Agregar Producto:
-                      </span>
-                      <select
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (!val) return;
-                          const yaExiste = productosSimulacion.some(p => p.producto === val);
-                          if (!yaExiste) {
-                            const prod = datosAuditoria.catalogo_simulacion.find(p => p.producto === val);
-                            if (prod) {
-                              setProductosSimulacion(prev => [
-                                ...prev,
-                                {
-                                  producto: prod.producto,
-                                  precio_base: prod.precio_actual,
-                                  costo_unitario: prod.costo_unitario,
-                                  ventas_dia: Math.max(1, Math.round(prod.ventas_dia || 1)),
-                                  porcentaje: 10,
-                                  nuevo_precio: Math.round(prod.precio_actual * 1.10)
-                                }
-                              ]);
-                            }
+                  {/* 2. SELECTOR DE PRODUCTOS UNIFICADO (CSV + MODO ASISTIDO) */}
+            {catalogoDisponible && catalogoDisponible.length > 0 && (
+              <div className="bg-[#0D151B] p-3 rounded-xl border border-[#1E2D3D] flex items-center justify-between gap-3">
+                <span className="text-[11px] font-mono text-[#CF9D7B] uppercase font-semibold">
+                  [+] Agregar Producto:
+                </span>
+                <select
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (!val) return;
+                    const yaExiste = productosSimulacion.some(p => p.producto === val);
+                    if (!yaExiste) {
+                      const prod = catalogoDisponible.find(p => p.producto === val);
+                      if (prod) {
+                        setProductosSimulacion(prev => [
+                          ...prev,
+                          {
+                            producto: prod.producto,
+                            precio_base: prod.precio_actual,
+                            costo_unitario: prod.costo_unitario,
+                            ventas_dia: Math.max(1, Math.round(prod.ventas_dia || 1)),
+                            porcentaje: 10,
+                            nuevo_precio: Math.round(prod.precio_actual * 1.10)
                           }
-                          e.target.value = "";
-                        }}
-                        className="bg-[#081015] border border-[#1E2D3D] text-white rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#CF9D7B]"
-                      >
-                        <option value="">Seleccionar del catálogo...</option>
-                        {datosAuditoria.catalogo_simulacion.map((item) => (
-                          <option key={item.producto} value={item.producto}>
-                            {item.producto} — {formatearDinero(item.precio_actual)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                        ]);
+                      }
+                    }
+                    e.target.value = "";
+                  }}
+                  className="bg-[#081015] border border-[#1E2D3D] text-white rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#CF9D7B]"
+                >
+                  <option value="">-- Seleccionar catálogo ({datosAuditoria ? 'CSV' : 'Modo Asistido'}) --</option>
+                  {catalogoDisponible.map((item, idx) => (
+                    <option key={idx} value={item.producto}>
+                      {item.producto} (${(item.precio_actual || 0).toLocaleString('es-CO')})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
                   {/* 3. LISTA DE PRODUCTOS CON SLIDERS E INPUTS */}
                   <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">

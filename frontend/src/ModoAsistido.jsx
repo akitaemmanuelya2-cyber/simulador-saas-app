@@ -29,7 +29,7 @@ import {
   Legend
 } from 'recharts';
 
-export default function ModoAsistido({ onVolverHome, moneda = 'COP', onActualizarDatosAsistido }) {
+export default function ModoAsistido({ onVolverHome, moneda = 'COP', onActualizarDatosAsistido, onTransferirAlSimulador }) {
   const formatoMoneda = (val) => {
     const num = Number(val || 0);
     if (moneda === 'COP') {
@@ -211,14 +211,27 @@ const procesarEnLugar = () => {
       </div>
 
       {/* Botón Añadir Fila */}
-      <button
-        onClick={handleAgregarFila}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0D151B] hover:bg-[#14202B] border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-mono font-medium rounded-xl transition-all duration-150 shadow-sm"
-      >
-        <Plus className="w-3.5 h-3.5 text-cyan-400" />
-        <span>Añadir Fila</span>
-      </button>
-    </div>
+        <button
+          type="button"
+          onClick={handleAgregarFila}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0D151B] hover:bg-[#14202B] border border-cyan-500/30 text-cyan-300 hover:border-cyan-400 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Añadir Fila</span>
+        </button>
+
+        {/* Botón Simular con estos datos */}
+        {onTransferirAlSimulador && (
+          <button
+            type="button"
+            onClick={onTransferirAlSimulador}
+            className="ml-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#CF9D7B] hover:bg-[#b88563] text-[#05080A] rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+          >
+            <span>Simular con estos datos</span>
+            <span>→</span>
+          </button>
+        )}
+      </div>
 
       {/* Grid de edición manual */}
       <div className="bg-[#081015]/90 backdrop-blur-xl border border-[#16222C] p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
